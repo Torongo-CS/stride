@@ -105,6 +105,53 @@ export const listSectionsByTeacher = query({
   },
 });
 
+export const listWithDetails = query({
+  args: {},
+  handler: async (ctx) => {
+    const sections = await ctx.db.query('sections').collect();
+    return Promise.all(
+      sections.map(async (section) => {
+        const teacherRow = await ctx.db
+          .query('sectionTeachers')
+          .withIndex('by_section', (q) => q.eq('sectionId', section._id))
+          .first();
+        const teacher = teacherRow ? await ctx.db.get(teacherRow.teacherId) : null;
+
+        const students = await ctx.db
+          .query('sectionStudents')
+          .withIndex('by_section', (q) => q.eq('sectionId', section._id))
+          .collect();
+
+        return { ...section, teacher, studentCount: students.length };
+      }),
+    );
+  },
+});
+
+export const setTeacher = mutation({
+  args: {
+    sectionId: v.id('sections'),
+    teacherId: v.id('users'),
+  },
+  handler: async (ctx, args) => {
+    // 1. Remove existing teachers for this section
+    const existing = await ctx.db
+      .query('sectionTeachers')
+      .withIndex('by_section', (q) => q.eq('sectionId', args.sectionId))
+      .collect();
+    for (const row of existing) {
+      await ctx.db.delete(row._id);
+    }
+
+    // 2. Add new teacher
+    return await ctx.db.insert('sectionTeachers', {
+      sectionId: args.sectionId,
+      teacherId: args.teacherId,
+      createdAt: Date.now(),
+    });
+  },
+});
+
 // --- Students ---
 
 export const addStudent = mutation({
