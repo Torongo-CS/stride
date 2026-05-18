@@ -1,168 +1,144 @@
 <script lang="ts">
-  import Archive from '@lucide/svelte/icons/archive';
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-  import ArrowRight from '@lucide/svelte/icons/arrow-right';
-  import CalendarPlus from '@lucide/svelte/icons/calendar-plus';
-  import Clock from '@lucide/svelte/icons/clock';
-  import ListFilter from '@lucide/svelte/icons/list-filter';
-  import MailCheck from '@lucide/svelte/icons/mail-check';
-  import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
-  import Tag from '@lucide/svelte/icons/tag';
-  import Trash2 from '@lucide/svelte/icons/trash-2';
+  import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
+  import PlusIcon from '@lucide/svelte/icons/plus';
+  import { useConvexClient } from 'convex-svelte';
+  import { toast } from 'svelte-sonner';
 
-  import * as ButtonGroup from '$lib/components/ui/button-group/index.js';
+  import { goto } from '$app/navigation';
+  import { api } from '$convex/_generated/api.js';
+
   import { Button } from '$lib/components/ui/button/index.js';
-  import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-  import * as Resizable from '$lib/components/ui/resizable/index.js';
+  import * as Card from '$lib/components/ui/card/index.js';
+  import { Input } from '$lib/components/ui/input/index.js';
+  import { Label } from '$lib/components/ui/label/index.js';
+  import { Textarea } from '$lib/components/ui/textarea/index.js';
+  import { session } from '$lib/session';
 
-  let label = $state('personal');
+  const client = useConvexClient();
+  const userId = $derived($session?.userId);
+  const userRole = $derived($session?.role);
 
-  //  let { data } = $props();
+  let title = $state('');
+  let contentMd = $state('');
+  let isSubmitting = $state(false);
 
-  //  const studentId = data.student_id;
-
-  //  console.log(studentId);
+  async function handleCreateProblem() {
+    if (!title.trim()) {
+      toast.error('Problem title is required');
+      return;
+    }
+    if (!contentMd.trim()) {
+      toast.error('Problem description is required');
+      return;
+    }
+    if (!userId) {
+      toast.error('You must be logged in to create a problem');
+      return;
+    }
+    isSubmitting = true;
+    try {
+      await client.mutation(api.problems.create, {
+        createdBy: userId as any,
+        title: title.trim(),
+        contentMd: contentMd.trim(),
+      });
+      toast.success('Coding problem added successfully!');
+      goto('/problems');
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to create coding problem');
+    } finally {
+      isSubmitting = false;
+    }
+  }
 </script>
 
-<div class="page-wrapper">
-  <!-- <h1>Student ID: {studentId}</h1> -->
+<div class="mx-auto flex w-full max-w-2xl flex-col gap-6 p-6 md:p-8">
+  <!-- Header / Navigation -->
+  <div>
+    <Button
+      href="/problems"
+      variant="ghost"
+      class="h-8 gap-1.5 pl-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
+    >
+      <ArrowLeftIcon class="h-3.5 w-3.5" />
+      Back to Question Bank
+    </Button>
+  </div>
 
-  <Resizable.PaneGroup direction="horizontal" class="h-full w-full rounded-lg border">
-    <Resizable.Pane defaultSize={50}>
-      <div class="flex h-full items-center justify-center p-6">
-        <span class="font-semibold">Tiptap</span>
-      </div>
-    </Resizable.Pane>
+  {#if userRole !== 'admin' && userRole !== 'teacher'}
+    <!-- Unauthorized Access Protection -->
+    <Card.Root class="border-destructive bg-destructive/5 p-8 text-center">
+      <Card.Header>
+        <Card.Title class="text-lg font-bold text-destructive">Unauthorized Access</Card.Title>
+        <Card.Description
+          >Only teachers and administrators are authorized to add algorithmic challenges.</Card.Description
+        >
+      </Card.Header>
+      <Card.Content class="pt-4">
+        <Button href="/problems" variant="outline" class="border-border text-xs font-semibold">
+          Return to Question Bank
+        </Button>
+      </Card.Content>
+    </Card.Root>
+  {:else}
+    <!-- Form -->
+    <Card.Root class="border border-border bg-card shadow-sm">
+      <Card.Header class="border-b border-border/40 pb-5">
+        <Card.Title class="text-2xl font-bold tracking-tight text-foreground">Create Algorithmic Problem</Card.Title>
+        <Card.Description class="mt-1 text-sm text-muted-foreground">
+          Define a coding challenge, specify instructions, details, and sample inputs.
+        </Card.Description>
+      </Card.Header>
 
-    <Resizable.Handle />
+      <Card.Content class="grid gap-6 pt-6">
+        <div class="grid gap-2">
+          <Label for="prob-title" class="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+            Problem Title <span class="text-destructive">*</span>
+          </Label>
+          <Input
+            id="prob-title"
+            placeholder="e.g. Find First and Last Position of Element in Sorted Array"
+            class="h-10 border-border bg-card"
+            bind:value={title}
+            disabled={isSubmitting}
+          />
+        </div>
 
-    <Resizable.Pane defaultSize={50}>
-      <Resizable.PaneGroup direction="vertical" class="h-full">
-        <Resizable.Pane defaultSize={75}>
-          <div class="h-full w-full">
-            <Resizable.PaneGroup direction="vertical" class="h-full w-full">
-              <!-- THREE - A (15%) -->
-              <Resizable.Pane defaultSize={25} minSize={10} maxSize={30}>
-                <div class="flex h-full items-center justify-center border-b p-4">
-                  <span class="font-semibold"
-                    ><ButtonGroup.Root class="flex flex-wrap gap-2">
-                      <!-- Back -->
-                      <Button variant="outline" size="icon-sm" aria-label="Go Back">
-                        <ArrowLeft />
-                      </Button>
+        <div class="grid gap-2">
+          <Label for="prob-desc" class="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+            Challenge Description (Markdown supported) <span class="text-destructive">*</span>
+          </Label>
+          <Textarea
+            id="prob-desc"
+            placeholder="Outline the programming task, input and output formats, and constraint parameters..."
+            rows={10}
+            class="resize-y border-border bg-card"
+            bind:value={contentMd}
+            disabled={isSubmitting}
+          />
+        </div>
+      </Card.Content>
 
-                      <!-- Main actions -->
-                      <Button variant="outline" size="sm">Archive</Button>
-                      <Button variant="outline" size="sm">Report</Button>
-                      <Button variant="outline" size="sm">Snooze</Button>
-
-                      <!-- Dropdown -->
-                      <DropdownMenu.Root>
-                        <DropdownMenu.Trigger>
-                          {#snippet child({ props })}
-                            <Button {...props} variant="outline" size="icon-sm">
-                              <MoreHorizontal />
-                            </Button>
-                          {/snippet}
-                        </DropdownMenu.Trigger>
-
-                        <DropdownMenu.Content align="end" class="w-52">
-                          <DropdownMenu.Group>
-                            <DropdownMenu.Item>
-                              <MailCheck />
-                              Mark as Read
-                            </DropdownMenu.Item>
-
-                            <DropdownMenu.Item>
-                              <Archive />
-                              Archive
-                            </DropdownMenu.Item>
-                          </DropdownMenu.Group>
-
-                          <DropdownMenu.Separator />
-
-                          <DropdownMenu.Group>
-                            <DropdownMenu.Item>
-                              <Clock />
-                              Snooze
-                            </DropdownMenu.Item>
-
-                            <DropdownMenu.Item>
-                              <CalendarPlus />
-                              Add to Calendar
-                            </DropdownMenu.Item>
-
-                            <DropdownMenu.Item>
-                              <ListFilter />
-                              Add to List
-                            </DropdownMenu.Item>
-
-                            <DropdownMenu.Sub>
-                              <DropdownMenu.SubTrigger>
-                                <Tag />
-                                Label As...
-                              </DropdownMenu.SubTrigger>
-
-                              <DropdownMenu.SubContent>
-                                <DropdownMenu.RadioGroup bind:value={label}>
-                                  <DropdownMenu.RadioItem value="personal">Personal</DropdownMenu.RadioItem>
-
-                                  <DropdownMenu.RadioItem value="work">Work</DropdownMenu.RadioItem>
-
-                                  <DropdownMenu.RadioItem value="other">Other</DropdownMenu.RadioItem>
-                                </DropdownMenu.RadioGroup>
-                              </DropdownMenu.SubContent>
-                            </DropdownMenu.Sub>
-                          </DropdownMenu.Group>
-
-                          <DropdownMenu.Separator />
-
-                          <DropdownMenu.Group>
-                            <DropdownMenu.Item class="text-destructive focus:text-destructive">
-                              <Trash2 />
-                              Trash
-                            </DropdownMenu.Item>
-                          </DropdownMenu.Group>
-                        </DropdownMenu.Content>
-                      </DropdownMenu.Root>
-
-                      <Button variant="outline" size="sm">1</Button>
-                      <Button variant="outline" size="sm">2</Button>
-                      <Button variant="outline" size="sm">3</Button>
-                      <Button variant="outline" size="sm">4</Button>
-                      <Button variant="outline" size="sm">5</Button>
-
-                      <Button variant="outline" size="icon-sm" aria-label="Previous">
-                        <ArrowLeft />
-                      </Button>
-                      <Button variant="outline" size="icon-sm" aria-label="Next">
-                        <ArrowRight />
-                      </Button>
-                    </ButtonGroup.Root></span
-                  >
-                </div>
-              </Resizable.Pane>
-
-              <Resizable.Handle />
-
-              <Resizable.Pane defaultSize={55}>
-                <div class="flex h-full items-center justify-center p-6">
-                  <span class="font-semibold">Question-viewer</span>
-                </div>
-              </Resizable.Pane>
-            </Resizable.PaneGroup>
-          </div>
-        </Resizable.Pane>
-      </Resizable.PaneGroup>
-    </Resizable.Pane>
-  </Resizable.PaneGroup>
+      <Card.Footer class="flex items-center justify-end gap-3 border-t border-border/40 px-6 py-4">
+        <Button
+          href="/problems"
+          variant="outline"
+          class="h-9 border-border text-xs font-semibold"
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        <Button onclick={handleCreateProblem} class="h-9 text-xs font-bold shadow-xs" disabled={isSubmitting}>
+          {#if isSubmitting}
+            <span class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+            Creating...
+          {:else}
+            <PlusIcon class="mr-1.5 h-3.5 w-3.5" />
+            Create Challenge
+          {/if}
+        </Button>
+      </Card.Footer>
+    </Card.Root>
+  {/if}
 </div>
-
-<style>
-  .page-wrapper {
-    height: 100%;
-    width: 100%;
-    flex: 1;
-    display: flex;
-  }
-</style>

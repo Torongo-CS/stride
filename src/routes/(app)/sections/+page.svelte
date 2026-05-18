@@ -24,11 +24,15 @@
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import * as Tabs from '$lib/components/ui/tabs/index.js';
   import { Textarea } from '$lib/components/ui/textarea/index.js';
+  import { session } from '$lib/session';
+
+  const userId = $derived($session?.userId);
+  const userRole = $derived($session?.role);
 
   // --- Real-time Convex Queries ---
   const client = useConvexClient();
   const sectionsQuery = useQuery(api.sections.listWithMembers, {});
-  const usersQuery = useQuery(api.users.list, {});
+  const usersQuery = useQuery(api.users.list, () => (userRole === 'admin' ? {} : 'skip'));
 
   // --- Reactive Derived States (Svelte 5 Runes) ---
   const sections = $derived(sectionsQuery.data || []);
@@ -39,8 +43,21 @@
 
   let searchQuery = $state('');
 
+  const roleFilteredSections = $derived(
+    sections.filter((section) => {
+      if (userRole === 'admin') return true;
+      if (userRole === 'teacher') {
+        return section.teachers?.some((t: any) => t._id === userId) ?? false;
+      }
+      if (userRole === 'student') {
+        return section.students?.some((s: any) => s._id === userId) ?? false;
+      }
+      return false;
+    }),
+  );
+
   const filteredSections = $derived(
-    sections.filter(
+    roleFilteredSections.filter(
       (section) =>
         section.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         section.aboutMd?.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -48,7 +65,7 @@
   );
 
   // --- Loader State ---
-  const isLoading = $derived(sectionsQuery.isLoading || usersQuery.isLoading);
+  const isLoading = $derived(sectionsQuery.isLoading || (userRole === 'admin' && usersQuery.isLoading));
 
   // --- Modals State ---
   let createDialogOpen = $state(false);
@@ -262,13 +279,27 @@
   <!-- Header Bar -->
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div class="flex flex-col gap-1">
-      <h1 class="text-3xl font-bold tracking-tight text-foreground">Section Management</h1>
-      <p class="text-sm text-muted-foreground">Create sections, assign teachers, and manage enrolled students.</p>
+      <h1 class="text-3xl font-bold tracking-tight text-foreground">
+        {#if userRole === 'admin'}
+          Section Management
+        {:else}
+          My Sections
+        {/if}
+      </h1>
+      <p class="text-sm text-muted-foreground">
+        {#if userRole === 'admin'}
+          Create sections, assign teachers, and manage enrolled students.
+        {:else}
+          Access and view details for the active course sections you are a member of.
+        {/if}
+      </p>
     </div>
-    <Button onclick={openCreateDialog} class="shadow-xs">
-      <PlusIcon class="mr-2 h-4 w-4" />
-      Create Section
-    </Button>
+    {#if userRole === 'admin'}
+      <Button onclick={openCreateDialog} class="shadow-xs">
+        <PlusIcon class="mr-2 h-4 w-4" />
+        Create Section
+      </Button>
+    {/if}
   </div>
 
   <!-- Search filters -->
@@ -359,33 +390,40 @@
           </Card.Content>
 
           <Card.Footer class="flex items-center gap-2 border-t border-border/30 pt-4 pb-4">
-            <Button
-              size="sm"
-              variant="outline"
-              onclick={() => openMembersDialog(section)}
-              class="flex-1 justify-center border-border text-xs font-semibold hover:bg-muted/50"
-            >
-              <UsersIcon class="mr-1.5 h-3.5 w-3.5" />
-              Members
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onclick={() => openEditDialog(section)}
-              class="border-border px-2.5 text-xs font-semibold hover:bg-muted/50"
-              title="Edit Details"
-            >
-              <Edit3Icon class="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onclick={() => confirmDelete(section)}
-              class="border-border px-2.5 text-xs font-semibold hover:bg-destructive/10 hover:text-destructive"
-              title="Delete Section"
-            >
-              <Trash2Icon class="h-3.5 w-3.5" />
-            </Button>
+            {#if userRole === 'admin'}
+              <Button
+                size="sm"
+                variant="outline"
+                onclick={() => openMembersDialog(section)}
+                class="flex-1 justify-center border-border text-xs font-semibold hover:bg-muted/50"
+              >
+                <UsersIcon class="mr-1.5 h-3.5 w-3.5" />
+                Members
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onclick={() => openEditDialog(section)}
+                class="border-border px-2.5 text-xs font-semibold hover:bg-muted/50"
+                title="Edit Details"
+              >
+                <Edit3Icon class="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onclick={() => confirmDelete(section)}
+                class="border-border px-2.5 text-xs font-semibold hover:bg-destructive/10 hover:text-destructive"
+                title="Delete Section"
+              >
+                <Trash2Icon class="h-3.5 w-3.5" />
+              </Button>
+            {:else}
+              <Button size="sm" href="/sections/{section._id}" class="w-full justify-between font-semibold shadow-xs">
+                <span>Enter Section Workspace</span>
+                <ArrowRightIcon class="h-4 w-4" />
+              </Button>
+            {/if}
           </Card.Footer>
         </Card.Root>
       {/each}

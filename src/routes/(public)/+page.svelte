@@ -206,8 +206,11 @@
       </p>
 
       <div class="flex gap-8">
-        <a href="#" class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Terms</a>
-        <a href="#" class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Privacy</a>
+        <a href="/terms" class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Terms</a
+        >
+        <a href="/privacy" class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          >Privacy</a
+        >
       </div>
     </div>
   </footer>

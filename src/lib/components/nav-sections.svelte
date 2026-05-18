@@ -91,7 +91,9 @@
                     {:else}
                       {#each activeActivities as activity (activity._id)}
                         {@const problemsQuery = useQuery(api.activities.listProblems, () =>
-                          session.role === 'student' ? { activityId: activity._id } : 'skip',
+                          session.role === 'student' || session.role === 'teacher'
+                            ? { activityId: activity._id }
+                            : 'skip',
                         )}
                         {@const problems = problemsQuery.data ?? []}
 
@@ -99,22 +101,20 @@
                           {activity.title}
                         </div>
 
-                        {#if session.role === 'student'}
-                          {#each problems as p (p._id)}
-                            {#if p.problem}
-                              <Sidebar.MenuSubItem>
-                                <Sidebar.MenuSubButton>
-                                  {#snippet child({ props })}
-                                    <a href="/activities/{activity._id}/{p.problem!._id}" {...props}>
-                                      <BookOpenCheckIcon class="size-3.5 shrink-0" />
-                                      <span class="truncate">{p.problem!.title}</span>
-                                    </a>
-                                  {/snippet}
-                                </Sidebar.MenuSubButton>
-                              </Sidebar.MenuSubItem>
-                            {/if}
-                          {/each}
-                        {/if}
+                        {#each problems as p (p._id)}
+                          {#if p.problem}
+                            <Sidebar.MenuSubItem>
+                              <Sidebar.MenuSubButton>
+                                {#snippet child({ props })}
+                                  <a href="/activities/{activity._id}/{p.problem!._id}" {...props}>
+                                    <BookOpenCheckIcon class="size-3.5 shrink-0" />
+                                    <span class="truncate">{p.problem!.title}</span>
+                                  </a>
+                                {/snippet}
+                              </Sidebar.MenuSubButton>
+                            </Sidebar.MenuSubItem>
+                          {/if}
+                        {/each}
 
                         {#if session.role === 'teacher'}
                           <Sidebar.MenuSubItem>
