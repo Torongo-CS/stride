@@ -7,6 +7,7 @@
   import { Badge } from '$lib/components/ui/badge/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { m } from '$lib/paraglide/messages.js';
   import { session } from '$lib/session';
 
   const userId = $derived($session?.userId);
@@ -34,7 +35,7 @@
           <Avatar.Fallback class="text-2xl">{user.name.charAt(0)}</Avatar.Fallback>
         </Avatar.Root>
         <div class="flex flex-col gap-1">
-          <h1 class="text-3xl font-bold tracking-tight">Welcome back, {user.name}</h1>
+          <h1 class="text-3xl font-bold tracking-tight">{m.dashboard_welcome_back({ name: user.name })}</h1>
           <div class="flex items-center gap-2">
             <Badge variant="secondary" class="capitalize">{user.role}</Badge>
             <span class="text-sm text-muted-foreground">{user.email}</span>
@@ -54,11 +55,11 @@
   <div>
     <h2 class="mb-4 text-xl font-semibold">
       {#if $session?.role === 'teacher'}
-        Sections You Teach
+        {m.dashboard_sections_teacher()}
       {:else if $session?.role === 'student'}
-        Your Sections
+        {m.dashboard_sections_student()}
       {:else}
-        System Overview
+        {m.dashboard_sections_admin()}
       {/if}
     </h2>
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -67,8 +68,8 @@
           <div
             class="col-span-full flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center"
           >
-            <p class="text-lg font-medium text-muted-foreground">No sections found</p>
-            <p class="text-sm text-muted-foreground">You are not enrolled in any sections yet.</p>
+            <p class="text-lg font-medium text-muted-foreground">{m.dashboard_no_sections_title()}</p>
+            <p class="text-sm text-muted-foreground">{m.dashboard_no_sections_desc()}</p>
           </div>
         {:else}
           {#each sections as section (section?._id)}
@@ -80,13 +81,13 @@
                     {#if section.aboutMd}
                       {section.aboutMd}
                     {:else}
-                      No description provided.
+                      {m.dashboard_no_desc()}
                     {/if}
                   </Card.Description>
                 </Card.Header>
                 <Card.Footer>
                   <a href="/sections/{section?._id}" class="text-sm font-medium text-primary hover:underline">
-                    View Section details →
+                    {m.dashboard_view_section()}
                   </a>
                 </Card.Footer>
               </Card.Root>

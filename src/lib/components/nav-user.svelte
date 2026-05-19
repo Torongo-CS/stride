@@ -15,6 +15,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
   import * as Sidebar from '$lib/components/ui/sidebar/index.js';
   import { useSidebar } from '$lib/components/ui/sidebar/index.js';
+  import { m } from '$lib/paraglide/messages.js';
   import { getLocale, locales, setLocale } from '$lib/paraglide/runtime.js';
   import type { Session } from '$lib/session';
   import { clearSession } from '$lib/session';
@@ -99,11 +100,11 @@
         <DropdownMenu.Group>
           <DropdownMenu.Item onclick={() => goto(`/users/${session.userId}`)}>
             <UserIcon />
-            Profile
+            {m.nav_profile()}
           </DropdownMenu.Item>
           <DropdownMenu.Item onclick={() => goto('/settings')}>
             <SettingsIcon />
-            Settings
+            {m.nav_settings()}
           </DropdownMenu.Item>
         </DropdownMenu.Group>
         <DropdownMenu.Separator />
@@ -111,16 +112,16 @@
           <DropdownMenu.Item onclick={toggleMode}>
             {#if mode.current === 'dark'}
               <SunIcon />
-              Light Mode
+              {m.nav_light_mode()}
             {:else}
               <MoonIcon />
-              Dark Mode
+              {m.nav_dark_mode()}
             {/if}
           </DropdownMenu.Item>
           <DropdownMenu.Sub>
             <DropdownMenu.SubTrigger>
               <GlobeIcon />
-              Language
+              {m.nav_language()}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent>
               {#each locales as locale (locale)}
@@ -137,7 +138,7 @@
         <DropdownMenu.Separator />
         <DropdownMenu.Item onclick={handleLogout}>
           <LogOutIcon />
-          Log out
+          {m.nav_logout()}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Root>

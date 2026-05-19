@@ -12,6 +12,7 @@
   import favicon from '$lib/assets/favicon.svg';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
   import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+  import { m } from '$lib/paraglide/messages.js';
   import { session } from '$lib/session';
 
   import NavMain from './nav-main.svelte';
@@ -27,24 +28,24 @@
   // --- Navigation data ---
 
   const platformItems = $derived([
-    { title: 'Dashboard', url: '/dashboard', icon: GaugeIcon },
-    { title: 'Sections', url: '/sections', icon: LayersIcon },
-    { title: 'Activities', url: '/activities', icon: CalendarIcon },
+    { title: m.sidebar_dashboard(), url: '/dashboard', icon: GaugeIcon },
+    { title: m.sidebar_sections(), url: '/sections', icon: LayersIcon },
+    { title: m.sidebar_activities(), url: '/activities', icon: CalendarIcon },
     // Problems only for teacher/admin
     ...(currentSession?.role === 'teacher' || currentSession?.role === 'admin'
-      ? [{ title: 'Problems', url: '/problems', icon: BookOpenIcon }]
+      ? [{ title: m.sidebar_problems(), url: '/problems', icon: BookOpenIcon }]
       : []),
   ] as { title: string; url: string; icon: typeof GaugeIcon }[]);
 
-  const adminItems: { title: string; url: string; icon: typeof GaugeIcon }[] = [
-    { title: 'Overview', url: '/admin', icon: ShieldIcon },
-    { title: 'Manage Users', url: '/admin/users', icon: UsersIcon },
-  ];
+  const adminItems = $derived([
+    { title: m.sidebar_overview(), url: '/admin', icon: ShieldIcon },
+    { title: m.sidebar_manage_users(), url: '/admin/users', icon: UsersIcon },
+  ] as { title: string; url: string; icon: typeof GaugeIcon }[]);
 
-  const commItems: { title: string; url: string; icon: typeof GaugeIcon }[] = [
-    { title: 'Forum', url: '/forum', icon: MessagesSquareIcon },
-    { title: 'Chat', url: '/chat', icon: MessageSquareIcon },
-  ];
+  const commItems = $derived([
+    { title: m.sidebar_forum(), url: '/forum', icon: MessagesSquareIcon },
+    { title: m.sidebar_chat(), url: '/chat', icon: MessageSquareIcon },
+  ] as { title: string; url: string; icon: typeof GaugeIcon }[]);
 </script>
 
 <Sidebar.Root bind:ref {collapsible} {...restProps}>
@@ -59,7 +60,7 @@
           </div>
           <div class="grid flex-1 text-start text-sm leading-tight">
             <span class="truncate font-semibold">Stride</span>
-            <span class="truncate text-xs text-sidebar-foreground/60">University Platform</span>
+            <span class="truncate text-xs text-sidebar-foreground/60">{m.sidebar_university_platform()}</span>
           </div>
         </Sidebar.MenuButton>
       </Sidebar.MenuItem>
@@ -68,11 +69,11 @@
 
   <Sidebar.Content>
     <!-- Group 1: Platform -->
-    <NavMain label="Platform" items={platformItems} />
+    <NavMain label={m.sidebar_platform()} items={platformItems} />
 
     <!-- Group 2: Administration (admin only) -->
     {#if currentSession?.role === 'admin'}
-      <NavMain label="Administration" items={adminItems} />
+      <NavMain label={m.sidebar_administration()} items={adminItems} />
     {/if}
 
     <!-- Group 3: My Sections (student & teacher only) -->
@@ -81,7 +82,7 @@
     {/if}
 
     <!-- Group 4: Communication -->
-    <NavMain label="Communication" items={commItems} />
+    <NavMain label={m.sidebar_communication()} items={commItems} />
   </Sidebar.Content>
 
   <Sidebar.Footer>

@@ -21,6 +21,7 @@
   import { Spinner } from '$lib/components/ui/spinner/index.js';
   import * as Table from '$lib/components/ui/table/index.js';
   import { Textarea } from '$lib/components/ui/textarea/index.js';
+  import { m } from '$lib/paraglide/messages.js';
 
   const client = useConvexClient();
   const usersQuery = useQuery(api.users.list, {});
@@ -57,11 +58,11 @@
         aboutMd: editingUser.aboutMd,
         avatarUrl: editingUser.avatarUrl,
       });
-      toast.success('User updated successfully');
+      toast.success(m.admin_users_toast_update_success());
       editDialogOpen = false;
     } catch (error) {
       console.error(error);
-      toast.error('Failed to update user');
+      toast.error(m.admin_users_toast_update_fail());
     } finally {
       isSaving = false;
     }
@@ -83,11 +84,11 @@
     isDeleting = true;
     try {
       await client.mutation(api.users.remove, { id: deletingUser._id });
-      toast.success('User deleted successfully');
+      toast.success(m.admin_users_toast_delete_success());
       deleteDialogOpen = false;
     } catch (error) {
       console.error(error);
-      toast.error('Failed to delete user');
+      toast.error(m.admin_users_toast_delete_fail());
     } finally {
       isDeleting = false;
     }
@@ -126,7 +127,7 @@
 
   async function handleCreateUser() {
     if (!newUser.name || !newUser.email || !newUser.password) {
-      toast.error('Please fill in all required fields');
+      toast.error(m.admin_users_toast_fill_required());
       return;
     }
     isCreating = true;
@@ -139,11 +140,11 @@
         aboutMd: newUser.aboutMd || undefined,
         avatarUrl: newUser.avatarUrl || undefined,
       });
-      toast.success('User created successfully');
+      toast.success(m.admin_users_toast_create_success());
       addDialogOpen = false;
     } catch (error) {
       console.error(error);
-      toast.error('Failed to create user');
+      toast.error(m.admin_users_toast_create_fail());
     } finally {
       isCreating = false;
     }
@@ -157,29 +158,29 @@
     });
   }
 
-  const roles = [
-    { value: 'student', label: 'Student' },
-    { value: 'teacher', label: 'Teacher' },
-    { value: 'admin', label: 'Admin' },
-  ];
+  const roles = $derived([
+    { value: 'student', label: m.admin_users_role_student() },
+    { value: 'teacher', label: m.admin_users_role_teacher() },
+    { value: 'admin', label: m.admin_users_role_admin() },
+  ]);
 </script>
 
 <div class="flex h-full flex-col gap-6 p-8">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold tracking-tight">User Management</h1>
-      <p class="text-muted-foreground">Manage your application users and their roles.</p>
+      <h1 class="text-3xl font-bold tracking-tight">{m.admin_users_title()}</h1>
+      <p class="text-muted-foreground">{m.admin_users_subtitle()}</p>
     </div>
     <Button onclick={openAddDialog}>
       <PlusIcon class="mr-2 h-4 w-4" />
-      Add User
+      {m.admin_users_btn_create()}
     </Button>
   </div>
 
   <div class="flex items-center gap-4">
     <div class="relative w-full max-w-sm">
       <SearchIcon class="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-      <Input placeholder="Search users by name or email..." class="pl-8" bind:value={searchQuery} />
+      <Input placeholder={m.admin_users_search_placeholder()} class="pl-8" bind:value={searchQuery} />
     </div>
   </div>
 
@@ -188,11 +189,11 @@
       <Table.Header>
         <Table.Row>
           <Table.Head class="w-[80px]">Avatar</Table.Head>
-          <Table.Head>Name</Table.Head>
-          <Table.Head>Email</Table.Head>
-          <Table.Head>Role</Table.Head>
-          <Table.Head>Joined</Table.Head>
-          <Table.Head class="text-right">Actions</Table.Head>
+          <Table.Head>{m.admin_users_label_name()}</Table.Head>
+          <Table.Head>{m.admin_users_label_email()}</Table.Head>
+          <Table.Head>{m.admin_users_table_role()}</Table.Head>
+          <Table.Head>{m.admin_users_table_joined()}</Table.Head>
+          <Table.Head class="text-right">{m.admin_users_table_actions()}</Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -223,15 +224,27 @@
               <Table.Cell class="font-medium">{user.name}</Table.Cell>
               <Table.Cell>{user.email}</Table.Cell>
               <Table.Cell>
-                <Badge variant={user.role === 'admin' ? 'default' : user.role === 'teacher' ? 'secondary' : 'outline'}>
-                  {user.role}
+                <Badge
+                  variant={user.role === 'admin' ? 'default' : user.role === 'teacher' ? 'secondary' : 'outline'}
+                  class="capitalize"
+                >
+                  {user.role === 'admin'
+                    ? m.admin_users_role_admin()
+                    : user.role === 'teacher'
+                      ? m.admin_users_role_teacher()
+                      : m.admin_users_role_student()}
                 </Badge>
               </Table.Cell>
               <Table.Cell>{formatDate(user.createdAt)}</Table.Cell>
               <Table.Cell class="text-right">
-                <Button variant="ghost" size="icon" onclick={() => openEditDialog(user)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onclick={() => openEditDialog(user)}
+                  title={m.admin_users_tooltip_edit()}
+                >
                   <UserCogIcon class="h-4 w-4" />
-                  <span class="sr-only">Edit user</span>
+                  <span class="sr-only">{m.admin_users_tooltip_edit()}</span>
                 </Button>
               </Table.Cell>
             </Table.Row>
@@ -246,21 +259,21 @@
 <Dialog.Root bind:open={editDialogOpen}>
   <Dialog.Content class="sm:max-w-[525px]">
     <Dialog.Header>
-      <Dialog.Title>Edit User</Dialog.Title>
-      <Dialog.Description>Update user information and permissions.</Dialog.Description>
+      <Dialog.Title>{m.admin_users_dialog_edit_title()}</Dialog.Title>
+      <Dialog.Description>{m.admin_users_dialog_edit_desc()}</Dialog.Description>
     </Dialog.Header>
     {#if editingUser}
       <div class="grid gap-4 py-4">
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="name" class="text-right">Name</Label>
+          <Label for="name" class="text-right">{m.admin_users_label_name()}</Label>
           <Input id="name" bind:value={editingUser.name} class="col-span-3" />
         </div>
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="email" class="text-right">Email</Label>
+          <Label for="email" class="text-right">{m.admin_users_label_email()}</Label>
           <Input id="email" bind:value={editingUser.email} class="col-span-3" />
         </div>
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="role" class="text-right">Role</Label>
+          <Label for="role" class="text-right">{m.admin_users_table_role()}</Label>
           <div class="col-span-3">
             <Select.Root type="single" bind:value={editingUser.role}>
               <Select.Trigger class="col-span-3">
@@ -279,7 +292,7 @@
           <Input id="avatarUrl" bind:value={editingUser.avatarUrl} class="col-span-3" />
         </div>
         <div class="grid grid-cols-4 items-start gap-4">
-          <Label for="about" class="pt-2 text-right">About</Label>
+          <Label for="about" class="pt-2 text-right">{m.admin_users_label_about()}</Label>
           <Textarea id="about" bind:value={editingUser.aboutMd} class="col-span-3" rows={4} />
         </div>
       </div>
@@ -287,16 +300,16 @@
     <Dialog.Footer class="flex items-center justify-between">
       <Button variant="destructive" onclick={() => confirmDelete(editingUser)} disabled={isSaving || isDeleting}>
         <Trash2Icon class="mr-2 h-4 w-4" />
-        Delete User
+        {m.admin_users_tooltip_delete()}
       </Button>
       <div class="flex items-center gap-2">
-        <Button variant="outline" onclick={() => (editDialogOpen = false)}>Cancel</Button>
+        <Button variant="outline" onclick={() => (editDialogOpen = false)}>{m.admin_users_btn_cancel()}</Button>
         <Button type="submit" onclick={handleUpdateUser} disabled={isSaving}>
           {#if isSaving}
             <Spinner class="mr-2 h-4 w-4" />
-            Saving...
+            {m.admin_users_btn_saving()}
           {:else}
-            Save Changes
+            {m.admin_users_btn_save()}
           {/if}
         </Button>
       </div>
@@ -308,14 +321,13 @@
 <AlertDialog.Root bind:open={deleteDialogOpen}>
   <AlertDialog.Content>
     <AlertDialog.Header>
-      <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+      <AlertDialog.Title>{m.admin_users_dialog_delete_title()}</AlertDialog.Title>
       <AlertDialog.Description>
-        This action cannot be undone. This will permanently delete the user account for
-        <span class="font-semibold">{deletingUser?.name}</span> and remove their data from our servers.
+        {m.admin_users_dialog_delete_desc()}
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>
-      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Cancel>{m.admin_users_btn_cancel()}</AlertDialog.Cancel>
       <AlertDialog.Action
         onclick={async () => {
           await handleDeleteUser();
@@ -326,9 +338,9 @@
       >
         {#if isDeleting}
           <Spinner class="mr-2 h-4 w-4 text-current" />
-          Deleting...
+          {m.admin_users_btn_deleting()}
         {:else}
-          Delete
+          {m.admin_users_tooltip_delete()}
         {/if}
       </AlertDialog.Action>
     </AlertDialog.Footer>
@@ -339,16 +351,16 @@
 <Dialog.Root bind:open={addDialogOpen}>
   <Dialog.Content class="sm:max-w-[525px]">
     <Dialog.Header>
-      <Dialog.Title>Add New User</Dialog.Title>
-      <Dialog.Description>Create a new user account.</Dialog.Description>
+      <Dialog.Title>{m.admin_users_dialog_create_title()}</Dialog.Title>
+      <Dialog.Description>{m.admin_users_dialog_create_desc()}</Dialog.Description>
     </Dialog.Header>
     <div class="grid gap-4 py-4">
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="new-name" class="text-right">Name</Label>
+        <Label for="new-name" class="text-right">{m.admin_users_label_name()}</Label>
         <Input id="new-name" bind:value={newUser.name} class="col-span-3" placeholder="John Doe" />
       </div>
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="new-email" class="text-right">Email</Label>
+        <Label for="new-email" class="text-right">{m.admin_users_label_email()}</Label>
         <Input
           id="new-email"
           type="email"
@@ -358,7 +370,7 @@
         />
       </div>
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="new-password" class="text-right">Password</Label>
+        <Label for="new-password" class="text-right">{m.admin_users_label_password()}</Label>
         <Input
           id="new-password"
           type="password"
@@ -368,7 +380,7 @@
         />
       </div>
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="new-role" class="text-right">Role</Label>
+        <Label for="new-role" class="text-right">{m.admin_users_table_role()}</Label>
         <div class="col-span-3">
           <Select.Root type="single" bind:value={newUser.role}>
             <Select.Trigger class="w-full">
@@ -387,18 +399,18 @@
         <Input id="new-avatarUrl" bind:value={newUser.avatarUrl} class="col-span-3" placeholder="https://..." />
       </div>
       <div class="grid grid-cols-4 items-start gap-4">
-        <Label for="new-about" class="pt-2 text-right">About</Label>
+        <Label for="new-about" class="pt-2 text-right">{m.admin_users_label_about()}</Label>
         <Textarea id="new-about" bind:value={newUser.aboutMd} class="col-span-3" rows={3} placeholder="User bio..." />
       </div>
     </div>
     <Dialog.Footer>
-      <Button variant="outline" onclick={() => (addDialogOpen = false)}>Cancel</Button>
+      <Button variant="outline" onclick={() => (addDialogOpen = false)}>{m.admin_users_btn_cancel()}</Button>
       <Button type="submit" onclick={handleCreateUser} disabled={isCreating}>
         {#if isCreating}
           <Spinner class="mr-2 h-4 w-4" />
-          Creating...
+          {m.admin_users_btn_creating()}
         {:else}
-          Create User
+          {m.admin_users_btn_create()}
         {/if}
       </Button>
     </Dialog.Footer>
