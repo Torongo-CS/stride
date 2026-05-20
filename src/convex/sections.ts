@@ -90,6 +90,21 @@ export const remove = mutation({
       }
       await ctx.db.delete(img._id);
     }
+
+    // Clean up any uploaded section files/resources
+    const resources = await ctx.db
+      .query('sectionResources')
+      .withIndex('by_section', (q) => q.eq('sectionId', args.id))
+      .collect();
+    for (const res of resources) {
+      try {
+        await ctx.storage.delete(res.storageId);
+      } catch (e) {
+        console.error('Failed to delete section resource from storage on delete:', e);
+      }
+      await ctx.db.delete(res._id);
+    }
+
     await ctx.db.delete(args.id);
   },
 });

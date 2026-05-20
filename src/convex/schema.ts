@@ -197,4 +197,15 @@ export default defineSchema({
     .index('by_problem', ['problemId'])
     .index('by_storage', ['storageId'])
     .index('by_author', ['authorId']),
+
+  sectionResources: defineTable({
+    sectionId: v.id('sections'),
+    storageId: v.id('_storage'),
+    title: v.string(),
+    group: v.optional(v.string()),
+    uploadedBy: v.id('users'),
+    createdAt: v.number(),
+  })
+    .index('by_section', ['sectionId'])
+    .index('by_section_and_group', ['sectionId', 'group']),
 });
