@@ -19,7 +19,7 @@ export const getTable = query({
       return await Promise.all(
         rows.map(async (row) => {
           const section = (await ctx.db.get(row.sectionId)) as any;
-          const { sectionId, ...rest } = row;
+          const { sectionId: _sectionId, ...rest } = row;
           return {
             ...rest,
             section: section?.name ?? 'Unknown Section',
@@ -32,7 +32,7 @@ export const getTable = query({
       return await Promise.all(
         rows.map(async (row) => {
           const user = (await ctx.db.get(row.createdBy)) as any;
-          const { createdBy, ...rest } = row;
+          const { createdBy: _createdBy, ...rest } = row;
           return {
             ...rest,
             createdBy: user?.name ?? 'Unknown User',
@@ -45,7 +45,7 @@ export const getTable = query({
       return await Promise.all(
         rows.map(async (row) => {
           const user = (await ctx.db.get(row.authorId)) as any;
-          const { authorId, ...rest } = row;
+          const { authorId: _authorId, ...rest } = row;
           return {
             ...rest,
             author: user?.name ?? 'Unknown User',
