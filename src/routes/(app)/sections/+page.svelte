@@ -202,18 +202,6 @@
               <Button href="/sections/{section._id}/edit" variant="outline" size="icon-lg" title="Edit settings">
                 <Pencil class="size-3.5" />
               </Button>
-              <Button
-                variant="outline"
-                size="icon-lg"
-                class="border-border hover:bg-destructive/10 hover:text-destructive"
-                title="Delete section"
-                onclick={() => {
-                  deletingSection = section;
-                  deleteDialogOpen = true;
-                }}
-              >
-                <Trash2 class="size-3.5" />
-              </Button>
             {/if}
           </Card.Footer>
         </Card.Root>

@@ -2,6 +2,7 @@
   import BookOpen from '@lucide/svelte/icons/book-open';
   import Save from '@lucide/svelte/icons/save';
   import Search from '@lucide/svelte/icons/search';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
   import UserCheck from '@lucide/svelte/icons/user-check';
   import UserX from '@lucide/svelte/icons/user-x';
   import Users from '@lucide/svelte/icons/users';
@@ -15,6 +16,7 @@
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
   import { PageHero, PageLayout } from '$lib/components/page/index.js';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -58,6 +60,8 @@
   let name = $state('');
   let aboutMd = $state('');
   let isSubmitting = $state(false);
+  let isDeleting = $state(false);
+  let deleteDialogOpen = $state(false);
   let isAssigningTeacher = $state(false);
   let isRemovingTeacher = $state(false);
   let isEnrollingStudent = $state(false);
@@ -202,6 +206,21 @@
       isRemovingStudent = false;
     }
   }
+
+  async function confirmDelete() {
+    isDeleting = true;
+    try {
+      await client.mutation(api.sections.remove, { id: sectionId });
+      toast.success('Section deleted successfully.');
+      goto('/sections');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete section.');
+    } finally {
+      isDeleting = false;
+      deleteDialogOpen = false;
+    }
+  }
 </script>
 
 <PageLayout class="max-w-4xl!">
@@ -256,7 +275,7 @@
     <!-- Stacked Cards (User Settings Profile UI style) -->
     <div class="flex flex-col gap-8">
       <!-- 1. Section Info Settings Card -->
-      <form onsubmit={handleUpdateSection}>
+      <form id="section-details-form" onsubmit={handleUpdateSection}>
         <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
           <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
             <Card.Title class="flex items-center gap-2 text-lg font-bold tracking-tight">
@@ -291,10 +310,22 @@
           </Card.Content>
 
           <Card.Footer class="flex justify-between border-t bg-muted/5 px-6 py-4">
-            <Button href="/sections/{sectionId}" variant="outline" class="border-border text-xs font-semibold">
-              Back to Section
+            <Button
+              variant="destructive"
+              size="lg"
+              class="font-semibold shadow-sm"
+              onclick={() => (deleteDialogOpen = true)}
+            >
+              <Trash2 class="mr-1.5 size-3.5" />
+              Delete Section
             </Button>
-            <Button type="submit" disabled={isSubmitting} size="lg" class="font-semibold shadow-sm">
+            <Button
+              form="section-details-form"
+              type="submit"
+              disabled={isSubmitting}
+              size="lg"
+              class="font-semibold shadow-sm"
+            >
               {#if isSubmitting}
                 <Spinner class="size-3.5" />
                 Saving...
@@ -554,3 +585,24 @@
     </div>
   {/if}
 </PageLayout>
+
+<AlertDialog.Root bind:open={deleteDialogOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Delete Section</AlertDialog.Title>
+      <AlertDialog.Description>
+        Are you sure you want to delete this section? This action cannot be undone. All associated data will be removed.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action variant="destructive" onclick={confirmDelete} disabled={isDeleting}>
+        {#if isDeleting}
+          <Spinner class="size-4" /> Deleting...
+        {:else}
+          Delete
+        {/if}
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>

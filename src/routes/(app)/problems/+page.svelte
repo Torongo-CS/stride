@@ -135,22 +135,18 @@
 
   <!-- Problems Grid -->
   {#if problemsQuery.isLoading}
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {#each [0, 1, 2, 3, 4, 5] as i (i)}
-        <Card.Root class="flex flex-col justify-between border bg-card/40 shadow-sm">
-          <Card.Header class="p-5 pb-3">
-            <Skeleton class="h-5 w-3/4" />
+        <Card.Root class="flex flex-col justify-between border border-border bg-card">
+          <Card.Header class="pb-3">
+            <Skeleton class="h-6 w-3/4" />
             <div class="mt-2 flex flex-col gap-2">
               <Skeleton class="h-3 w-24" />
               <Skeleton class="h-3 w-20" />
             </div>
           </Card.Header>
-          <Card.Footer class="flex items-center justify-between border-t border-border/40 bg-muted/5 p-4">
-            <Skeleton class="h-8 w-24" />
-            <div class="flex items-center gap-1">
-              <Skeleton class="h-8 w-8 rounded-md" />
-              <Skeleton class="h-8 w-8 rounded-md" />
-            </div>
+          <Card.Footer class="border-t border-border/40 bg-muted/5 p-3">
+            <Skeleton class="h-9 w-full" />
           </Card.Footer>
         </Card.Root>
       {/each}
@@ -158,15 +154,13 @@
   {:else if filteredProblems.length === 0}
     <PageEmpty icon={Code2} title="No problems found" description="Try adjusting your filters or search queries." />
   {:else}
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {#each filteredProblems as problem (problem._id)}
         <Card.Root
-          class="group flex flex-col justify-between border bg-card/40 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
+          class="flex h-full flex-col justify-between border border-border bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
         >
-          <Card.Header class="p-5 pb-3">
-            <Card.Title
-              class="line-clamp-1 text-base font-bold tracking-tight text-foreground transition-colors group-hover:text-primary"
-            >
+          <Card.Header class="pb-3">
+            <Card.Title class="line-clamp-1 text-lg font-bold tracking-tight text-foreground">
               {problem.title}
             </Card.Title>
             <div class="mt-2 flex flex-col gap-1 text-[11px] text-muted-foreground">
@@ -182,32 +176,14 @@
               </div>
             </div>
           </Card.Header>
-          <Card.Footer class="flex items-center justify-between border-t border-border/40 bg-muted/5 p-4">
-            <Button
-              variant="ghost"
-              size="lg"
-              class="font-semibold text-muted-foreground hover:text-foreground"
-              onclick={() => goto(`/problems/${problem._id}`)}
-            >
-              <Eye class="size-3.5" /> View Details
+          <Card.Footer class="flex items-center justify-between gap-2 border-t border-border/40 bg-muted/5 p-3">
+            <Button size="lg" class="flex-1 font-semibold" onclick={() => goto(`/problems/${problem._id}`)}>
+              <Eye class="mr-1.5 size-3.5" /> View Details
             </Button>
             {#if canManage(problem.createdBy)}
               <div class="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon-lg"
-                  class="text-muted-foreground hover:text-primary"
-                  onclick={() => goto(`/problems/${problem._id}/edit`)}
-                >
+                <Button href="/problems/{problem._id}/edit" variant="outline" size="icon-lg" title="Edit problem">
                   <Pencil class="size-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon-lg"
-                  class="text-muted-foreground hover:text-destructive"
-                  onclick={() => startDelete(problem._id)}
-                >
-                  <Trash2 class="size-3.5" />
                 </Button>
               </div>
             {/if}

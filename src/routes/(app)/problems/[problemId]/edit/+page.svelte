@@ -12,6 +12,7 @@
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
   import { PageHero, PageLayout } from '$lib/components/page/index.js';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
@@ -39,6 +40,8 @@
   // Mutation Submitting flags
   let isSavingDetails = $state(false);
   let isAddingTestCase = $state(false);
+  let isDeleting = $state(false);
+  let deleteDialogOpen = $state(false);
   let updatingIoMap = $state<Record<string, boolean>>({});
   let deletingIoMap = $state<Record<string, boolean>>({});
 
@@ -142,6 +145,21 @@
       deletingIoMap[ioId] = false;
     }
   }
+
+  async function confirmDelete() {
+    isDeleting = true;
+    try {
+      await client.mutation(api.problems.remove, { id: problemId });
+      toast.success('Problem deleted successfully.');
+      goto('/problems');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete problem.');
+    } finally {
+      isDeleting = false;
+      deleteDialogOpen = false;
+    }
+  }
 </script>
 
 <PageLayout class="max-w-4xl!">
@@ -198,7 +216,7 @@
         </Card.Header>
         <Separator />
         <Card.Content class="p-6">
-          <form onsubmit={saveDetails} class="flex flex-col gap-5">
+          <form id="problem-details-form" onsubmit={saveDetails} class="flex flex-col gap-5">
             <!-- Title input -->
             <div class="flex flex-col gap-2">
               <Label for="prob-title" class="text-xs font-bold tracking-wider text-muted-foreground uppercase"
@@ -223,25 +241,34 @@
                 <Tiptap initialContent={contentMd} onUpdate={(html: string) => (contentMd = html)} />
               {/key}
             </div>
-
-            <div class="flex items-center justify-between gap-3 pt-2">
-              <Button href="/problems/{problemId}" variant="outline" class="border-border text-xs font-semibold">
-                Back to Problem
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSavingDetails || !title.trim() || !contentMd.replace(/<[^>]*>/g, '').trim()}
-                class="min-w-32 cursor-pointer font-bold shadow-sm"
-              >
-                {#if isSavingDetails}
-                  <Spinner class="size-4" /> Saving...
-                {:else}
-                  Save Details
-                {/if}
-              </Button>
-            </div>
           </form>
         </Card.Content>
+        <Card.Footer class="flex justify-between border-t bg-muted/5 px-6 py-4">
+          <Button
+            variant="destructive"
+            size="lg"
+            class="font-semibold shadow-sm"
+            onclick={() => (deleteDialogOpen = true)}
+          >
+            <Trash2 class="mr-1.5 size-3.5" />
+            Delete Problem
+          </Button>
+          <Button
+            form="problem-details-form"
+            type="submit"
+            disabled={isSavingDetails || !title.trim() || !contentMd.replace(/<[^>]*>/g, '').trim()}
+            size="lg"
+            class="font-semibold shadow-sm"
+          >
+            {#if isSavingDetails}
+              <Spinner class="size-3.5" />
+              Saving...
+            {:else}
+              <Save class="size-3.5" />
+              Save Details
+            {/if}
+          </Button>
+        </Card.Footer>
       </Card.Root>
 
       <!-- Existing Test Cases -->
@@ -410,3 +437,25 @@
     </div>
   {/if}
 </PageLayout>
+
+<AlertDialog.Root bind:open={deleteDialogOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Delete Problem</AlertDialog.Title>
+      <AlertDialog.Description>
+        Are you sure you want to delete this problem? This action cannot be undone. All associated test cases will also
+        be removed.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action variant="destructive" onclick={confirmDelete} disabled={isDeleting}>
+        {#if isDeleting}
+          <Spinner class="size-4" /> Deleting...
+        {:else}
+          Delete
+        {/if}
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
