@@ -16,7 +16,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Calendar } from '$lib/components/ui/calendar/index.js';
@@ -147,6 +147,7 @@
         endTime,
       });
       toast.success('Activity settings updated successfully!');
+      goto(`/activities/${activityId}`);
     } catch (err) {
       console.error(err);
       toast.error('Failed to update activity settings');
@@ -298,7 +299,6 @@
   </PageLayout>
 {:else}
   <PageLayout class="max-w-4xl!">
-    <BackButton href={`/sections/${activity.sectionId}`} label="Back to Section" />
     <PageHero
       title={'Edit Activity: ' + activity.title}
       description="Modify settings and problems assigned to this activity."
@@ -403,15 +403,24 @@
           </Card.Content>
 
           <Card.Footer class="flex items-center justify-between border-t bg-muted/5 px-6 py-4">
-            <Button
-              variant="destructive"
-              type="button"
-              onclick={() => (deleteDialogOpen = true)}
-              disabled={isSavingSettings || isDeletingActivity}
-            >
-              <Trash2Icon class="mr-2 size-4" />
-              Delete Activity
-            </Button>
+            <div class="flex items-center gap-2">
+              <Button
+                href="/activities/{activityId}"
+                variant="outline"
+                disabled={isSavingSettings || isDeletingActivity}
+              >
+                Back to Activity
+              </Button>
+              <Button
+                variant="destructive"
+                type="button"
+                onclick={() => (deleteDialogOpen = true)}
+                disabled={isSavingSettings || isDeletingActivity}
+              >
+                <Trash2Icon class="mr-2 size-4" />
+                Delete Activity
+              </Button>
+            </div>
             <Button type="submit" disabled={isSavingSettings || isDeletingActivity}>
               {#if isSavingSettings}
                 <Spinner class="mr-2 size-4" />

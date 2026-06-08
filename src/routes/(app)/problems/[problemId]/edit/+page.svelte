@@ -11,7 +11,7 @@
   import type { Id } from '$convex/_generated/dataModel';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
@@ -75,6 +75,7 @@
         contentMd: contentMd.trim(),
       });
       toast.success('Problem details updated successfully.');
+      goto(`/problems/${problemId}`);
     } catch (err) {
       console.error(err);
       toast.error('Failed to save details.');
@@ -144,9 +145,6 @@
 </script>
 
 <PageLayout class="max-w-4xl!">
-  <!-- Back navigation header -->
-  <BackButton href={`/problems/${problemId}`} label="Back to Problem details" />
-
   {#if problemQuery.isLoading}
     <div class="flex flex-col gap-6">
       <Card.Root class="border bg-card/45 shadow-sm backdrop-blur-md">
@@ -226,7 +224,10 @@
               {/key}
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-2">
+            <div class="flex items-center justify-between gap-3 pt-2">
+              <Button href="/problems/{problemId}" variant="outline" class="border-border text-xs font-semibold">
+                Back to Problem
+              </Button>
               <Button
                 type="submit"
                 disabled={isSavingDetails || !title.trim() || !contentMd.replace(/<[^>]*>/g, '').trim()}

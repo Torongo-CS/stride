@@ -20,7 +20,7 @@
   import type { Id } from '$convex/_generated/dataModel.js';
 
   import FileIcon from '$lib/components/FileIcon.svelte';
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
@@ -187,9 +187,6 @@
 </script>
 
 <PageLayout>
-  <!-- Back Action -->
-  <BackButton href="/sections" label="Back to Sections" />
-
   {#if isLoading}
     <div class="flex flex-col gap-6">
       <Card.Root class="overflow-hidden border border-border bg-card">

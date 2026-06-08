@@ -13,7 +13,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
-  import { BackButton, PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
@@ -198,7 +198,6 @@
   </PageLayout>
 {:else}
   <PageLayout class="max-w-4xl!">
-    <BackButton href={`/sections/${activity.sectionId}`} label="Back to Section" />
     <PageHero title={'Status: ' + activity.title} description="Classroom status matrix and student submissions.">
       {#snippet actions()}
         <Button
@@ -277,23 +276,23 @@
           <Table.Root class="w-full min-w-[700px]">
             <Table.Header>
               <Table.Row>
-                <Table.Head class="w-[200px]">Student</Table.Head>
+                <Table.Head class="w-[200px] p-4">Student</Table.Head>
                 {#each problems as ap, idx (ap._id)}
                   <Table.Head
-                    class="max-w-[150px] truncate text-center text-xs font-semibold"
+                    class="max-w-[150px] truncate p-4 text-center text-xs font-semibold"
                     title={ap.problem?.title}
                   >
                     P{idx + 1}: {ap.problem?.title}
                   </Table.Head>
                 {/each}
-                <Table.Head class="w-[120px] text-right">Solved</Table.Head>
+                <Table.Head class="w-[120px] p-4 text-right">Solved</Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body>
               {#if isLoading}
                 {#each [0, 1, 2, 3] as i (i)}
                   <Table.Row>
-                    <Table.Cell>
+                    <Table.Cell class="p-4">
                       <div class="flex items-center gap-2">
                         <Skeleton class="size-8 rounded-full" />
                         <div class="flex flex-col gap-1">
@@ -303,18 +302,18 @@
                       </div>
                     </Table.Cell>
                     {#each problems as ap (ap._id)}
-                      <Table.Cell class="text-center">
+                      <Table.Cell class="p-4 text-center">
                         <Skeleton class="mx-auto h-6 w-16" />
                       </Table.Cell>
                     {/each}
-                    <Table.Cell class="text-right">
+                    <Table.Cell class="p-4 text-right">
                       <Skeleton class="ml-auto h-4 w-8" />
                     </Table.Cell>
                   </Table.Row>
                 {/each}
               {:else if students.length === 0}
                 <Table.Row>
-                  <Table.Cell colspan={problems.length + 2} class="h-24 text-center text-sm text-muted-foreground">
+                  <Table.Cell colspan={problems.length + 2} class="h-24 p-4 text-center text-sm text-muted-foreground">
                     No students enrolled in this section.
                   </Table.Cell>
                 </Table.Row>
@@ -322,7 +321,7 @@
                 {#each students as student (student._id)}
                   <Table.Row>
                     <!-- Student Avatar & Name -->
-                    <Table.Cell>
+                    <Table.Cell class="p-4">
                       <div class="flex items-center gap-3">
                         <Avatar.Root class="size-8">
                           <Avatar.Image src={student.avatarUrl} alt={student.name} />
@@ -339,10 +338,10 @@
                     {#each problems as ap (ap._id)}
                       {@const problemId = ap.problemId}
                       {@const sub = getBestSubmission(student._id, problemId)}
-                      <Table.Cell class="text-center">
+                      <Table.Cell class="p-4 text-center">
                         {#if sub}
                           {@const isAccepted = sub.judgeVerdict === 'Accepted'}
-                          <a href="/activities/${activityId}/playback/${problemId}/${student._id}" class="inline-block">
+                          <a href="/activities/{activityId}/playback/{problemId}/{student._id}" class="inline-block">
                             <Badge variant={isAccepted ? 'success' : 'destructive'} class="cursor-pointer text-xs">
                               {sub.judgeVerdict ?? 'Submitted'}
                             </Badge>
@@ -354,7 +353,7 @@
                     {/each}
 
                     <!-- Summary Cell -->
-                    <Table.Cell class="text-right font-medium">
+                    <Table.Cell class="p-4 text-right font-medium">
                       <Badge variant="outline" class="font-semibold tabular-nums">
                         {getSolvedCount(student._id)} / {problems.length}
                       </Badge>

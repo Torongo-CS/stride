@@ -12,7 +12,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
-  import { BackButton, PageLayout } from '$lib/components/page/index.js';
+  import { PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -74,31 +74,26 @@
 </script>
 
 <PageLayout class="max-w-4xl!">
-  <!-- Back Button & Action Controls -->
-  <div class="flex items-center justify-between">
-    <BackButton href="/problems" label="Back to Problems" />
-
-    {#if canManage}
-      <div class="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onclick={() => goto(`/problems/${problemId}/edit`)}
-          class="h-8 cursor-pointer gap-1.5 text-xs font-semibold"
-        >
-          <Pencil class="h-3.5 w-3.5" /> Edit Problem
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onclick={() => (deleteDialogOpen = true)}
-          class="h-8 cursor-pointer gap-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
-        >
-          <Trash2 class="h-3.5 w-3.5" /> Delete
-        </Button>
-      </div>
-    {/if}
-  </div>
+  {#if canManage}
+    <div class="mb-4 flex items-center justify-end gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onclick={() => goto(`/problems/${problemId}/edit`)}
+        class="h-8 cursor-pointer gap-1.5 text-xs font-semibold"
+      >
+        <Pencil class="h-3.5 w-3.5" /> Edit Problem
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onclick={() => (deleteDialogOpen = true)}
+        class="h-8 cursor-pointer gap-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
+      >
+        <Trash2 class="h-3.5 w-3.5" /> Delete
+      </Button>
+    </div>
+  {/if}
 
   {#if problemQuery.isLoading}
     <Card.Root class="border bg-card/45 shadow-sm backdrop-blur-md">

@@ -11,7 +11,7 @@
   import { api } from '$convex/_generated/api.js';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -97,7 +97,7 @@
       }
 
       toast.success('Section created, instructor assigned, and student roster enrolled successfully!');
-      goto('/sections');
+      goto(`/sections/${sectionId}`);
     } catch (e) {
       console.error(e);
       toast.error('Failed to create section');
@@ -108,9 +108,6 @@
 </script>
 
 <PageLayout class="max-w-4xl!">
-  <!-- Header / Navigation -->
-  <BackButton href="/sections" label="Back to Sections" />
-
   {#if userRole !== 'admin'}
     <!-- Unauthorized Access Protection -->
     <Card.Root class="border-destructive bg-destructive/5 p-8 text-center">

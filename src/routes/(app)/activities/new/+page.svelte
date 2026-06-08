@@ -17,7 +17,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Calendar } from '$lib/components/ui/calendar/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -219,7 +219,7 @@
       }
 
       toast.success('Activity created successfully!');
-      goto(`/activities/${activityId}/edit`);
+      goto(`/activities/${activityId}`);
     } catch (err) {
       console.error(err);
       toast.error('Failed to create activity');
@@ -232,13 +232,12 @@
     if (urlSectionId) {
       goto(`/sections/${urlSectionId}`);
     } else {
-      goto('/dashboard');
+      goto('/activities');
     }
   }
 </script>
 
 <PageLayout class="max-w-4xl!">
-  <BackButton href={urlSectionId ? `/sections/${urlSectionId}` : '/dashboard'} label="Back" />
   <PageHero title="Create New Activity" description="Schedule a class session or exam for your students." />
 
   <form onsubmit={handleSubmit} class="flex flex-col gap-8">

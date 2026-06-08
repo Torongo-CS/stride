@@ -17,7 +17,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 
@@ -326,7 +326,6 @@
   </PageLayout>
 {:else if !sectionQuery.data}
   <PageLayout>
-    <BackButton href="/sections" label="Back to Sections" />
     <PageHero title="CCTV Invigilation Hub" description="Screen Share Invigilator" />
     <!-- Empty state -->
     <div class="flex flex-1 flex-col items-center justify-center py-16">
@@ -337,7 +336,6 @@
   </PageLayout>
 {:else}
   <PageLayout>
-    <BackButton href={`/sections/${sectionId}`} label="Back to Section" />
     <PageHero
       title={'CCTV Hub: ' + sectionQuery.data.name}
       description="Invigilation Dashboard &bull; Section Screen Sharing"

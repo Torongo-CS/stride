@@ -21,7 +21,7 @@
   import type { Id } from '$convex/_generated/dataModel';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
-  import { BackButton, PageLayout } from '$lib/components/page/index.js';
+  import { PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
@@ -341,9 +341,6 @@
 <PageLayout class="flex-row! items-start">
   <!-- Main Thread & Comments Area -->
   <div class="flex flex-1 flex-col gap-6">
-    <!-- Back to Feed -->
-    <BackButton href="/forum" label="Back to Feed" />
-
     {#if postQuery.isLoading}
       <Card.Root class="overflow-hidden border bg-card shadow-sm">
         <div class="flex">

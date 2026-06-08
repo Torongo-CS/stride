@@ -8,7 +8,7 @@
   import type { Id } from '$convex/_generated/dataModel';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -94,9 +94,6 @@
 </script>
 
 <PageLayout class="max-w-4xl!">
-  <!-- Back button -->
-  <BackButton href="/forum" label="Back to Feed" />
-
   <PageHero title="Create a New Post" description="Share questions, codes, or guides. Be respectful of others." />
 
   <Card.Root class="border bg-card shadow-md">

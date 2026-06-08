@@ -10,7 +10,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
-  import { BackButton, PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -72,7 +72,6 @@
   </PageLayout>
 {:else}
   <PageLayout>
-    <BackButton href={`/activities/${activityId}`} label="Back to Activity" />
     <PageHero
       title={activity.title}
       description={'Review student code progression · ' + students.length + ' students'}

@@ -8,12 +8,13 @@
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { toast } from 'svelte-sonner';
 
+  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -118,6 +119,7 @@
         aboutMd: aboutMd.trim() || undefined,
       });
       toast.success('Section info updated successfully');
+      goto(`/sections/${sectionId}`);
     } catch (e) {
       console.error(e);
       toast.error('Failed to update section info');
@@ -203,9 +205,6 @@
 </script>
 
 <PageLayout class="max-w-4xl!">
-  <!-- Back Action -->
-  <BackButton href="/sections" label="Back to Sections" />
-
   {#if userRole !== 'admin'}
     <!-- Unauthorized Access Protection -->
     <Card.Root class="border-destructive bg-destructive/5 p-8 text-center">
@@ -291,7 +290,10 @@
             </div>
           </Card.Content>
 
-          <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
+          <Card.Footer class="flex justify-between border-t bg-muted/5 px-6 py-4">
+            <Button href="/sections/{sectionId}" variant="outline" class="border-border text-xs font-semibold">
+              Back to Section
+            </Button>
             <Button type="submit" disabled={isSubmitting} size="lg" class="font-semibold shadow-sm">
               {#if isSubmitting}
                 <Spinner class="size-3.5" />

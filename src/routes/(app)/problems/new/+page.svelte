@@ -9,7 +9,7 @@
   import { api } from '$convex/_generated/api.js';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
-  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
@@ -86,9 +86,6 @@
 </script>
 
 <PageLayout class="max-w-4xl!">
-  <!-- Back button -->
-  <BackButton href="/problems" label="Back to Problems" />
-
   {#if !isTeacherOrAdmin}
     <div
       class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-destructive/30 py-20 text-center"
