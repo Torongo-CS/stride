@@ -11,6 +11,7 @@
   import Loader2 from '@lucide/svelte/icons/loader-2';
   import Quote from '@lucide/svelte/icons/quote';
   import Redo from '@lucide/svelte/icons/redo';
+  import Sigma from '@lucide/svelte/icons/sigma';
   import SquareCode from '@lucide/svelte/icons/square-code';
   import Strikethrough from '@lucide/svelte/icons/strikethrough';
   import Undo from '@lucide/svelte/icons/undo';
@@ -19,6 +20,7 @@
   import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
   import Image from '@tiptap/extension-image';
   import Link from '@tiptap/extension-link';
+  import { Mathematics } from '@tiptap/extension-mathematics';
   import StarterKit from '@tiptap/starter-kit';
   import { useConvexClient } from 'convex-svelte';
   import { common, createLowlight } from 'lowlight';
@@ -144,6 +146,7 @@
           openOnClick: false,
           HTMLAttributes: { class: 'text-primary underline cursor-pointer' },
         }),
+        Mathematics,
       ],
       content: initialContent,
       editorProps: {
@@ -357,6 +360,15 @@
         onclick={() => editor?.chain().focus().toggleCodeBlock().run()}
       >
         <SquareCode size={16} />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        class={btnClass}
+        onclick={() => editor?.chain().focus().insertContent('$x$').run()}
+        title="Insert Math (LaTeX)"
+      >
+        <Sigma size={16} />
       </Button>
 
       <div class="ml-auto flex items-center gap-1">

@@ -6,7 +6,6 @@
   import Pencil from '@lucide/svelte/icons/pencil';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import { useConvexClient, useQuery } from 'convex-svelte';
-  import DOMPurify from 'isomorphic-dompurify';
   import { toast } from 'svelte-sonner';
   import { fade } from 'svelte/transition';
 
@@ -15,6 +14,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
+  import ProblemContent from '$lib/components/problem-content.svelte';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -152,12 +152,8 @@
       <Separator />
 
       <!-- Description body -->
-      <Card.Content class="p-6">
-        <h3 class="mb-3 text-sm font-bold tracking-wider text-muted-foreground uppercase">Problem Description</h3>
-        <div class="prose prose-sm max-w-none leading-relaxed font-normal text-foreground/90 dark:prose-invert">
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html DOMPurify.sanitize(problem.contentMd)}
-        </div>
+      <Card.Content>
+        <ProblemContent contentMd={problem.contentMd} />
       </Card.Content>
     </Card.Root>
 
