@@ -26,7 +26,6 @@ const TABLES = [
 ] as const;
 
 const DEFAULT_PASS = 'pass';
-const NOW = Date.now();
 const ONE_HOUR = 60 * 60 * 1000;
 const ONE_DAY = 24 * ONE_HOUR;
 
@@ -110,37 +109,37 @@ const PROBLEMS = [
   },
 ];
 
-const ACTIVITIES = [
+const getActivities = (now: number) => [
   {
     sectionIndex: 0, // SPL
     title: 'Lab 01: Variables and Loops',
     type: 'class' as const,
-    startTime: NOW - ONE_DAY,
-    endTime: NOW + ONE_DAY,
+    startTime: now - ONE_DAY,
+    endTime: now + ONE_DAY,
     problemIndices: [0, 2], // Sum, Factorial
   },
   {
     sectionIndex: 0, // SPL
     title: 'Midterm Exam',
     type: 'exam' as const,
-    startTime: NOW + ONE_HOUR,
-    endTime: NOW + 3 * ONE_HOUR,
+    startTime: now + ONE_HOUR,
+    endTime: now + 3 * ONE_HOUR,
     problemIndices: [1], // Palindrome
   },
   {
     sectionIndex: 1, // OOP
     title: 'Lab 01: Classes',
     type: 'class' as const,
-    startTime: NOW - 2 * ONE_DAY,
-    endTime: NOW - ONE_DAY,
+    startTime: now - 2 * ONE_DAY,
+    endTime: now - ONE_DAY,
     problemIndices: [3], // Bank
   },
   {
     sectionIndex: 2, // DSA
     title: 'Lab 01: Lists',
     type: 'class' as const,
-    startTime: NOW - ONE_HOUR,
-    endTime: NOW + 4 * ONE_HOUR,
+    startTime: now - ONE_HOUR,
+    endTime: now + 4 * ONE_HOUR,
     problemIndices: [4], // Linked List
   },
 ];
@@ -164,6 +163,9 @@ const REV_STEPS = [
 export default internalMutation({
   args: {},
   handler: async (ctx) => {
+    const NOW = Date.now();
+    const ACTIVITIES = getActivities(NOW);
+
     // 1. WIPE
     console.log('Wiping existing data...');
     for (const table of TABLES) {
