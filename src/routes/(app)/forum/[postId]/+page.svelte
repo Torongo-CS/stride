@@ -29,7 +29,7 @@
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
-  import { Spinner } from '$lib/components/ui/spinner/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -337,7 +337,41 @@
     <BackButton href="/forum" label="Back to Feed" />
 
     {#if postQuery.isLoading}
-      <div class="h-80 animate-pulse rounded-xl border bg-muted/20"></div>
+      <Card.Root class="overflow-hidden border bg-card shadow-sm">
+        <div class="flex">
+          <div class="flex w-14 flex-col items-center justify-start gap-1.5 border-r bg-muted/5 p-4">
+            <Skeleton class="h-6 w-6 rounded" />
+            <Skeleton class="h-5 w-8" />
+            <Skeleton class="h-6 w-6 rounded" />
+          </div>
+          <div class="flex flex-1 flex-col gap-4 p-6">
+            <div class="flex items-center gap-2.5">
+              <Skeleton class="h-6 w-6 rounded-full" />
+              <div class="flex flex-col gap-1">
+                <Skeleton class="h-3.5 w-24" />
+                <Skeleton class="h-3 w-16" />
+              </div>
+            </div>
+            <Skeleton class="h-8 w-3/4" />
+            <div class="space-y-2">
+              <Skeleton class="h-4 w-full" />
+              <Skeleton class="h-4 w-full" />
+              <Skeleton class="h-4 w-5/6" />
+              <Skeleton class="h-4 w-4/5" />
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <Skeleton class="h-5 w-14 rounded-full" />
+              <Skeleton class="h-5 w-18 rounded-full" />
+              <Skeleton class="h-5 w-12 rounded-full" />
+            </div>
+            <Separator />
+            <div class="flex items-center gap-4">
+              <Skeleton class="h-4 w-24" />
+              <Skeleton class="h-4 w-16" />
+            </div>
+          </div>
+        </div>
+      </Card.Root>
     {:else if !postQuery.data}
       <div class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed py-16 text-center">
         <h3 class="text-xl font-bold">Post not found</h3>
@@ -529,7 +563,19 @@
         <!-- Recursive Comments Tree Loader -->
         <div class="flex flex-col gap-4">
           {#if commentsQuery.isLoading}
-            <div class="flex items-center justify-center p-4"><Spinner /></div>
+            <div class="flex flex-col gap-4 p-4">
+              {#each [1, 2, 3] as i (i)}
+                <div class="flex items-start gap-3">
+                  <Skeleton class="h-8 w-8 rounded-full" />
+                  <div class="flex-1 space-y-2">
+                    <Skeleton class="h-4 w-24" />
+                    <Skeleton class="h-4 w-full" />
+                    <Skeleton class="h-4 w-3/4" />
+                    <Skeleton class="h-4 w-2/3" />
+                  </div>
+                </div>
+              {/each}
+            </div>
           {:else if topLevelComments.length === 0}
             <div
               class="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-10 text-center"

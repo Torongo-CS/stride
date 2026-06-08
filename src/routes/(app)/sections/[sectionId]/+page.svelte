@@ -198,7 +198,82 @@
           <Skeleton class="h-4 w-1/2" />
         </Card.Header>
         <Card.Content class="gap-4">
-          <Skeleton class="h-24 w-full" />
+          <div class="space-y-2">
+            <Skeleton class="h-4 w-full" />
+            <Skeleton class="h-4 w-5/6" />
+            <Skeleton class="h-4 w-4/5" />
+            <Skeleton class="h-4 w-3/4" />
+          </div>
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="border-border bg-card shadow-xs">
+        <Card.Header class="pb-3">
+          <Skeleton class="h-4 w-28" />
+        </Card.Header>
+        <Card.Content class="grid gap-4 sm:grid-cols-3">
+          <div class="flex items-center justify-between pb-3 sm:border-r sm:border-b-0 sm:pr-4 sm:pb-0">
+            <Skeleton class="h-3 w-24" />
+            <Skeleton class="h-4 w-8" />
+          </div>
+          <div class="flex items-center justify-between pb-3 sm:border-r sm:border-b-0 sm:px-4 sm:pb-0">
+            <Skeleton class="h-3 w-28" />
+            <Skeleton class="h-4 w-8" />
+          </div>
+          <div class="flex items-center justify-between sm:pl-4">
+            <Skeleton class="h-3 w-20" />
+            <Skeleton class="h-4 w-24" />
+          </div>
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="border-border bg-card shadow-xs">
+        <Card.Header class="flex flex-row items-center justify-between pb-3">
+          <Skeleton class="h-4 w-40" />
+        </Card.Header>
+        <Card.Content class="space-y-3">
+          {#each [1, 2] as i (i)}
+            <div class="rounded-lg border border-border bg-card p-4">
+              <div class="flex items-center gap-3">
+                <Skeleton class="h-8 w-8 rounded-full" />
+                <div class="flex-1 space-y-1">
+                  <Skeleton class="h-4 w-48" />
+                  <Skeleton class="h-3 w-36" />
+                </div>
+                <Skeleton class="h-6 w-14 rounded-md" />
+              </div>
+            </div>
+          {/each}
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="border-border bg-card shadow-xs">
+        <Card.Header class="pb-3">
+          <Skeleton class="h-4 w-36" />
+        </Card.Header>
+        <Card.Content class="space-y-2">
+          {#each [1, 2] as i (i)}
+            <div class="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+              <Skeleton class="h-9 w-9 rounded-full" />
+              <div class="flex-1 space-y-1">
+                <Skeleton class="h-3.5 w-32" />
+                <Skeleton class="h-3 w-48" />
+              </div>
+            </div>
+          {/each}
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="border-border bg-card shadow-xs">
+        <Card.Header class="pb-3">
+          <Skeleton class="h-4 w-40" />
+        </Card.Header>
+        <Card.Content class="space-y-2">
+          {#each [1, 2, 3] as i (i)}
+            <div class="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+              <Skeleton class="h-9 w-9 rounded-full" />
+              <div class="flex-1 space-y-1">
+                <Skeleton class="h-3.5 w-28" />
+                <Skeleton class="h-3 w-44" />
+              </div>
+            </div>
+          {/each}
         </Card.Content>
       </Card.Root>
     </div>
@@ -371,8 +446,10 @@
                       {@const isUpcoming = now < activity.startTime}
 
                       {#if problemsQuery.isLoading}
-                        <div class="mt-3 flex items-center justify-center border-t border-border/30 py-2 pt-3">
-                          <Spinner class="size-3" />
+                        <div class="mt-3 flex flex-col gap-2 border-t border-border/30 px-2 pt-3">
+                          {#each [1, 2] as i (i)}
+                            <Skeleton class="h-10 w-full rounded-lg" />
+                          {/each}
                         </div>
                       {:else if problems.length === 0}
                         <div

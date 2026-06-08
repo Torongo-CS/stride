@@ -17,6 +17,7 @@
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { Textarea } from '$lib/components/ui/textarea/index.js';
   import { session } from '$lib/session';
@@ -147,8 +148,29 @@
   <BackButton href={`/problems/${problemId}`} label="Back to Problem details" />
 
   {#if problemQuery.isLoading}
-    <div class="flex h-96 flex-col items-center justify-center gap-2">
-      <Spinner class="size-8 text-primary" />
+    <div class="flex flex-col gap-6">
+      <Card.Root class="border bg-card/45 shadow-sm backdrop-blur-md">
+        <Card.Header class="p-6">
+          <Skeleton class="h-5 w-40" />
+          <Skeleton class="mt-1.5 h-4 w-64" />
+        </Card.Header>
+        <Separator />
+        <Card.Content class="p-6">
+          <div class="flex flex-col gap-5">
+            <div class="flex flex-col gap-2">
+              <Skeleton class="h-4 w-24" />
+              <Skeleton class="h-10 w-full rounded-md" />
+            </div>
+            <div class="flex flex-col gap-2">
+              <Skeleton class="h-4 w-36" />
+              <Skeleton class="h-64 w-full rounded-md" />
+            </div>
+            <div class="flex justify-end pt-2">
+              <Skeleton class="h-10 w-32 rounded-md" />
+            </div>
+          </div>
+        </Card.Content>
+      </Card.Root>
     </div>
   {:else if !problemQuery.data}
     <div class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed py-20 text-center">
@@ -232,8 +254,28 @@
         <Separator />
         <Card.Content class="flex flex-col gap-6 p-6">
           {#if testCasesQuery.isLoading}
-            <div class="flex items-center justify-center py-6">
-              <Spinner class="size-4" />
+            <div class="flex flex-col gap-4 py-6">
+              {#each [1, 2] as i (i)}
+                <div class="rounded-xl border bg-muted/10 p-4">
+                  <div class="mb-4 flex items-center justify-between">
+                    <Skeleton class="h-5 w-28 rounded-full" />
+                    <div class="flex gap-1.5">
+                      <Skeleton class="h-8 w-8 rounded-md" />
+                      <Skeleton class="h-8 w-8 rounded-md" />
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-3">
+                    <div class="flex flex-col gap-1">
+                      <Skeleton class="h-3 w-12" />
+                      <Skeleton class="h-16 w-full rounded-md" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <Skeleton class="h-3 w-16" />
+                      <Skeleton class="h-16 w-full rounded-md" />
+                    </div>
+                  </div>
+                </div>
+              {/each}
             </div>
           {:else if !testCasesQuery.data || testCasesQuery.data.length === 0}
             <div class="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground italic">

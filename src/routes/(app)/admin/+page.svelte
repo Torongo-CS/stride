@@ -13,7 +13,7 @@
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import * as Select from '$lib/components/ui/select/index.js';
-  import { Spinner } from '$lib/components/ui/spinner/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import * as Table from '$lib/components/ui/table/index.js';
   import { session } from '$lib/session';
 
@@ -204,16 +204,15 @@
             </Table.Header>
             <Table.Body>
               {#if tableDataQuery.isLoading}
-                <Table.Row>
-                  <Table.Cell
-                    colspan={Math.max(allColumns.length, 1)}
-                    class="py-16 text-center text-xs text-muted-foreground italic"
-                  >
-                    <div class="flex items-center justify-center gap-2">
-                      <Spinner class="size-5 text-primary" />
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
+                {#each [1, 2, 3, 4] as i (i)}
+                  <Table.Row>
+                    {#each [1, 2, 3, 4] as j (j)}
+                      <Table.Cell class="px-4 py-3">
+                        <Skeleton class="h-4 w-24" />
+                      </Table.Cell>
+                    {/each}
+                  </Table.Row>
+                {/each}
               {:else if sortedRows.length === 0}
                 <Table.Row>
                   <Table.Cell

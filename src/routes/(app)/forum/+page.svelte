@@ -31,7 +31,6 @@
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
-  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -462,7 +461,12 @@
         <Separator />
         <div class="flex flex-wrap gap-1.5">
           {#if tagsQuery.isLoading}
-            <div class="flex w-full justify-center"><Spinner class="size-3" /></div>
+            <div class="flex w-full flex-wrap gap-1.5">
+              <Skeleton class="h-5 w-14 rounded-full" />
+              <Skeleton class="h-5 w-18 rounded-full" />
+              <Skeleton class="h-5 w-12 rounded-full" />
+              <Skeleton class="h-5 w-16 rounded-full" />
+            </div>
           {:else if !tagsQuery.data || tagsQuery.data.length === 0}
             <div class="w-full text-xs text-muted-foreground italic">No tags created yet.</div>
           {:else}
@@ -561,7 +565,11 @@
       <div class="max-h-60 space-y-2 overflow-y-auto pr-1">
         <Label class="text-xs font-bold tracking-wider text-muted-foreground uppercase">Active Tags</Label>
         {#if tagsQuery.isLoading}
-          <div class="flex justify-center"><Spinner class="size-3" /></div>
+          <div class="flex flex-wrap gap-1.5">
+            <Skeleton class="h-5 w-14 rounded-full" />
+            <Skeleton class="h-5 w-16 rounded-full" />
+            <Skeleton class="h-5 w-12 rounded-full" />
+          </div>
         {:else if !tagsQuery.data || tagsQuery.data.length === 0}
           <div class="text-xs text-muted-foreground italic">No tags created yet.</div>
         {:else}

@@ -26,6 +26,7 @@
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
@@ -87,8 +88,53 @@
 
 <PageLayout>
   {#if profileQuery.isLoading}
-    <div class="flex h-96 flex-col items-center justify-center gap-4">
-      <Spinner class="size-10 text-primary opacity-60" />
+    <div class="flex flex-col gap-8">
+      <div class="rounded-2xl border bg-card p-6 shadow-sm md:p-8">
+        <div class="flex flex-col items-center gap-6 md:flex-row md:items-start">
+          <Skeleton class="h-24 w-24 shrink-0 rounded-full md:h-28 md:w-28" />
+          <div class="flex flex-col items-center gap-3 md:items-start">
+            <Skeleton class="h-8 w-48 md:h-9 md:w-56" />
+            <Skeleton class="h-4 w-32" />
+            <div class="flex flex-wrap justify-center gap-x-4 gap-y-1.5 md:justify-start">
+              <Skeleton class="h-4 w-36" />
+              <Skeleton class="h-4 w-28" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <Card.Root class="border">
+          <Card.Content class="flex flex-col items-center gap-2 p-5">
+            <Skeleton class="h-8 w-16" />
+            <Skeleton class="h-3 w-24" />
+          </Card.Content>
+        </Card.Root>
+        <Card.Root class="border">
+          <Card.Content class="flex flex-col items-center gap-2 p-5">
+            <Skeleton class="h-8 w-16" />
+            <Skeleton class="h-3 w-28" />
+          </Card.Content>
+        </Card.Root>
+        <Card.Root class="col-span-2 border sm:col-span-1">
+          <Card.Content class="flex flex-col items-center gap-2 p-5">
+            <Skeleton class="h-8 w-16" />
+            <Skeleton class="h-3 w-32" />
+          </Card.Content>
+        </Card.Root>
+      </div>
+      <div class="flex flex-col gap-6">
+        <div class="flex border-b">
+          <div class="px-5 py-3"><Skeleton class="h-4 w-20" /></div>
+          <div class="px-5 py-3"><Skeleton class="h-4 w-24" /></div>
+          <div class="px-5 py-3"><Skeleton class="h-4 w-28" /></div>
+          <div class="px-5 py-3"><Skeleton class="h-4 w-32" /></div>
+        </div>
+        <div class="space-y-3">
+          {#each [1, 2, 3] as i (i)}
+            <Skeleton class="h-16 w-full rounded-lg" />
+          {/each}
+        </div>
+      </div>
     </div>
   {:else if !profileQuery.data}
     <div class="flex h-96 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed p-8 text-center">

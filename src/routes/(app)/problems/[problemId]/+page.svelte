@@ -17,6 +17,7 @@
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { Spinner } from '$lib/components/ui/spinner/index.js';
   import * as Table from '$lib/components/ui/table/index.js';
   import { session } from '$lib/session';
@@ -100,9 +101,26 @@
   </div>
 
   {#if problemQuery.isLoading}
-    <div class="flex h-96 flex-col items-center justify-center gap-2">
-      <Spinner class="size-8 text-primary" />
-    </div>
+    <Card.Root class="border bg-card/45 shadow-sm backdrop-blur-md">
+      <Card.Header class="space-y-4 p-6">
+        <Skeleton class="h-8 w-3/4 md:h-9" />
+        <div class="flex gap-6">
+          <Skeleton class="h-4 w-32" />
+          <Skeleton class="h-4 w-24" />
+        </div>
+      </Card.Header>
+      <Separator />
+      <Card.Content class="p-6">
+        <Skeleton class="mb-3 h-4 w-40" />
+        <div class="space-y-2">
+          <Skeleton class="h-4 w-full" />
+          <Skeleton class="h-4 w-full" />
+          <Skeleton class="h-4 w-5/6" />
+          <Skeleton class="h-4 w-4/5" />
+          <Skeleton class="h-4 w-3/4" />
+        </div>
+      </Card.Content>
+    </Card.Root>
   {:else if !problemQuery.data}
     <div class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed py-20 text-center">
       <h3 class="text-xl font-bold">Problem not found</h3>
@@ -163,8 +181,25 @@
       </Card.Header>
       <Card.Content class="p-6 pt-0">
         {#if testCasesQuery.isLoading}
-          <div class="flex items-center justify-center py-6">
-            <Spinner class="size-4" />
+          <div class="overflow-x-auto rounded-lg border">
+            <Table.Root>
+              <Table.Header class="bg-muted/50">
+                <Table.Row>
+                  <Table.Head class="w-12 text-center">#</Table.Head>
+                  <Table.Head>Input</Table.Head>
+                  <Table.Head>Expected Output</Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {#each [1, 2, 3] as i (i)}
+                  <Table.Row>
+                    <Table.Cell class="text-center"><Skeleton class="mx-auto h-4 w-6" /></Table.Cell>
+                    <Table.Cell><Skeleton class="h-4 w-32" /></Table.Cell>
+                    <Table.Cell><Skeleton class="h-4 w-40" /></Table.Cell>
+                  </Table.Row>
+                {/each}
+              </Table.Body>
+            </Table.Root>
           </div>
         {:else if !testCasesQuery.data || testCasesQuery.data.length === 0}
           <div class="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground italic">

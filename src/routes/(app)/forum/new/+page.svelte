@@ -15,6 +15,7 @@
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
 
@@ -141,7 +142,11 @@
           <!-- Tags list selection -->
           <div class="flex flex-wrap gap-1.5 rounded-lg border bg-muted/5 p-2.5">
             {#if tagsQuery.isLoading}
-              <span class="flex"><Spinner class="size-3" /></span>
+              <div class="flex flex-wrap gap-1.5">
+                <Skeleton class="h-5 w-14 rounded-full" />
+                <Skeleton class="h-5 w-16 rounded-full" />
+                <Skeleton class="h-5 w-12 rounded-full" />
+              </div>
             {:else if !tagsQuery.data || tagsQuery.data.length === 0}
               <span class="text-xs text-muted-foreground italic">No tags. Create a new tag!</span>
             {:else}

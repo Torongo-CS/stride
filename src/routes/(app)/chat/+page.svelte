@@ -16,7 +16,7 @@
   import * as Resizable from '$lib/components/ui/resizable/index.js';
   import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
-  import { Spinner } from '$lib/components/ui/spinner/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -106,7 +106,17 @@
       <ScrollArea class="flex-1">
         <div class="flex flex-col gap-1 p-2">
           {#if chatsQuery.isLoading}
-            <div class="flex items-center justify-center p-4"><Spinner /></div>
+            <div class="flex flex-col gap-1 p-2">
+              {#each [1, 2, 3, 4] as i (i)}
+                <div class="flex items-center gap-3 rounded-lg p-3">
+                  <Skeleton class="h-10 w-10 rounded-full" />
+                  <div class="flex-1 space-y-1.5">
+                    <Skeleton class="h-4 w-32" />
+                    <Skeleton class="h-3 w-48" />
+                  </div>
+                </div>
+              {/each}
+            </div>
           {:else if chatsQuery.data?.length === 0}
             <div class="p-4 text-center text-sm text-muted-foreground">No chats found</div>
           {:else}
@@ -159,8 +169,21 @@
         <ScrollArea class="flex-1" bind:viewportRef>
           <div class="flex flex-col gap-6 p-6">
             {#if messagesQuery.isLoading}
-              <div class="flex h-full items-center justify-center py-10">
-                <Spinner />
+              <div class="flex flex-col gap-6 p-6">
+                {#each [1, 2, 3] as i (i)}
+                  <div class="flex items-start gap-3">
+                    <Skeleton class="h-8 w-8 shrink-0 rounded-full" />
+                    <div class="flex flex-col gap-2">
+                      <Skeleton class="h-3 w-16" />
+                      <div class="rounded-2xl rounded-tl-none bg-muted p-4 shadow-sm">
+                        <div class="space-y-2">
+                          <Skeleton class="h-4 w-48" />
+                          <Skeleton class="h-4 w-32" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {/each}
               </div>
             {:else if messagesQuery.data?.length === 0}
               <div class="flex h-full items-center justify-center py-10">
