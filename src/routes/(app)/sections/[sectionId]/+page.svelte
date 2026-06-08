@@ -116,7 +116,7 @@
     for (const file of files) {
       if (file.size > MAX_SIZE) {
         toast.warning(`File "${file.name}" is over 50MB and was skipped.`);
-        return;
+        continue;
       }
     }
 
@@ -150,10 +150,10 @@
 
       toast.success(
         files.length === 1 ? 'File uploaded successfully!' : `Successfully uploaded ${uploadedCount} files!`,
+        { description: uploadFolderName.trim() ? `Added to "${uploadFolderName.trim()}" folder.` : undefined },
       );
       if (fileInputRef) fileInputRef.value = '';
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error(`Uploaded ${uploadedCount}/${files.length} files. An error occurred.`);
     } finally {
       isUploading = false;
@@ -176,8 +176,7 @@
         userId: userId as Id<'users'>,
       });
       toast.success('Resource deleted successfully.');
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to delete resource.');
     } finally {
       deleteDialogOpen = false;

@@ -11,6 +11,7 @@
   import { useConvexClient, useQuery } from 'convex-svelte';
   import SimplePeer from 'simple-peer/simplepeer.min.js';
   import { untrack } from 'svelte';
+  import { toast } from 'svelte-sonner';
   import { SvelteSet } from 'svelte/reactivity';
 
   import { page } from '$app/state';
@@ -72,8 +73,6 @@
   });
 
   function handleStudentTabSwitch(studentId: Id<'users'>) {
-    console.log(`P2P Alert: Student ${studentId} switched tab or application!`);
-
     // Check if the student is already in the first page
     const isAlreadyOnFirstPage = studentsList.slice(0, itemsPerPage).some((s) => s._id === studentId);
 
@@ -117,7 +116,6 @@
   // Send broadcast ping to trigger student offers
   async function triggerBroadcastPing() {
     isRefreshing = true;
-    console.log('Sending broadcast ping to students...');
     try {
       await sendSignal({
         from: 'teacher',
@@ -129,8 +127,8 @@
       setTimeout(() => {
         isRefreshing = false;
       }, 1000);
-    } catch (err) {
-      console.error('Failed to send broadcast ping:', err);
+    } catch (_err) {
+      toast.error('Failed to send broadcast ping to students.');
       isRefreshing = false;
     }
   }
@@ -155,14 +153,12 @@
       const data = JSON.parse(sig.data);
 
       if (sig.type === 'offer') {
-        console.log(`Received screen share offer from student: ${studentId}`);
-
         // Cleanup existing connection for this student if any
         if (activeStreams[studentId]?.peer) {
           try {
             activeStreams[studentId].peer.destroy();
-          } catch (e) {
-            console.error(e);
+          } catch (err) {
+            console.error(err);
           }
         }
 
@@ -190,7 +186,6 @@
 
         // Set live stream when WebRTC negotiation finishes
         peerInstance.on('stream', (s) => {
-          console.log(`WebRTC stream established with student: ${studentId}`);
           if (activeStreams[studentId]) {
             activeStreams[studentId] = {
               ...activeStreams[studentId],
@@ -222,13 +217,11 @@
         });
 
         // Handle error and disconnects
-        peerInstance.on('error', (err) => {
-          console.error(`WebRTC error for student ${studentId}:`, err);
+        peerInstance.on('error', (_err) => {
           cleanupStudent(studentId);
         });
 
         peerInstance.on('close', () => {
-          console.log(`WebRTC connection closed for student ${studentId}`);
           cleanupStudent(studentId);
         });
 

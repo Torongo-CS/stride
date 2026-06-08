@@ -76,8 +76,8 @@
         userId: $session.userId,
         value: nextVoteValue,
       });
-    } catch (err) {
-      console.error('Failed to vote:', err);
+    } catch (_err) {
+      toast.error('Failed to vote.');
     }
   }
 
@@ -93,8 +93,6 @@
     try {
       await client.mutation(api.posts.remove, { id: postToDeleteId });
       toast.success('Post deleted successfully.');
-    } catch (err) {
-      console.error('Failed to delete post:', err);
       toast.error('Failed to delete post.');
     } finally {
       postToDeleteId = null;
@@ -122,8 +120,6 @@
       await client.mutation(api.posts.createTag, { name: cleanedName });
       toast.success('Tag created successfully.');
       newTagName = '';
-    } catch (err) {
-      console.error(err);
       toast.error('Failed to create tag.');
     } finally {
       isCreatingTag = false;
@@ -139,8 +135,6 @@
       toast.success('Tag updated successfully.');
       editingTagId = null;
       editingTagName = '';
-    } catch (err) {
-      console.error(err);
       toast.error('Failed to update tag.');
     } finally {
       isUpdatingTag = false;
@@ -159,8 +153,6 @@
       await client.mutation(api.posts.deleteTag, { id: tagId });
       toast.success('Tag deleted successfully.');
       selectedTagIds = selectedTagIds.filter((id) => id !== tagId);
-    } catch (err) {
-      console.error(err);
       toast.error('Failed to delete tag.');
     } finally {
       isDeletingTag = false;

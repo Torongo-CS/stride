@@ -129,11 +129,11 @@
   async function handleUpdateSettings(e: Event) {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error('Title cannot be empty');
+      toast.error('Title cannot be empty.');
       return;
     }
     if (endTime <= startTime) {
-      toast.error('End time must be after start time');
+      toast.error('End time must be after start time.');
       return;
     }
 
@@ -146,11 +146,12 @@
         startTime,
         endTime,
       });
-      toast.success('Activity settings updated successfully!');
+      toast.success('Activity settings updated successfully!', {
+        description: 'Title, schedule, and type have been saved.',
+      });
       goto(`/activities/${activityId}`);
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to update activity settings');
+    } catch (_err) {
+      toast.error('Failed to update activity settings.');
     } finally {
       isSavingSettings = false;
     }
@@ -161,11 +162,12 @@
     isDeletingActivity = true;
     try {
       await client.mutation(api.activities.remove, { id: activityId });
-      toast.success('Activity deleted successfully.');
+      toast.success('Activity deleted successfully.', {
+        description: 'All associated questions and student submissions have been detached.',
+      });
       goto(`/sections/${activity.sectionId}`);
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to delete activity');
+    } catch (_err) {
+      toast.error('Failed to delete activity.');
     } finally {
       isDeletingActivity = false;
       deleteDialogOpen = false;
@@ -189,7 +191,7 @@
         problemId: p2.problemId,
         problemOrder: p1.problemOrder,
       });
-      toast.success('Reordered successfully');
+      toast.success('Reordered successfully.');
     } else if (direction === 'down' && index < list.length - 1) {
       const p1 = list[index];
       const p2 = list[index + 1];
@@ -204,7 +206,7 @@
         problemId: p2.problemId,
         problemOrder: p1.problemOrder,
       });
-      toast.success('Reordered successfully');
+      toast.success('Reordered successfully.');
     }
   }
 
@@ -234,9 +236,9 @@
           });
         }
       }
-      toast.success('Problem detached from activity');
+      toast.success('Problem detached from activity.');
     } catch (_err) {
-      toast.error('Failed to remove problem');
+      toast.error('Failed to remove problem.');
     } finally {
       isRemovingProblem = false;
     }
@@ -259,9 +261,9 @@
         problemId,
         problemOrder: currentProblems.length,
       });
-      toast.success('Problem added to activity');
+      toast.success('Problem added to activity.');
     } catch (_err) {
-      toast.error('Failed to add problem');
+      toast.error('Failed to add problem.');
     }
   }
 

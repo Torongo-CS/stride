@@ -52,8 +52,7 @@
         userB: profileQuery.data.user._id,
       });
       goto(`/chat?chatId=${chatId}`);
-    } catch (err) {
-      console.error('Failed to start conversation:', err);
+    } catch (_err) {
       toast.error('Failed to start conversation.');
     } finally {
       isStartingChat = false;

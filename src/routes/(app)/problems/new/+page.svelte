@@ -74,10 +74,11 @@
         });
       }
 
-      toast.success('Problem created successfully!');
+      toast.success('Problem created successfully!', {
+        description: `"${title.trim()}" has been added to your problem library.`,
+      });
       goto(`/problems/${problemId}`);
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to create problem.');
     } finally {
       isSubmitting = false;

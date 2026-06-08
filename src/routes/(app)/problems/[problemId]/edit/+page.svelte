@@ -77,10 +77,11 @@
         title: title.trim(),
         contentMd: contentMd.trim(),
       });
-      toast.success('Problem details updated successfully.');
+      toast.success('Problem details updated successfully.', {
+        description: 'Your changes to the title and description have been saved.',
+      });
       goto(`/problems/${problemId}`);
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to save details.');
     } finally {
       isSavingDetails = false;
@@ -102,11 +103,12 @@
         outputData: newCaseOutput.trim(),
         ioOrder,
       });
-      toast.success('Test case added successfully.');
+      toast.success('Test case added successfully.', {
+        description: 'The new input/output pair has been appended to the test suite.',
+      });
       newCaseInput = '';
       newCaseOutput = '';
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to add testcase.');
     } finally {
       isAddingTestCase = false;
@@ -125,8 +127,7 @@
         outputData: outputData.trim(),
       });
       toast.success('Test case updated.');
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to update testcase.');
     } finally {
       updatingIoMap[ioId] = false;
@@ -138,8 +139,7 @@
     try {
       await client.mutation(api.problems.removeIO, { id: ioId });
       toast.success('Testcase deleted.');
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to delete testcase.');
     } finally {
       deletingIoMap[ioId] = false;
@@ -152,8 +152,7 @@
       await client.mutation(api.problems.remove, { id: problemId });
       toast.success('Problem deleted successfully.');
       goto('/problems');
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to delete problem.');
     } finally {
       isDeleting = false;

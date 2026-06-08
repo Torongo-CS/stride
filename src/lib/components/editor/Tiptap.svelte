@@ -113,8 +113,7 @@
         toast.error('Failed to resolve image URL.');
       }
       isImagePopoverOpen = false;
-    } catch (err) {
-      console.error('Failed to upload image:', err);
+    } catch (_err) {
       toast.error('Failed to upload image. Please try again.');
     } finally {
       isUploadingImage = false;

@@ -58,11 +58,12 @@
         aboutMd: editingUser.aboutMd,
         avatarUrl: editingUser.avatarUrl,
       });
-      toast.success('User updated successfully');
+      toast.success('User updated successfully.', {
+        description: 'Their role and profile information have been saved.',
+      });
       editDialogOpen = false;
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to update user');
+    } catch (_err) {
+      toast.error('Failed to update user.');
     } finally {
       isSaving = false;
     }
@@ -84,11 +85,10 @@
     isDeleting = true;
     try {
       await client.mutation(api.users.remove, { id: deletingUser._id });
-      toast.success('User deleted successfully');
+      toast.success('User deleted successfully.');
       deleteDialogOpen = false;
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to delete user');
+    } catch (_err) {
+      toast.error('Failed to delete user.');
     } finally {
       isDeleting = false;
     }
@@ -127,7 +127,7 @@
 
   async function handleCreateUser() {
     if (!newUser.name || !newUser.email || !newUser.password) {
-      toast.error('Please fill in all required fields');
+      toast.error('Please fill in all required fields.');
       return;
     }
     isCreating = true;
@@ -140,11 +140,10 @@
         aboutMd: newUser.aboutMd || undefined,
         avatarUrl: newUser.avatarUrl || undefined,
       });
-      toast.success('User created successfully');
+      toast.success('User created successfully.');
       addDialogOpen = false;
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to create user');
+    } catch (_err) {
+      toast.error('Failed to create user.');
     } finally {
       isCreating = false;
     }

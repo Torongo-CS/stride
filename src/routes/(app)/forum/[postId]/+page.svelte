@@ -134,8 +134,8 @@
         userId: $session.userId,
         value: nextVoteValue,
       });
-    } catch (err) {
-      console.error('Failed to vote post:', err);
+    } catch (_err) {
+      toast.error('Failed to vote.');
     }
   }
 
@@ -150,8 +150,8 @@
         userId: $session.userId,
         value: nextVoteValue,
       });
-    } catch (err) {
-      console.error('Failed to vote comment:', err);
+    } catch (_err) {
+      toast.error('Failed to vote.');
     }
   }
 
@@ -170,8 +170,7 @@
       });
       topCommentContent = '';
       topCommentKey++;
-    } catch (err) {
-      console.error('Failed to add comment:', err);
+    } catch (_err) {
       toast.error('Failed to add comment.');
     } finally {
       isSubmittingComment = false;
@@ -194,8 +193,7 @@
       replyContent = '';
       replyCommentKey++;
       activeReplyCommentId = null;
-    } catch (err) {
-      console.error('Failed to add reply:', err);
+    } catch (_err) {
       toast.error('Failed to submit reply.');
     } finally {
       isSubmittingReply = false;
@@ -216,8 +214,7 @@
         await client.mutation(api.comments.remove, { id: commentToDeleteId, userId: $session.userId });
         toast.success('Comment deleted successfully.');
       }
-    } catch (err) {
-      console.error('Failed to delete comment:', err);
+    } catch (_err) {
       toast.error('Failed to delete comment.');
     } finally {
       commentToDeleteId = null;
@@ -250,8 +247,7 @@
       });
       toast.success('Post updated successfully.');
       isEditingPost = false;
-    } catch (err) {
-      console.error('Failed to update post:', err);
+    } catch (_err) {
       toast.error('Failed to update post.');
     } finally {
       isSavingPost = false;
@@ -265,8 +261,7 @@
       await client.mutation(api.posts.remove, { id: postId });
       toast.success('Post deleted successfully.');
       goto('/forum');
-    } catch (err) {
-      console.error('Failed to delete post:', err);
+    } catch (_err) {
       toast.error('Failed to delete post.');
     } finally {
       deletePostDialogOpen = false;
@@ -294,8 +289,7 @@
       toast.success('Comment updated successfully.');
       editingCommentId = null;
       editCommentContent = '';
-    } catch (err) {
-      console.error('Failed to update comment:', err);
+    } catch (_err) {
       toast.error('Failed to update comment.');
     } finally {
       isSavingComment = false;

@@ -150,10 +150,11 @@
         activityId: act._id,
       });
       selectedProblems = clonedProblems.filter((cp) => cp.problem !== null).map((cp) => cp.problem);
-      toast.success('Activity details and problems cloned successfully!');
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to clone problems from the selected activity');
+      toast.success('Activity details and problems cloned successfully!', {
+        description: 'You can adjust the problems before creating the activity.',
+      });
+    } catch (_err) {
+      toast.error('Failed to clone problems from the selected activity.');
     }
   }
 
@@ -185,16 +186,16 @@
   async function handleSubmit(e: Event) {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error('Title is required');
+      toast.error('Title is required.');
       return;
     }
     if (!selectedSectionId) {
-      toast.error('Please select a section');
+      toast.error('Please select a section.');
       return;
     }
 
     if (endTime <= startTime) {
-      toast.error('End time must be after start time');
+      toast.error('End time must be after start time.');
       return;
     }
 
@@ -218,11 +219,12 @@
         });
       }
 
-      toast.success('Activity created successfully!');
+      toast.success('Activity created successfully!', {
+        description: `"${title.trim()}" is now scheduled for the selected section.`,
+      });
       goto(`/activities/${activityId}`);
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to create activity');
+    } catch (_err) {
+      toast.error('Failed to create activity.');
     } finally {
       isSubmitting = false;
     }

@@ -130,7 +130,9 @@
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success('Status scoreboard exported as CSV successfully!');
+    toast.success('Status scoreboard exported as CSV successfully!', {
+      description: 'The file has been downloaded to your device.',
+    });
   }
 </script>
 

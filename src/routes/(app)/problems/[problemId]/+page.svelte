@@ -61,10 +61,11 @@
     isDeleting = true;
     try {
       await client.mutation(api.problems.remove, { id: problemId });
-      toast.success('Problem deleted successfully.');
+      toast.success('Problem deleted successfully.', {
+        description: 'This problem and all associated test cases have been removed.',
+      });
       goto('/problems');
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to delete problem.');
     } finally {
       isDeleting = false;

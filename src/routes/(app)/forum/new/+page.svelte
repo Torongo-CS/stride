@@ -59,8 +59,7 @@
       }
       newTagName = '';
       showAddTagInput = false;
-    } catch (err) {
-      console.error('Failed to create tag:', err);
+    } catch (_err) {
       toast.error('Failed to create tag.');
     }
   }
@@ -84,8 +83,7 @@
 
       toast.success('Post created successfully.');
       goto(`/forum/${postId}`);
-    } catch (err) {
-      console.error('Failed to create post:', err);
+    } catch (_err) {
       toast.error('Failed to create post. Please try again.');
     } finally {
       isSubmitting = false;

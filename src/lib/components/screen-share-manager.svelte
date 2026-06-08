@@ -233,8 +233,8 @@
       screenShareState.stream.getTracks().forEach((track) => {
         try {
           track.stop();
-        } catch (e) {
-          console.error(e);
+        } catch (err) {
+          console.error(err);
         }
       });
       screenShareState.stream = null;

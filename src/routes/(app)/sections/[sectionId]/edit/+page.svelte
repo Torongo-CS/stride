@@ -112,7 +112,7 @@
   async function handleUpdateSection(e: Event) {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error('Section name is required');
+      toast.error('Section name is required.');
       return;
     }
     isSubmitting = true;
@@ -122,11 +122,10 @@
         name: name.trim(),
         aboutMd: aboutMd.trim() || undefined,
       });
-      toast.success('Section info updated successfully');
+      toast.success('Section info updated successfully.');
       goto(`/sections/${sectionId}`);
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to update section info');
+    } catch (_e) {
+      toast.error('Failed to update section info.');
     } finally {
       isSubmitting = false;
     }
@@ -141,11 +140,12 @@
         sectionId,
         teacherId: teacherToAssignId as Id<'users'>,
       });
-      toast.success('Teacher assigned successfully');
+      toast.success('Teacher assigned successfully.', {
+        description: 'They can now manage this section.',
+      });
       teacherToAssignId = '';
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to assign teacher');
+    } catch (_e) {
+      toast.error('Failed to assign teacher.');
     } finally {
       isAssigningTeacher = false;
     }
@@ -161,10 +161,9 @@
         sectionId,
         teacherId: teacherId as Id<'users'>,
       });
-      toast.success('Teacher assignment removed');
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to remove teacher');
+      toast.success('Teacher assignment removed.');
+    } catch (_e) {
+      toast.error('Failed to remove teacher.');
     } finally {
       isRemovingTeacher = false;
     }
@@ -179,11 +178,12 @@
         sectionId,
         studentId: studentToEnrollId as Id<'users'>,
       });
-      toast.success('Student enrolled successfully');
+      toast.success('Student enrolled successfully.', {
+        description: 'They now have access to the section assignments.',
+      });
       studentToEnrollId = '';
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to enroll student');
+    } catch (_e) {
+      toast.error('Failed to enroll student.');
     } finally {
       isEnrollingStudent = false;
     }
@@ -198,10 +198,9 @@
         sectionId,
         studentId: studentId as Id<'users'>,
       });
-      toast.success('Student unenrolled');
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to unenroll student');
+      toast.success('Student unenrolled.');
+    } catch (_e) {
+      toast.error('Failed to unenroll student.');
     } finally {
       isRemovingStudent = false;
     }
@@ -213,8 +212,7 @@
       await client.mutation(api.sections.remove, { id: sectionId });
       toast.success('Section deleted successfully.');
       goto('/sections');
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to delete section.');
     } finally {
       isDeleting = false;

@@ -4,6 +4,7 @@
   import Send from '@lucide/svelte/icons/send';
   import Trash from '@lucide/svelte/icons/trash';
   import { useConvexClient, useQuery } from 'convex-svelte';
+  import { toast } from 'svelte-sonner';
 
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
@@ -55,6 +56,8 @@
         senderId: $session.userId,
         content,
       });
+    } catch (_err) {
+      toast.error('Failed to send message.');
     } finally {
       isSending = false;
     }
@@ -81,13 +84,19 @@
       await client.mutation(api.messages.edit, { id: editingMessageId, content: editingContent });
       editingMessageId = null;
       editingContent = '';
+    } catch (_err) {
+      toast.error('Failed to edit message.');
     } finally {
       isSavingEdit = false;
     }
   }
 
   async function deleteMessage(id: Id<'messages'>) {
-    await client.mutation(api.messages.remove, { id });
+    try {
+      await client.mutation(api.messages.remove, { id });
+    } catch (_err) {
+      toast.error('Failed to delete message.');
+    }
   }
 
   const selectedChat = $derived(chatsQuery.data?.find((c) => c?._id === selectedChatId));

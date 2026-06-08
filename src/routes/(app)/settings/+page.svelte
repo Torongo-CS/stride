@@ -125,7 +125,9 @@
     // Check size limit: 512KB
     const MAX_SIZE = 512 * 1024;
     if (file.size > MAX_SIZE) {
-      toast.warning('Profile picture must be less than 512KB to keep it lightweight.');
+      toast.warning('Profile picture must be less than 512KB to keep it lightweight.', {
+        description: 'Please select a smaller image or compress the file.',
+      });
       return;
     }
 
@@ -180,12 +182,13 @@
             avatarUrl: url,
           });
         }
-        toast.success('Avatar uploaded and saved successfully!');
+        toast.success('Avatar uploaded and saved successfully!', {
+          description: 'Your profile photo has been updated.',
+        });
       } else {
         toast.error('Failed to resolve avatar image URL.');
       }
-    } catch (err) {
-      console.error('Avatar upload failed:', err);
+    } catch (_err) {
       toast.error('Failed to upload avatar.');
     } finally {
       isUploadingAvatar = false;
@@ -219,9 +222,10 @@
         avatarUrl: generatedUrl,
       });
 
-      toast.success('Generated random avatar successfully!');
-    } catch (err) {
-      console.error('Failed to generate random avatar:', err);
+      toast.success('Generated random avatar successfully!', {
+        description: 'A new DiceBear avatar has been applied.',
+      });
+    } catch (_err) {
       toast.error('Failed to generate random avatar.');
     } finally {
       isUploadingAvatar = false;
@@ -252,9 +256,10 @@
         name: name.trim(),
       });
 
-      toast.success('Account name updated successfully.');
-    } catch (err) {
-      console.error('Failed to update name:', err);
+      toast.success('Account name updated successfully.', {
+        description: 'Your display name has been updated across the platform.',
+      });
+    } catch (_err) {
       toast.error('Failed to update name. Please try again.');
     } finally {
       isSavingProfile = false;
@@ -273,9 +278,10 @@
         id: $session.userId,
         aboutMd: aboutMd.trim(),
       });
-      toast.success('Biography saved successfully.');
-    } catch (err) {
-      console.error('Failed to save biography:', err);
+      toast.success('Biography saved successfully.', {
+        description: 'Your profile biography has been updated.',
+      });
+    } catch (_err) {
       toast.error('Failed to save biography. Please try again.');
     } finally {
       isSavingBiography = false;
@@ -299,9 +305,10 @@
         avatarUrl: avatarUrl ? avatarUrl.trim() : null,
       });
 
-      toast.success('Avatar photo saved successfully.');
-    } catch (err) {
-      console.error('Failed to save avatar photo:', err);
+      toast.success('Avatar photo saved successfully.', {
+        description: 'Your avatar URL has been updated.',
+      });
+    } catch (_err) {
       toast.error('Failed to save avatar photo.');
     }
   }
@@ -321,11 +328,12 @@
         passwordHash: newPassword,
       });
 
-      toast.success('Password updated successfully.');
+      toast.success('Password updated successfully.', {
+        description: 'You will need to use this new password on your next login.',
+      });
       newPassword = '';
       confirmPassword = '';
-    } catch (err) {
-      console.error('Failed to update password:', err);
+    } catch (_err) {
       toast.error('Failed to update password.');
     } finally {
       isUpdatingPassword = false;
@@ -528,7 +536,9 @@
                           avatarUrl: defaultUrl,
                         });
                       }
-                      toast.info('Avatar reverted to default seed shape.');
+                      toast.info('Avatar reverted to default seed shape.', {
+                        description: 'Your avatar has been reset to the email-based default.',
+                      });
                     }}
                     disabled={isUploadingAvatar}
                   >

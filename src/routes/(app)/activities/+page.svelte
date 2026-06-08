@@ -123,8 +123,7 @@
       } else {
         toast.error('This activity does not have any questions assigned yet.');
       }
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to load activity live room.');
     }
   }

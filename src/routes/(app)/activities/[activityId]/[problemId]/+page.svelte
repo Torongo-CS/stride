@@ -1,6 +1,7 @@
 <script lang="ts">
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { onMount } from 'svelte';
+  import { toast } from 'svelte-sonner';
 
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
@@ -53,8 +54,8 @@
       if (!submitRes.ok) throw new Error('Submission failed');
 
       result = await submitRes.json();
-    } catch (err) {
-      console.error('Execution error:', err);
+    } catch (_err) {
+      toast.error('Failed to run code. Check the console or try again.');
     } finally {
       isExecuting = false;
     }

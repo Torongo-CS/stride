@@ -67,11 +67,11 @@
 
   async function handleCreateSection() {
     if (!name.trim()) {
-      toast.error('Section name is required');
+      toast.error('Section name is required.');
       return;
     }
     if (!teacherId) {
-      toast.error('Please assign an instructor to this section');
+      toast.error('Please assign an instructor to this section.');
       return;
     }
     isSubmitting = true;
@@ -96,11 +96,12 @@
         });
       }
 
-      toast.success('Section created, instructor assigned, and student roster enrolled successfully!');
+      toast.success('Section created, instructor assigned, and student roster enrolled successfully!', {
+        description: `"${name.trim()}" is now ready for activities and resources.`,
+      });
       goto(`/sections/${sectionId}`);
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to create section');
+    } catch (_e) {
+      toast.error('Failed to create section.');
     } finally {
       isSubmitting = false;
     }
