@@ -1,6 +1,5 @@
 <script lang="ts">
   import Camera from '@lucide/svelte/icons/camera';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Lock from '@lucide/svelte/icons/lock';
   import Mail from '@lucide/svelte/icons/mail';
   import Save from '@lucide/svelte/icons/save';
@@ -16,11 +15,15 @@
   import type { Id } from '$convex/_generated/dataModel';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
+  import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session, setSession } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -330,16 +333,24 @@
   }
 </script>
 
-<div class="container mx-auto max-w-4xl px-4 py-8 md:py-12" in:fade>
-  <!-- Main Header Banner -->
-  <div class="mb-10 flex flex-col gap-2">
-    <h1 class="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Account Settings</h1>
-  </div>
+<PageLayout class="max-w-4xl!">
+  <PageHero title="Account Settings" description="Manage your profile, avatar, biography, and password security." />
 
   {#if profileQuery.isLoading}
-    <div class="flex h-96 flex-col items-center justify-center gap-4">
-      <Loader2 class="h-10 w-10 animate-spin text-primary opacity-60" />
-      <span class="text-sm font-medium text-muted-foreground">Loading configurations...</span>
+    <div class="flex flex-col gap-8">
+      {#each [0, 1, 2] as i (i)}
+        <Card.Root class="overflow-hidden border bg-card shadow-sm">
+          <Card.Header class="p-6">
+            <Skeleton class="h-5 w-36" />
+            <Skeleton class="mt-1 h-3 w-48" />
+          </Card.Header>
+          <Separator />
+          <Card.Content class="grid gap-4 p-6">
+            <Skeleton class="h-10 w-full" />
+            <Skeleton class="h-10 w-full" />
+          </Card.Content>
+        </Card.Root>
+      {/each}
     </div>
   {:else if profileQuery.data}
     <div class="flex flex-col gap-8">
@@ -408,7 +419,7 @@
           <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
             <Button type="submit" disabled={isSavingProfile} class="gap-2 font-semibold shadow-sm">
               {#if isSavingProfile}
-                <Loader2 class="h-4 w-4 animate-spin" />
+                <Spinner class="size-4" />
                 Saving...
               {:else}
                 <Save class="h-4 w-4" />
@@ -440,7 +451,7 @@
               >
                 {#if isUploadingAvatar}
                   <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70">
-                    <Loader2 class="h-6 w-6 animate-spin text-primary" />
+                    <Spinner class="size-6 text-primary" />
                   </div>
                 {/if}
 
@@ -550,7 +561,7 @@
           <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
             <Button type="submit" disabled={isSavingBiography} class="gap-2 font-semibold shadow-sm">
               {#if isSavingBiography}
-                <Loader2 class="h-4 w-4 animate-spin" />
+                <Spinner class="size-4" />
                 Saving...
               {:else}
                 <Save class="h-4 w-4" />
@@ -643,7 +654,7 @@
                 class="gap-2 font-semibold hover:bg-muted"
               >
                 {#if isUpdatingPassword}
-                  <Loader2 class="h-4 w-4 animate-spin" />
+                  <Spinner class="size-4" />
                   Updating...
                 {:else}
                   <Lock class="h-4 w-4" />
@@ -656,4 +667,4 @@
       </Card.Root>
     </div>
   {/if}
-</div>
+</PageLayout>

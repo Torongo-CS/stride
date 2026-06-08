@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Calendar from '@lucide/svelte/icons/calendar';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -8,8 +7,6 @@
   import File from '@lucide/svelte/icons/file';
   import Folder from '@lucide/svelte/icons/folder';
   import FolderOpen from '@lucide/svelte/icons/folder-open';
-  import GraduationCap from '@lucide/svelte/icons/graduation-cap';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Plus from '@lucide/svelte/icons/plus';
   import Trash2 from '@lucide/svelte/icons/trash-2';
@@ -23,12 +20,14 @@
   import type { Id } from '$convex/_generated/dataModel.js';
 
   import FileIcon from '$lib/components/FileIcon.svelte';
+  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
 
   const sectionId = $derived(page.params.sectionId as Id<'sections'>);
@@ -187,18 +186,9 @@
   }
 </script>
 
-<div class="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6 md:p-8">
+<PageLayout>
   <!-- Back Action -->
-  <div>
-    <Button
-      href="/sections"
-      variant="ghost"
-      class="h-8 gap-1.5 pl-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
-    >
-      <ArrowLeft class="h-3.5 w-3.5" />
-      Back to Sections
-    </Button>
-  </div>
+  <BackButton href="/sections" label="Back to Sections" />
 
   {#if isLoading}
     <div class="flex flex-col gap-6">
@@ -242,27 +232,21 @@
     </Card.Root>
   {:else}
     <!-- Section Header Summary -->
-    <div class="flex flex-col justify-between gap-4 border-b border-border/40 pb-6 md:flex-row md:items-end">
-      <div class="space-y-1">
-        <div class="flex items-center gap-2">
-          <GraduationCap class="h-6 w-6 text-primary" />
-          <h1 class="text-3xl font-bold tracking-tight text-foreground">{section.name}</h1>
-        </div>
-        <p class="text-xs text-muted-foreground">Academic portal for class schedules, exams, and memberships.</p>
-      </div>
-
-      {#if userRole === 'admin'}
-        <Button
-          href="/sections/{section._id}/edit"
-          variant="outline"
-          size="sm"
-          class="h-9 gap-1.5 border-border bg-card text-xs font-semibold"
-        >
-          <Pencil class="h-3.5 w-3.5" />
-          Manage Settings
-        </Button>
-      {/if}
-    </div>
+    <PageHero title={section.name} description="Academic portal for class schedules, exams, and memberships.">
+      {#snippet actions()}
+        {#if userRole === 'admin'}
+          <Button
+            href="/sections/{section._id}/edit"
+            variant="outline"
+            size="sm"
+            class="h-9 gap-1.5 border-border bg-card text-xs font-semibold"
+          >
+            <Pencil class="h-3.5 w-3.5" />
+            Manage Settings
+          </Button>
+        {/if}
+      {/snippet}
+    </PageHero>
 
     <!-- Layout Cards Stacked Vertically -->
     <div class="flex flex-col gap-6">
@@ -388,7 +372,7 @@
 
                       {#if problemsQuery.isLoading}
                         <div class="mt-3 flex items-center justify-center border-t border-border/30 py-2 pt-3">
-                          <span class="text-[10px] text-muted-foreground italic">Loading assigned tasks...</span>
+                          <Spinner class="size-3" />
                         </div>
                       {:else if problems.length === 0}
                         <div
@@ -506,7 +490,7 @@
                     size="sm"
                   >
                     {#if isUploading}
-                      <Loader2 class="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      <Spinner class="mr-1.5 size-3.5" />
                       Uploading Files...
                     {:else}
                       <UploadCloud class="mr-1.5 h-3.5 w-3.5" />
@@ -775,7 +759,7 @@
       </Card.Root>
     </div>
   {/if}
-</div>
+</PageLayout>
 
 <AlertDialog.Root bind:open={deleteDialogOpen}>
   <AlertDialog.Content class="border border-border bg-card">

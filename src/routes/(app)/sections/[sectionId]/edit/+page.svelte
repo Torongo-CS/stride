@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import BookOpen from '@lucide/svelte/icons/book-open';
   import Save from '@lucide/svelte/icons/save';
   import Search from '@lucide/svelte/icons/search';
@@ -14,6 +13,7 @@
   import type { Id } from '$convex/_generated/dataModel.js';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -180,18 +180,9 @@
   }
 </script>
 
-<div class="container mx-auto max-w-4xl px-4 py-8 md:py-12">
+<PageLayout class="max-w-4xl!">
   <!-- Back Action -->
-  <div class="mb-6">
-    <Button
-      href="/sections"
-      variant="ghost"
-      class="h-8 gap-1.5 pl-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
-    >
-      <ArrowLeft class="h-3.5 w-3.5" />
-      Back to Sections
-    </Button>
-  </div>
+  <BackButton href="/sections" label="Back to Sections" />
 
   {#if userRole !== 'admin'}
     <!-- Unauthorized Access Protection -->
@@ -236,13 +227,10 @@
       </Card.Content>
     </Card.Root>
   {:else}
-    <!-- Master Header -->
-    <div class="mb-10 flex flex-col gap-2">
-      <h1 class="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Section Management</h1>
-      <p class="text-xs text-muted-foreground">
-        Configure syllabus details, assigned faculty, and enrolled student rosters.
-      </p>
-    </div>
+    <PageHero
+      title="Section Management"
+      description="Configure syllabus details, assigned faculty, and enrolled student rosters."
+    />
 
     <!-- Stacked Cards (User Settings Profile UI style) -->
     <div class="flex flex-col gap-8">
@@ -526,4 +514,4 @@
       </Card.Root>
     </div>
   {/if}
-</div>
+</PageLayout>

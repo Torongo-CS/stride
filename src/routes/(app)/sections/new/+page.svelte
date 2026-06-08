@@ -1,6 +1,4 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-  import GraduationCap from '@lucide/svelte/icons/graduation-cap';
   import Plus from '@lucide/svelte/icons/plus';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import User from '@lucide/svelte/icons/user';
@@ -13,12 +11,14 @@
   import { api } from '$convex/_generated/api.js';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { session } from '$lib/session';
 
   const client = useConvexClient();
@@ -106,18 +106,9 @@
   }
 </script>
 
-<div class="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6 md:p-8">
+<PageLayout class="max-w-4xl!">
   <!-- Header / Navigation -->
-  <div>
-    <Button
-      href="/sections"
-      variant="ghost"
-      class="h-8 gap-1.5 pl-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
-    >
-      <ArrowLeft class="h-3.5 w-3.5" />
-      Back to Sections
-    </Button>
-  </div>
+  <BackButton href="/sections" label="Back to Sections" />
 
   {#if userRole !== 'admin'}
     <!-- Unauthorized Access Protection -->
@@ -138,17 +129,11 @@
     <!-- Section Creation Form -->
     <div class="flex flex-col gap-8">
       <!-- 1. Metadata -->
+      <PageHero
+        title="Create New Section"
+        description="Define a new academic course, assign its instructor directly, and initialize class syllabus."
+      />
       <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
-        <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
-          <Card.Title class="text-md flex items-center gap-2 font-bold tracking-tight text-foreground">
-            <GraduationCap class="h-5 w-5 text-primary" />
-            Create New Section
-          </Card.Title>
-          <Card.Description class="text-xs text-muted-foreground">
-            Define a new academic course, assign its instructor directly, and initialize class syllabus.
-          </Card.Description>
-        </Card.Header>
-
         <Card.Content class="flex flex-col gap-6 p-6">
           <!-- Section Name -->
           <div class="flex flex-col gap-2">
@@ -243,9 +228,7 @@
               </div>
 
               {#if usersQuery.isLoading}
-                <div class="flex flex-col gap-2">
-                  <div class="h-10 w-full animate-pulse rounded bg-muted"></div>
-                </div>
+                <Skeleton class="h-10 w-full" />
               {:else if availableTeachers.length === 0}
                 <p class="py-4 text-center text-xs text-muted-foreground">No matching instructors found.</p>
               {:else}
@@ -344,9 +327,7 @@
             </div>
 
             {#if usersQuery.isLoading}
-              <div class="flex flex-col gap-2">
-                <div class="h-10 w-full animate-pulse rounded bg-muted"></div>
-              </div>
+              <Skeleton class="h-10 w-full" />
             {:else if availableStudents.length === 0}
               <p class="py-4 text-center text-xs text-muted-foreground">No matching unassigned students found.</p>
             {:else}
@@ -406,4 +387,4 @@
       </div>
     </div>
   {/if}
-</div>
+</PageLayout>

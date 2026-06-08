@@ -1,6 +1,5 @@
 <script lang="ts">
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
   import Check from '@lucide/svelte/icons/check';
   import CornerDownRight from '@lucide/svelte/icons/corner-down-right';
@@ -14,7 +13,7 @@
   import DOMPurify from 'isomorphic-dompurify';
   import { toast } from 'svelte-sonner';
   import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-  import { fade, slide } from 'svelte/transition';
+  import { slide } from 'svelte/transition';
 
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
@@ -22,6 +21,7 @@
   import type { Id } from '$convex/_generated/dataModel';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { BackButton, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
@@ -29,6 +29,7 @@
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -329,20 +330,11 @@
   }
 </script>
 
-<div class="container mx-auto flex h-full max-w-7xl gap-6 p-4 md:p-6" in:fade>
+<PageLayout class="flex-row! items-start">
   <!-- Main Thread & Comments Area -->
   <div class="flex flex-1 flex-col gap-6">
     <!-- Back to Feed -->
-    <div class="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        onclick={() => goto('/forum')}
-        class="h-8 gap-1 pl-2 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft class="h-4 w-4" /> Back to Feed
-      </Button>
-    </div>
+    <BackButton href="/forum" label="Back to Feed" />
 
     {#if postQuery.isLoading}
       <div class="h-80 animate-pulse rounded-xl border bg-muted/20"></div>
@@ -537,7 +529,7 @@
         <!-- Recursive Comments Tree Loader -->
         <div class="flex flex-col gap-4">
           {#if commentsQuery.isLoading}
-            <div class="p-4 text-center text-sm text-muted-foreground italic">Loading comment threads...</div>
+            <div class="flex items-center justify-center p-4"><Spinner /></div>
           {:else if topLevelComments.length === 0}
             <div
               class="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-10 text-center"
@@ -807,7 +799,7 @@
       </div>
     {/if}
   </div>
-</div>
+</PageLayout>
 
 <AlertDialog.Root bind:open={deleteCommentDialogOpen}>
   <AlertDialog.Content>

@@ -16,6 +16,7 @@
   import * as Resizable from '$lib/components/ui/resizable/index.js';
   import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -105,7 +106,7 @@
       <ScrollArea class="flex-1">
         <div class="flex flex-col gap-1 p-2">
           {#if chatsQuery.isLoading}
-            <div class="p-4 text-center text-sm text-muted-foreground">Loading chats...</div>
+            <div class="flex items-center justify-center p-4"><Spinner /></div>
           {:else if chatsQuery.data?.length === 0}
             <div class="p-4 text-center text-sm text-muted-foreground">No chats found</div>
           {:else}
@@ -159,7 +160,7 @@
           <div class="flex flex-col gap-6 p-6">
             {#if messagesQuery.isLoading}
               <div class="flex h-full items-center justify-center py-10">
-                <span class="text-sm text-muted-foreground italic">Loading messages...</span>
+                <Spinner />
               </div>
             {:else if messagesQuery.data?.length === 0}
               <div class="flex h-full items-center justify-center py-10">

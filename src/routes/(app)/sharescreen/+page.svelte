@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ActivityIcon from '@lucide/svelte/icons/activity';
   import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
   import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
   import ClockIcon from '@lucide/svelte/icons/clock';
@@ -13,6 +12,7 @@
 
   import { api } from '$convex/_generated/api.js';
 
+  import { PageHero } from '$lib/components/page/index.js';
   import * as Select from '$lib/components/ui/select/index.js';
   import { session } from '$lib/session';
   import { screenShareState } from '$lib/sharescreen.svelte';
@@ -67,16 +67,7 @@
 
 <div class="flex h-full w-full flex-col items-center justify-start overflow-y-auto scroll-smooth p-6">
   <div class="flex w-full max-w-2xl flex-col gap-6">
-    <!-- 1. Header Card -->
-    <div class="flex items-center gap-4 rounded-2xl border border-border/40 bg-card/45 p-6 shadow-xl backdrop-blur-md">
-      <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <ActivityIcon class="size-6 animate-pulse" />
-      </div>
-      <div>
-        <h1 class="text-xl font-bold text-foreground">Screen Share Setup</h1>
-        <p class="text-sm text-muted-foreground">Classroom Hub &bull; Live Screen Capture</p>
-      </div>
-    </div>
+    <PageHero title="Screen Share Setup" description="Classroom Hub — Live Screen Capture" />
 
     <!-- 2. Screen Share Control Card -->
     <div class="flex flex-col gap-6 rounded-2xl border border-border/40 bg-card/45 p-6 shadow-xl backdrop-blur-md">

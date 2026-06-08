@@ -17,6 +17,9 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
+  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+
   const client = useConvexClient();
   const sectionId = page.params.sectionId;
   const teacherTargetId = `${sectionId}_teacher`;
@@ -302,39 +305,49 @@
   });
 </script>
 
-<div class="flex h-full w-full flex-col overflow-y-auto bg-background p-6">
-  <!-- CCTV Header Section -->
-  <div class="mb-6 w-full">
-    <div
-      class="flex flex-col justify-between gap-4 rounded-2xl border border-border/40 bg-card/45 p-6 shadow-xl backdrop-blur-md md:flex-row md:items-center"
+{#if sectionQuery.isLoading}
+  <PageLayout>
+    <div class="grid flex-1 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {#each [0, 1, 2, 3, 4, 5] as i (i)}
+        <div
+          class="flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-card/45 shadow-xl backdrop-blur-md"
+        >
+          <div class="flex items-center gap-2.5 border-b border-border/40 px-4 py-3">
+            <Skeleton class="size-6 rounded-full" />
+            <Skeleton class="h-4 w-24" />
+          </div>
+          <div class="flex aspect-video items-center justify-center bg-muted/20">
+            <Skeleton class="size-12 rounded-full" />
+          </div>
+        </div>
+      {/each}
+    </div>
+  </PageLayout>
+{:else if !sectionQuery.data}
+  <PageLayout>
+    <BackButton href="/sections" label="Back to Sections" />
+    <PageHero title="CCTV Invigilation Hub" description="Screen Share Invigilator" />
+    <!-- Empty state -->
+    <div class="flex flex-1 flex-col items-center justify-center py-16">
+      <CctvIcon class="mb-4 size-16 text-muted-foreground/60" />
+      <h3 class="text-lg font-bold text-foreground">Section not found</h3>
+      <p class="text-sm text-muted-foreground">This section may have been deleted.</p>
+    </div>
+  </PageLayout>
+{:else}
+  <PageLayout>
+    <BackButton href={`/sections/${sectionId}`} label="Back to Section" />
+    <PageHero
+      title={'CCTV Hub: ' + sectionQuery.data.name}
+      description="Invigilation Dashboard &bull; Section Screen Sharing"
     >
-      <div class="flex items-center gap-4">
-        <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <CctvIcon class="size-6 animate-pulse" />
-        </div>
-        <div>
-          {#if sectionQuery.isLoading}
-            <div class="h-5 w-32 animate-pulse rounded bg-muted"></div>
-            <div class="mt-2 h-4 w-20 animate-pulse rounded bg-muted"></div>
-          {:else if sectionQuery.data}
-            <h1 class="text-xl font-bold text-foreground">CCTV Hub: {sectionQuery.data.name}</h1>
-            <p class="text-sm text-muted-foreground capitalize">Invigilation Dashboard &bull; Section Screen Sharing</p>
-          {:else}
-            <h1 class="text-xl font-bold text-foreground">CCTV Invigilation Hub</h1>
-            <p class="text-sm text-muted-foreground">Screen Share Invigilator</p>
-          {/if}
-        </div>
-      </div>
-
-      <!-- Quick Metrics and Manual Refresh -->
-      <div class="flex flex-wrap items-center gap-4">
+      {#snippet actions()}
         <div class="flex items-center gap-3 rounded-xl border border-border/30 bg-background/50 px-4 py-2">
           <UsersIcon class="size-4 text-muted-foreground" />
           <span class="text-xs font-semibold text-muted-foreground">
             {activeStreamCount} / {totalStudents} Screens Active
           </span>
         </div>
-
         <button
           onclick={triggerBroadcastPing}
           disabled={isRefreshing}
@@ -343,168 +356,168 @@
           <RefreshCwIcon class="size-3.5 {isRefreshing ? 'animate-spin' : ''}" />
           <span>Refresh All Streams</span>
         </button>
+      {/snippet}
+    </PageHero>
+
+    <!-- Primary CCTV Video Grid -->
+    {#if studentsQuery.isLoading}
+      <div class="flex flex-1 items-center justify-center">
+        <Skeleton class="h-10 w-48" />
       </div>
-    </div>
-  </div>
+    {:else if totalStudents === 0}
+      <div
+        class="my-6 flex flex-1 flex-col items-center justify-center rounded-2xl border border-border/40 bg-card/25 p-6 text-center shadow-xl backdrop-blur-md"
+      >
+        <UsersIcon class="mb-4 size-16 text-muted-foreground/60" />
+        <h3 class="mb-1 text-lg font-bold text-foreground">No Students Enrolled</h3>
+        <p class="max-w-sm text-sm text-muted-foreground">
+          There are currently no students enrolled in this section. Enroll students under section settings to invigilate
+          their screens.
+        </p>
+      </div>
+    {:else}
+      <div class="mb-6 grid flex-1 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {#each paginatedStudents as student (student._id)}
+          {@const connection = activeStreams[student._id]}
+          {@const isLive = connection && connection.status === 'connected' && connection.stream}
 
-  <!-- Primary CCTV Video Grid -->
-  {#if studentsQuery.isLoading}
-    <div class="flex flex-1 items-center justify-center text-muted-foreground">
-      <span class="animate-pulse">Loading enrolled students...</span>
-    </div>
-  {:else if totalStudents === 0}
-    <div
-      class="my-6 flex flex-1 flex-col items-center justify-center rounded-2xl border border-border/40 bg-card/25 p-6 text-center shadow-xl backdrop-blur-md"
-    >
-      <UsersIcon class="mb-4 size-16 text-muted-foreground/60" />
-      <h3 class="mb-1 text-lg font-bold text-foreground">No Students Enrolled</h3>
-      <p class="max-w-sm text-sm text-muted-foreground">
-        There are currently no students enrolled in this section. Enroll students under section settings to invigilate
-        their screens.
-      </p>
-    </div>
-  {:else}
-    <div class="mb-6 grid flex-1 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {#each paginatedStudents as student (student._id)}
-        {@const connection = activeStreams[student._id]}
-        {@const isLive = connection && connection.status === 'connected' && connection.stream}
+          <div
+            class="group relative flex h-fit flex-col overflow-hidden rounded-2xl border bg-card/45 shadow-xl backdrop-blur-md transition-all duration-500 {highlightedStudents[
+              student._id
+            ]
+              ? 'scale-[1.02] animate-pulse border-destructive ring-2 shadow-destructive/20 ring-destructive ring-offset-2 ring-offset-background'
+              : 'border-border/40'}"
+          >
+            <!-- Card Header details -->
+            <div class="flex items-center justify-between border-b border-border/40 bg-background/20 px-4 py-3">
+              <div class="flex max-w-[70%] items-center gap-2.5">
+                {#if student.avatarUrl}
+                  <img src={student.avatarUrl} alt={student.name} class="size-6 rounded-full border border-border/50" />
+                {:else}
+                  <div
+                    class="flex size-6 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-[10px] font-bold text-primary"
+                  >
+                    {student.name.slice(0, 2).toUpperCase()}
+                  </div>
+                {/if}
+                <span class="truncate text-xs font-bold text-foreground">{student.name}</span>
+              </div>
 
-        <div
-          class="group relative flex h-fit flex-col overflow-hidden rounded-2xl border bg-card/45 shadow-xl backdrop-blur-md transition-all duration-500 {highlightedStudents[
-            student._id
-          ]
-            ? 'scale-[1.02] animate-pulse border-destructive ring-2 shadow-destructive/20 ring-destructive ring-offset-2 ring-offset-background'
-            : 'border-border/40'}"
-        >
-          <!-- Card Header details -->
-          <div class="flex items-center justify-between border-b border-border/40 bg-background/20 px-4 py-3">
-            <div class="flex max-w-[70%] items-center gap-2.5">
-              {#if student.avatarUrl}
-                <img src={student.avatarUrl} alt={student.name} class="size-6 rounded-full border border-border/50" />
-              {:else}
-                <div
-                  class="flex size-6 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-[10px] font-bold text-primary"
+              <!-- Status Indicator Badge -->
+              {#if isLive}
+                {#if highlightedStudents[student._id]}
+                  <span
+                    class="flex animate-bounce items-center gap-1 rounded border border-destructive/20 bg-destructive/10 px-2 py-0.5 text-[9px] font-bold tracking-wider text-destructive uppercase"
+                  >
+                    Unfocused
+                  </span>
+                {:else}
+                  <span
+                    class="flex animate-pulse items-center gap-1 rounded border border-success/20 bg-success/10 px-2 py-0.5 text-[9px] font-bold tracking-wider text-success uppercase"
+                  >
+                    Live
+                  </span>
+                {/if}
+              {:else if connection && connection.status === 'connecting'}
+                <span
+                  class="flex animate-pulse items-center gap-1 rounded border border-warning/20 bg-warning/10 px-2 py-0.5 text-[9px] font-bold tracking-wider text-warning uppercase"
                 >
-                  {student.name.slice(0, 2).toUpperCase()}
-                </div>
+                  Connecting
+                </span>
+              {:else}
+                <span
+                  class="flex items-center gap-1 rounded border border-border/40 bg-muted/40 px-2 py-0.5 text-[9px] font-bold tracking-wider text-muted-foreground uppercase"
+                >
+                  Offline
+                </span>
               {/if}
-              <span class="truncate text-xs font-bold text-foreground">{student.name}</span>
             </div>
 
-            <!-- Status Indicator Badge -->
-            {#if isLive}
-              {#if highlightedStudents[student._id]}
-                <span
-                  class="flex animate-bounce items-center gap-1 rounded border border-destructive/20 bg-destructive/10 px-2 py-0.5 text-[9px] font-bold tracking-wider text-destructive uppercase"
-                >
-                  Unfocused
-                </span>
-              {:else}
-                <span
-                  class="flex animate-pulse items-center gap-1 rounded border border-success/20 bg-success/10 px-2 py-0.5 text-[9px] font-bold tracking-wider text-success uppercase"
-                >
-                  Live
-                </span>
-              {/if}
-            {:else if connection && connection.status === 'connecting'}
-              <span
-                class="flex animate-pulse items-center gap-1 rounded border border-warning/20 bg-warning/10 px-2 py-0.5 text-[9px] font-bold tracking-wider text-warning uppercase"
-              >
-                Connecting
-              </span>
-            {:else}
-              <span
-                class="flex items-center gap-1 rounded border border-border/40 bg-muted/40 px-2 py-0.5 text-[9px] font-bold tracking-wider text-muted-foreground uppercase"
-              >
-                Offline
-              </span>
-            {/if}
-          </div>
+            <!-- Card Video Panel (Strict 16:9 Landscape Aspect Ratio) -->
+            <div class="group/panel relative flex aspect-video w-full items-center justify-center bg-background/40">
+              {#if isLive}
+                <video
+                  use:attachStream={connection.stream}
+                  muted
+                  autoplay
+                  playsinline
+                  class="h-full w-full bg-pure-black object-contain"
+                ></video>
 
-          <!-- Card Video Panel (Strict 16:9 Landscape Aspect Ratio) -->
-          <div class="group/panel relative flex aspect-video w-full items-center justify-center bg-background/40">
-            {#if isLive}
-              <video
-                use:attachStream={connection.stream}
-                muted
-                autoplay
-                playsinline
-                class="h-full w-full bg-pure-black object-contain"
-              ></video>
-
-              <!-- Hover Control Overlay -->
-              <div
-                class="absolute inset-0 flex items-center justify-center gap-4 bg-pure-black/60 opacity-0 transition-opacity duration-300 group-hover/panel:opacity-100"
-              >
-                <button
-                  onclick={() => {
-                    fullscreenStudentId = student._id;
-                  }}
-                  class="flex cursor-pointer items-center justify-center rounded-full bg-primary p-3 text-primary-foreground shadow-lg transition-all duration-300 hover:scale-110 hover:bg-primary/90"
-                  title="Expand Fullscreen"
-                >
-                  <Maximize2Icon class="size-4" />
-                </button>
-              </div>
-            {:else}
-              <div class="flex flex-col items-center justify-center p-4 text-center">
+                <!-- Hover Control Overlay -->
                 <div
-                  class="mb-2 flex size-10 items-center justify-center rounded-full border border-border/20 bg-muted/30 text-muted-foreground/60"
+                  class="absolute inset-0 flex items-center justify-center gap-4 bg-pure-black/60 opacity-0 transition-opacity duration-300 group-hover/panel:opacity-100"
                 >
-                  <ScreenShareIcon class="size-5" />
+                  <button
+                    onclick={() => {
+                      fullscreenStudentId = student._id;
+                    }}
+                    class="flex cursor-pointer items-center justify-center rounded-full bg-primary p-3 text-primary-foreground shadow-lg transition-all duration-300 hover:scale-110 hover:bg-primary/90"
+                    title="Expand Fullscreen"
+                  >
+                    <Maximize2Icon class="size-4" />
+                  </button>
                 </div>
-                <p class="text-xs font-semibold text-muted-foreground/80">No Active Stream</p>
-                <p class="mt-0.5 max-w-[180px] text-[10px] text-muted-foreground/50">Waiting for the student...</p>
-              </div>
-            {/if}
+              {:else}
+                <div class="flex flex-col items-center justify-center p-4 text-center">
+                  <div
+                    class="mb-2 flex size-10 items-center justify-center rounded-full border border-border/20 bg-muted/30 text-muted-foreground/60"
+                  >
+                    <ScreenShareIcon class="size-5" />
+                  </div>
+                  <p class="text-xs font-semibold text-muted-foreground/80">No Active Stream</p>
+                  <p class="mt-0.5 max-w-[180px] text-[10px] text-muted-foreground/50">Waiting for the student...</p>
+                </div>
+              {/if}
+            </div>
           </div>
-        </div>
-      {/each}
-    </div>
+        {/each}
+      </div>
 
-    <!-- CCTV Pagination controls -->
-    {#if totalPages > 1}
-      <div
-        class="mx-auto mt-auto flex w-full max-w-4xl items-center justify-center gap-2 border-t border-border/40 pt-6"
-      >
-        <button
-          onclick={() => {
-            currentPage = Math.max(1, currentPage - 1);
-          }}
-          disabled={currentPage === 1}
-          class="flex cursor-pointer items-center justify-center rounded-lg border border-border/30 bg-card/45 p-2 text-foreground transition-all duration-200 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-40"
+      <!-- CCTV Pagination controls -->
+      {#if totalPages > 1}
+        <div
+          class="mx-auto mt-auto flex w-full max-w-4xl items-center justify-center gap-2 border-t border-border/40 pt-6"
         >
-          <ChevronLeftIcon class="size-4" />
-        </button>
-
-        {#each Array(totalPages) as _, i (i)}
-          {@const pageNum = i + 1}
           <button
             onclick={() => {
-              currentPage = pageNum;
+              currentPage = Math.max(1, currentPage - 1);
             }}
-            class="flex size-8 cursor-pointer items-center justify-center rounded-lg border text-xs font-semibold transition-all duration-200 {currentPage ===
-            pageNum
-              ? 'scale-105 border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-              : 'border-border/30 bg-card/45 text-foreground hover:bg-secondary'}"
+            disabled={currentPage === 1}
+            class="flex cursor-pointer items-center justify-center rounded-lg border border-border/30 bg-card/45 p-2 text-foreground transition-all duration-200 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {pageNum}
+            <ChevronLeftIcon class="size-4" />
           </button>
-        {/each}
 
-        <button
-          onclick={() => {
-            currentPage = Math.min(totalPages, currentPage + 1);
-          }}
-          disabled={currentPage === totalPages}
-          class="flex cursor-pointer items-center justify-center rounded-lg border border-border/30 bg-card/45 p-2 text-foreground transition-all duration-200 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <ChevronRightIcon class="size-4" />
-        </button>
-      </div>
+          {#each Array(totalPages) as _, i (i)}
+            {@const pageNum = i + 1}
+            <button
+              onclick={() => {
+                currentPage = pageNum;
+              }}
+              class="flex size-8 cursor-pointer items-center justify-center rounded-lg border text-xs font-semibold transition-all duration-200 {currentPage ===
+              pageNum
+                ? 'scale-105 border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                : 'border-border/30 bg-card/45 text-foreground hover:bg-secondary'}"
+            >
+              {pageNum}
+            </button>
+          {/each}
+
+          <button
+            onclick={() => {
+              currentPage = Math.min(totalPages, currentPage + 1);
+            }}
+            disabled={currentPage === totalPages}
+            class="flex cursor-pointer items-center justify-center rounded-lg border border-border/30 bg-card/45 p-2 text-foreground transition-all duration-200 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronRightIcon class="size-4" />
+          </button>
+        </div>
+      {/if}
     {/if}
-  {/if}
-</div>
+  </PageLayout>
+{/if}
 
 <!-- CCTV Fullscreen Overlay Modal -->
 {#if fullscreenStudentId}

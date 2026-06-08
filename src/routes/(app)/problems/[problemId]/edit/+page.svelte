@@ -1,12 +1,9 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Plus from '@lucide/svelte/icons/plus';
   import Save from '@lucide/svelte/icons/save';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { toast } from 'svelte-sonner';
-  import { fade } from 'svelte/transition';
 
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
@@ -14,11 +11,13 @@
   import type { Id } from '$convex/_generated/dataModel';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { Textarea } from '$lib/components/ui/textarea/index.js';
   import { session } from '$lib/session';
 
@@ -143,23 +142,13 @@
   }
 </script>
 
-<div class="container mx-auto flex max-w-4xl flex-col gap-6 p-4 md:p-6" in:fade>
+<PageLayout class="max-w-4xl!">
   <!-- Back navigation header -->
-  <div class="flex items-center">
-    <Button
-      variant="ghost"
-      size="sm"
-      onclick={() => goto(`/problems/${problemId}`)}
-      class="h-8 cursor-pointer gap-1.5 pl-2 text-muted-foreground hover:text-foreground"
-    >
-      <ArrowLeft class="h-4 w-4" /> Back to Problem details
-    </Button>
-  </div>
+  <BackButton href={`/problems/${problemId}`} label="Back to Problem details" />
 
   {#if problemQuery.isLoading}
     <div class="flex h-96 flex-col items-center justify-center gap-2">
-      <Loader2 class="h-8 w-8 animate-spin text-primary" />
-      <span class="text-xs font-semibold text-muted-foreground">Loading problem...</span>
+      <Spinner class="size-8 text-primary" />
     </div>
   {:else if !problemQuery.data}
     <div class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed py-20 text-center">
@@ -175,13 +164,17 @@
       <Button size="sm" onclick={() => goto(`/problems/${problemId}`)}>Return to Details</Button>
     </div>
   {:else}
+    <PageHero
+      title="Edit Problem"
+      description="Update the title and core markdown content for this programming task."
+    />
     <!-- Vertical Layout -->
     <div class="flex flex-col gap-6">
       <!-- Edit Details Card -->
       <Card.Root class="border bg-card/45 shadow-sm backdrop-blur-md">
         <Card.Header class="p-6">
-          <Card.Title class="text-lg font-bold tracking-tight">Edit Problem Details</Card.Title>
-          <Card.Description>Update the title and core markdown content for this programming task.</Card.Description>
+          <Card.Title class="text-lg font-bold tracking-tight">Problem Details</Card.Title>
+          <Card.Description>Edit the title and description for this programming task.</Card.Description>
         </Card.Header>
         <Separator />
         <Card.Content class="p-6">
@@ -218,7 +211,7 @@
                 class="min-w-32 cursor-pointer font-bold shadow-sm"
               >
                 {#if isSavingDetails}
-                  <Loader2 class="h-4 w-4 animate-spin" /> Saving...
+                  <Spinner class="size-4" /> Saving...
                 {:else}
                   Save Details
                 {/if}
@@ -239,8 +232,8 @@
         <Separator />
         <Card.Content class="flex flex-col gap-6 p-6">
           {#if testCasesQuery.isLoading}
-            <div class="flex items-center justify-center gap-1.5 py-6 text-sm text-muted-foreground italic">
-              <Loader2 class="h-4 w-4 animate-spin" /> Loading test cases...
+            <div class="flex items-center justify-center py-6">
+              <Spinner class="size-4" />
             </div>
           {:else if !testCasesQuery.data || testCasesQuery.data.length === 0}
             <div class="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground italic">
@@ -265,7 +258,7 @@
                         disabled={updatingIoMap[io._id] || deletingIoMap[io._id]}
                       >
                         {#if updatingIoMap[io._id]}
-                          <Loader2 class="h-3.5 w-3.5 animate-spin" /> Saving...
+                          <Spinner class="size-3.5" /> Saving...
                         {:else}
                           <Save class="h-3.5 w-3.5" /> Save
                         {/if}
@@ -278,7 +271,7 @@
                         disabled={updatingIoMap[io._id] || deletingIoMap[io._id]}
                       >
                         {#if deletingIoMap[io._id]}
-                          <Loader2 class="h-3.5 w-3.5 animate-spin" />
+                          <Spinner class="size-3.5" />
                         {:else}
                           <Trash2 class="h-3.5 w-3.5" />
                         {/if}
@@ -341,9 +334,7 @@
                 />
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label
-                  for="new-output"
-                  class="text-xs font-bold tracking-wider text-muted-foreground text-primary uppercase"
+                <Label for="new-output" class="text-xs font-bold tracking-wider text-muted-foreground uppercase"
                   >Expected Output (Required)</Label
                 >
                 <Textarea
@@ -364,7 +355,7 @@
                 class="min-w-32 cursor-pointer font-bold shadow-sm"
               >
                 {#if isAddingTestCase}
-                  <Loader2 class="h-4 w-4 animate-spin" /> Adding...
+                  <Spinner class="size-4" /> Adding...
                 {:else}
                   Add Test Case
                 {/if}
@@ -375,4 +366,4 @@
       </Card.Root>
     </div>
   {/if}
-</div>
+</PageLayout>

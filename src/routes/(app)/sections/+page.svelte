@@ -10,8 +10,10 @@
   import DOMPurify from 'isomorphic-dompurify';
   import { toast } from 'svelte-sonner';
 
+  import { goto } from '$app/navigation';
   import { api } from '$convex/_generated/api.js';
 
+  import { PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
@@ -80,24 +82,21 @@
   }
 </script>
 
-<div class="flex-1 space-y-6 p-8 pt-6">
+<PageLayout>
   <!-- Top Header Action -->
-  <div class="flex items-center justify-between space-y-2">
-    <div>
-      <h2 class="text-3xl font-bold tracking-tight">Academic Sections</h2>
-      <p class="text-xs text-muted-foreground">
-        Manage your courses, view assigned schedules, and coordinate students.
-      </p>
-    </div>
-    {#if userRole === 'admin'}
-      <div class="flex items-center gap-2">
+  <PageHero
+    title="Academic Sections"
+    description="Manage your courses, view assigned schedules, and coordinate students."
+  >
+    {#snippet actions()}
+      {#if userRole === 'admin'}
         <Button href="/sections/new" size="sm" class="h-9 px-4 text-xs font-semibold shadow-xs">
           <Plus class="mr-1.5 h-4 w-4" />
           Create Section
         </Button>
-      </div>
-    {/if}
-  </div>
+      {/if}
+    {/snippet}
+  </PageHero>
 
   <!-- Search and Actions Bar -->
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -131,24 +130,16 @@
       {/each}
     </div>
   {:else if filteredSections.length === 0}
-    <div
-      class="flex h-[320px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card p-8 text-center shadow-xs"
-    >
-      <div class="rounded-full bg-primary/5 p-4 text-primary">
-        <GraduationCap class="h-8 w-8" />
-      </div>
-      <h3 class="text-md mt-4 font-semibold">No Sections Found</h3>
-      <p class="mt-1.5 max-w-sm text-xs text-muted-foreground">
-        {searchQuery
-          ? 'Adjust your search query or clear filters to locate matches.'
-          : 'No active sections are currently configured.'}
-      </p>
-      {#if userRole === 'admin' && !searchQuery}
-        <Button href="/sections/new" size="sm" class="mt-4 h-8 px-3 text-xs font-semibold">
-          Create Your First Section
-        </Button>
-      {/if}
-    </div>
+    <PageEmpty
+      icon={GraduationCap}
+      title="No Sections Found"
+      description={searchQuery
+        ? 'Adjust your search query or clear filters to locate matches.'
+        : 'No active sections are currently configured.'}
+      action={userRole === 'admin' && !searchQuery
+        ? { label: 'Create Your First Section', onclick: () => goto('/sections/new') }
+        : undefined}
+    />
   {:else}
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {#each filteredSections as section (section._id)}
@@ -235,7 +226,7 @@
       {/each}
     </div>
   {/if}
-</div>
+</PageLayout>
 
 <!-- Deletion Dialog -->
 <AlertDialog.Root bind:open={deleteDialogOpen}>

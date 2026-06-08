@@ -1,7 +1,6 @@
 <script lang="ts">
   import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date';
   import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
-  import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
   import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
   import BookOpenIcon from '@lucide/svelte/icons/book-open';
   import CalendarIcon from '@lucide/svelte/icons/calendar';
@@ -17,6 +16,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
+  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Calendar } from '$lib/components/ui/calendar/index.js';
@@ -259,42 +259,47 @@
   ];
 </script>
 
-<div class="mx-auto w-full max-w-3xl p-6">
-  <!-- Back Button & Header -->
-  <div class="mb-8 flex items-center gap-4">
-    {#if activity}
-      <Button variant="outline" size="icon" onclick={() => goto(`/sections/${activity.sectionId}`)}>
-        <ArrowLeftIcon class="size-4" />
-      </Button>
-    {:else}
-      <Skeleton class="size-10" />
-    {/if}
-    <div class="flex flex-col">
-      <h1 class="text-2xl font-bold tracking-tight">
-        {#if activity}
-          Edit Activity: {activity.title}
-        {:else}
-          <Skeleton class="h-8 w-48" />
-        {/if}
-      </h1>
-      <p class="text-sm text-muted-foreground">Modify settings and problems assigned to this activity.</p>
-    </div>
-  </div>
-
-  <div class="flex flex-col gap-8">
-    <!-- Card 1: General Details -->
-    <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
-      <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
-        <Card.Title class="text-lg font-bold tracking-tight">General Details</Card.Title>
-        <Card.Description>Update schedule times, title, or mode representation.</Card.Description>
-      </Card.Header>
-      {#if !activity || !initializedDate}
-        <Card.Content class="space-y-4 p-6">
+{#if !activity || !initializedDate}
+  <PageLayout class="max-w-4xl!">
+    <div class="flex flex-col gap-8">
+      <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
+        <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
+          <Skeleton class="h-5 w-36" />
+          <Skeleton class="h-3 w-48" />
+        </Card.Header>
+        <Card.Content class="grid gap-6 p-6">
           <Skeleton class="h-10 w-full" />
           <Skeleton class="h-10 w-full" />
           <Skeleton class="h-10 w-full" />
         </Card.Content>
-      {:else}
+      </Card.Root>
+      <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
+        <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
+          <Skeleton class="h-5 w-36" />
+          <Skeleton class="h-3 w-48" />
+        </Card.Header>
+        <Card.Content class="grid gap-6 p-6">
+          <Skeleton class="h-10 w-full" />
+          <Skeleton class="h-10 w-full" />
+        </Card.Content>
+      </Card.Root>
+    </div>
+  </PageLayout>
+{:else}
+  <PageLayout class="max-w-4xl!">
+    <BackButton href={`/sections/${activity.sectionId}`} label="Back to Section" />
+    <PageHero
+      title={'Edit Activity: ' + activity.title}
+      description="Modify settings and problems assigned to this activity."
+    />
+
+    <div class="flex flex-col gap-8">
+      <!-- Card 1: General Details -->
+      <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
+        <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
+          <Card.Title class="text-lg font-bold tracking-tight">General Details</Card.Title>
+          <Card.Description>Update schedule times, title, or mode representation.</Card.Description>
+        </Card.Header>
         <form onsubmit={handleUpdateSettings}>
           <Card.Content class="grid gap-6 p-6">
             <!-- Title -->
@@ -407,122 +412,122 @@
             </Button>
           </Card.Footer>
         </form>
-      {/if}
-    </Card.Root>
+      </Card.Root>
 
-    <!-- Card 2: Attached Problems -->
-    <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
-      <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
-        <Card.Title class="text-lg font-bold tracking-tight">Assigned Problems</Card.Title>
-        <Card.Description>Manage which coding questions are part of this activity.</Card.Description>
-      </Card.Header>
-      <Card.Content class="grid gap-6 p-6">
-        <!-- Assigned List -->
-        <div class="space-y-2">
-          <Label>Selected Questions ({currentProblems.length})</Label>
-          {#if problemsQuery.isLoading}
-            <div class="flex flex-col gap-2">
-              <Skeleton class="h-12 w-full" />
-              <Skeleton class="h-12 w-full" />
-            </div>
-          {:else if currentProblems.length === 0}
-            <div
-              class="flex flex-col items-center justify-center rounded-lg border border-dashed bg-muted/5 py-8 text-center"
-            >
-              <BookOpenIcon class="mb-2 size-8 text-muted-foreground/30" />
-              <p class="text-sm font-medium">No problems attached yet</p>
-              <p class="text-xs text-muted-foreground">Search and add questions from your library below.</p>
-            </div>
-          {:else}
-            <div class="divide-y rounded-md border bg-background">
-              {#each currentProblems as ap, i (ap._id)}
-                {#if ap.problem}
-                  <div class="flex items-center gap-4 px-4 py-3 hover:bg-muted/10">
-                    <div
-                      class="flex size-7 shrink-0 items-center justify-center rounded-full border bg-muted/20 text-xs font-semibold"
-                    >
-                      {i + 1}
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="truncate text-sm font-semibold">{ap.problem.title}</p>
-                      <p class="mt-0.5 truncate text-xs text-muted-foreground">{ap.problem.contentMd}</p>
-                    </div>
-                    <div class="flex shrink-0 items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="size-8"
-                        disabled={i === 0}
-                        onclick={() => handleMoveProblem(i, 'up')}
+      <!-- Card 2: Attached Problems -->
+      <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
+        <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
+          <Card.Title class="text-lg font-bold tracking-tight">Assigned Problems</Card.Title>
+          <Card.Description>Manage which coding questions are part of this activity.</Card.Description>
+        </Card.Header>
+        <Card.Content class="grid gap-6 p-6">
+          <!-- Assigned List -->
+          <div class="space-y-2">
+            <Label>Selected Questions ({currentProblems.length})</Label>
+            {#if problemsQuery.isLoading}
+              <div class="flex flex-col gap-2">
+                <Skeleton class="h-12 w-full" />
+                <Skeleton class="h-12 w-full" />
+              </div>
+            {:else if currentProblems.length === 0}
+              <div
+                class="flex flex-col items-center justify-center rounded-lg border border-dashed bg-muted/5 py-8 text-center"
+              >
+                <BookOpenIcon class="mb-2 size-8 text-muted-foreground/30" />
+                <p class="text-sm font-medium">No problems attached yet</p>
+                <p class="text-xs text-muted-foreground">Search and add questions from your library below.</p>
+              </div>
+            {:else}
+              <div class="divide-y rounded-md border bg-background">
+                {#each currentProblems as ap, i (ap._id)}
+                  {#if ap.problem}
+                    <div class="flex items-center gap-4 px-4 py-3 hover:bg-muted/10">
+                      <div
+                        class="flex size-7 shrink-0 items-center justify-center rounded-full border bg-muted/20 text-xs font-semibold"
                       >
-                        <ArrowUpIcon class="size-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="size-8"
-                        disabled={i === currentProblems.length - 1}
-                        onclick={() => handleMoveProblem(i, 'down')}
-                      >
-                        <ArrowDownIcon class="size-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onclick={() => handleRemoveProblem(ap.problemId)}
-                      >
-                        <Trash2Icon class="size-4" />
-                      </Button>
+                        {i + 1}
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-semibold">{ap.problem.title}</p>
+                        <p class="mt-0.5 truncate text-xs text-muted-foreground">{ap.problem.contentMd}</p>
+                      </div>
+                      <div class="flex shrink-0 items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="size-8"
+                          disabled={i === 0}
+                          onclick={() => handleMoveProblem(i, 'up')}
+                        >
+                          <ArrowUpIcon class="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="size-8"
+                          disabled={i === currentProblems.length - 1}
+                          onclick={() => handleMoveProblem(i, 'down')}
+                        >
+                          <ArrowDownIcon class="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          onclick={() => handleRemoveProblem(ap.problemId)}
+                        >
+                          <Trash2Icon class="size-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                {/if}
-              {/each}
-            </div>
-          {/if}
-        </div>
-
-        <Separator />
-
-        <!-- Problem Library Search -->
-        <div class="space-y-3">
-          <div class="flex flex-col gap-2">
-            <Label for="librarySearch">Search Your Problem Library</Label>
-            <Input
-              id="librarySearch"
-              placeholder="Type problem title to search..."
-              bind:value={problemSearch}
-              class="h-9"
-            />
+                  {/if}
+                {/each}
+              </div>
+            {/if}
           </div>
 
-          {#if libraryProblemsQuery.isLoading}
+          <Separator />
+
+          <!-- Problem Library Search -->
+          <div class="space-y-3">
             <div class="flex flex-col gap-2">
-              <Skeleton class="h-10 w-full" />
-              <Skeleton class="h-10 w-full" />
+              <Label for="librarySearch">Search Your Problem Library</Label>
+              <Input
+                id="librarySearch"
+                placeholder="Type problem title to search..."
+                bind:value={problemSearch}
+                class="h-9"
+              />
             </div>
-          {:else if availableProblems.length === 0}
-            <p class="py-4 text-center text-xs text-muted-foreground">No matching unassigned problems found.</p>
-          {:else}
-            <div class="max-h-[250px] divide-y overflow-y-auto rounded-md border bg-background">
-              {#each availableProblems as p (p._id)}
-                <div class="flex items-center justify-between gap-4 p-3 hover:bg-muted/10">
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-xs font-semibold">{p.title}</p>
-                    <p class="mt-0.5 truncate text-[10px] text-muted-foreground">{p.contentMd}</p>
+
+            {#if libraryProblemsQuery.isLoading}
+              <div class="flex flex-col gap-2">
+                <Skeleton class="h-10 w-full" />
+                <Skeleton class="h-10 w-full" />
+              </div>
+            {:else if availableProblems.length === 0}
+              <p class="py-4 text-center text-xs text-muted-foreground">No matching unassigned problems found.</p>
+            {:else}
+              <div class="max-h-[250px] divide-y overflow-y-auto rounded-md border bg-background">
+                {#each availableProblems as p (p._id)}
+                  <div class="flex items-center justify-between gap-4 p-3 hover:bg-muted/10">
+                    <div class="min-w-0 flex-1">
+                      <p class="truncate text-xs font-semibold">{p.title}</p>
+                      <p class="mt-0.5 truncate text-[10px] text-muted-foreground">{p.contentMd}</p>
+                    </div>
+                    <Button size="icon-sm" variant="outline" onclick={() => handleAttachProblem(p._id)}>
+                      <PlusIcon class="size-3.5" />
+                    </Button>
                   </div>
-                  <Button size="icon-sm" variant="outline" onclick={() => handleAttachProblem(p._id)}>
-                    <PlusIcon class="size-3.5" />
-                  </Button>
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </Card.Content>
-    </Card.Root>
-  </div>
-</div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        </Card.Content>
+      </Card.Root>
+    </div>
+  </PageLayout>
+{/if}
 
 <!-- Delete Activity Confirmation -->
 <AlertDialog.Root bind:open={deleteDialogOpen}>

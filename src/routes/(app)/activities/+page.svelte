@@ -4,7 +4,6 @@
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import PlayCircleIcon from '@lucide/svelte/icons/play-circle';
   import PlusIcon from '@lucide/svelte/icons/plus';
-  import SearchIcon from '@lucide/svelte/icons/search';
   import { useConvexClient, useQuery } from 'convex-svelte';
   // Keep now updated every 10 seconds for real-time transitions
   import { onDestroy, onMount } from 'svelte';
@@ -14,10 +13,10 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
+  import { FilterTabs, PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
-  import { Input } from '$lib/components/ui/input/index.js';
-  import { Spinner } from '$lib/components/ui/spinner/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { session } from '$lib/session';
 
   const client = useConvexClient();
@@ -131,76 +130,58 @@
   }
 </script>
 
-<div class="mx-auto w-full max-w-5xl p-6">
+<PageLayout>
   <!-- Header -->
-  <div class="mb-8 flex items-center justify-between">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight">Activities Hub</h1>
-      <p class="text-sm text-muted-foreground">View and manage scheduled classes, exams, and performance reviews.</p>
-    </div>
-    {#if role === 'teacher' || role === 'admin'}
-      <Button onclick={() => goto('/activities/new')}>
-        <PlusIcon class="mr-2 size-4" />
-        New Activity
-      </Button>
-    {/if}
-  </div>
+  <PageHero title="Activities Hub" description="View and manage scheduled classes, exams, and performance reviews.">
+    {#snippet actions()}
+      {#if role === 'teacher' || role === 'admin'}
+        <Button onclick={() => goto('/activities/new')}>
+          <PlusIcon class="mr-2 size-4" />
+          New Activity
+        </Button>
+      {/if}
+    {/snippet}
+  </PageHero>
 
   <!-- Filters & Search -->
-  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="flex items-center gap-1.5 rounded-lg border bg-background p-1 shadow-sm">
-      <button
-        class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors {filterTab === 'all'
-          ? 'bg-primary text-primary-foreground'
-          : 'text-muted-foreground hover:bg-muted'}"
-        onclick={() => (filterTab = 'all')}
-      >
-        All
-      </button>
-      <button
-        class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors {filterTab === 'active'
-          ? 'bg-success text-success-foreground'
-          : 'text-muted-foreground hover:bg-muted'}"
-        onclick={() => (filterTab = 'active')}
-      >
-        Active
-      </button>
-      <button
-        class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors {filterTab === 'upcoming'
-          ? 'bg-info text-info-foreground'
-          : 'text-muted-foreground hover:bg-muted'}"
-        onclick={() => (filterTab = 'upcoming')}
-      >
-        Upcoming
-      </button>
-      <button
-        class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors {filterTab === 'past'
-          ? 'bg-secondary text-secondary-foreground'
-          : 'text-muted-foreground hover:bg-muted'}"
-        onclick={() => (filterTab = 'past')}
-      >
-        Past
-      </button>
-    </div>
-
-    <!-- Search Input -->
-    <div class="relative w-full max-w-[280px]">
-      <SearchIcon class="absolute top-2.5 left-3 size-4 text-muted-foreground opacity-50" />
-      <Input placeholder="Search title or section..." bind:value={searchQuery} class="h-9 pl-9" />
-    </div>
-  </div>
+  <FilterTabs
+    tabs={[
+      { label: 'All', value: 'all' },
+      { label: 'Active', value: 'active' },
+      { label: 'Upcoming', value: 'upcoming' },
+      { label: 'Past', value: 'past' },
+    ]}
+    bind:activeTab={filterTab}
+    bind:searchQuery
+    placeholder="Search title or section..."
+  />
 
   {#if isLoading}
-    <div class="flex flex-col items-center justify-center py-20">
-      <Spinner class="mb-2 size-8" />
-      <p class="text-sm text-muted-foreground">Loading activities...</p>
+    <div class="flex flex-col gap-4">
+      {#each [0, 1, 2] as i (i)}
+        <Card.Root class="overflow-hidden border bg-card shadow-sm transition-all duration-300 hover:shadow-md">
+          <div class="flex items-center justify-between p-5">
+            <div class="flex items-center gap-4">
+              <Skeleton class="size-10 rounded-lg" />
+              <div class="flex flex-col gap-1.5">
+                <Skeleton class="h-5 w-48" />
+                <Skeleton class="h-3 w-32" />
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <Skeleton class="h-8 w-20" />
+              <Skeleton class="h-8 w-20" />
+            </div>
+          </div>
+        </Card.Root>
+      {/each}
     </div>
   {:else if filteredActivities.length === 0}
-    <div class="flex flex-col items-center justify-center rounded-lg border border-dashed bg-muted/5 py-20 text-center">
-      <CalendarIcon class="mb-3 size-10 text-muted-foreground/30" />
-      <p class="text-sm font-semibold">No activities found</p>
-      <p class="mt-1 text-xs text-muted-foreground">There are no activities matching the current filter.</p>
-    </div>
+    <PageEmpty
+      icon={CalendarIcon}
+      title="No activities found"
+      description="There are no activities matching the current filter."
+    />
   {:else}
     <div class="flex flex-col gap-4">
       {#each filteredActivities as activity (activity._id)}
@@ -309,4 +290,4 @@
       {/each}
     </div>
   {/if}
-</div>
+</PageLayout>

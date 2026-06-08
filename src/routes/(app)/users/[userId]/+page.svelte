@@ -5,7 +5,6 @@
   import BookOpen from '@lucide/svelte/icons/book-open';
   import Calendar from '@lucide/svelte/icons/calendar';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import MessageSquare from '@lucide/svelte/icons/message-square';
   import PenTool from '@lucide/svelte/icons/pen-tool';
   import Settings from '@lucide/svelte/icons/settings';
@@ -22,10 +21,12 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
+  import { PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -84,11 +85,10 @@
   }
 </script>
 
-<div class="container mx-auto max-w-5xl px-4 py-8 md:py-12" in:fade>
+<PageLayout>
   {#if profileQuery.isLoading}
     <div class="flex h-96 flex-col items-center justify-center gap-4">
-      <Loader2 class="h-10 w-10 animate-spin text-primary opacity-60" />
-      <span class="text-sm font-medium text-muted-foreground">Loading profile...</span>
+      <Spinner class="size-10 text-primary opacity-60" />
     </div>
   {:else if !profileQuery.data}
     <div class="flex h-96 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed p-8 text-center">
@@ -178,7 +178,7 @@
                 class="gap-1.5 font-semibold shadow-xs"
               >
                 {#if isStartingChat}
-                  <Loader2 class="h-4 w-4 animate-spin" />
+                  <Spinner class="size-4" />
                   Connecting...
                 {:else}
                   <MessageSquare class="h-4 w-4" />
@@ -525,4 +525,4 @@
       </div>
     </div>
   {/if}
-</div>
+</PageLayout>

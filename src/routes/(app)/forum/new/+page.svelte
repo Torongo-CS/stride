@@ -1,22 +1,21 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
-  import PenTool from '@lucide/svelte/icons/pen-tool';
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { toast } from 'svelte-sonner';
-  import { fade, slide } from 'svelte/transition';
+  import { slide } from 'svelte/transition';
 
   import { goto } from '$app/navigation';
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
 
   const client = useConvexClient();
@@ -93,23 +92,13 @@
   }
 </script>
 
-<div class="container mx-auto flex max-w-3xl flex-col gap-6 p-4 md:p-6" in:fade>
+<PageLayout class="max-w-4xl!">
   <!-- Back button -->
-  <div class="flex items-center gap-2">
-    <Button variant="ghost" size="sm" onclick={() => goto('/forum')} class="h-8 gap-1 pl-2">
-      <ArrowLeft class="h-4 w-4" /> Back to Feed
-    </Button>
-  </div>
+  <BackButton href="/forum" label="Back to Feed" />
+
+  <PageHero title="Create a New Post" description="Share questions, codes, or guides. Be respectful of others." />
 
   <Card.Root class="border bg-card shadow-md">
-    <Card.Header class="space-y-1.5 border-b p-6">
-      <Card.Title class="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
-        <PenTool class="h-5 w-5 text-primary" />
-        Create a New Post
-      </Card.Title>
-      <Card.Description>Share questions, codes, or guides. Be respectful of others.</Card.Description>
-    </Card.Header>
-
     <Card.Content class="p-6">
       <form onsubmit={submitPost} class="flex flex-col gap-6">
         <!-- Title Input -->
@@ -152,7 +141,7 @@
           <!-- Tags list selection -->
           <div class="flex flex-wrap gap-1.5 rounded-lg border bg-muted/5 p-2.5">
             {#if tagsQuery.isLoading}
-              <span class="text-xs text-muted-foreground italic">Loading tags...</span>
+              <span class="flex"><Spinner class="size-3" /></span>
             {:else if !tagsQuery.data || tagsQuery.data.length === 0}
               <span class="text-xs text-muted-foreground italic">No tags. Create a new tag!</span>
             {:else}
@@ -182,7 +171,7 @@
             class="min-w-32 gap-1.5 font-semibold shadow-sm"
           >
             {#if isSubmitting}
-              <Loader2 class="h-4 w-4 animate-spin" /> Creating...
+              <Spinner class="size-4" /> Creating...
             {:else}
               Publish Post
             {/if}
@@ -191,4 +180,4 @@
       </form>
     </Card.Content>
   </Card.Root>
-</div>
+</PageLayout>

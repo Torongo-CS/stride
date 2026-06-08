@@ -9,6 +9,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Doc } from '$convex/_generated/dataModel.js';
 
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
@@ -164,17 +165,15 @@
   ];
 </script>
 
-<div class="flex h-full flex-col gap-6 p-8">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight">User Management</h1>
-      <p class="text-muted-foreground">Manage your application users and their roles.</p>
-    </div>
-    <Button onclick={openAddDialog}>
-      <PlusIcon class="mr-2 h-4 w-4" />
-      Add User
-    </Button>
-  </div>
+<PageLayout>
+  <PageHero title="User Management" description="Manage your application users and their roles.">
+    {#snippet actions()}
+      <Button onclick={openAddDialog}>
+        <PlusIcon class="mr-2 h-4 w-4" />
+        Add User
+      </Button>
+    {/snippet}
+  </PageHero>
 
   <div class="flex items-center gap-4">
     <div class="relative w-full max-w-sm">
@@ -240,7 +239,7 @@
       </Table.Body>
     </Table.Root>
   </div>
-</div>
+</PageLayout>
 
 <!-- Edit User Dialog -->
 <Dialog.Root bind:open={editDialogOpen}>

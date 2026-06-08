@@ -1,24 +1,23 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Calendar from '@lucide/svelte/icons/calendar';
   import Code2 from '@lucide/svelte/icons/code-2';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import { useConvexClient, useQuery } from 'convex-svelte';
   import DOMPurify from 'isomorphic-dompurify';
   import { toast } from 'svelte-sonner';
-  import { fade } from 'svelte/transition';
 
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
+  import { BackButton, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import * as Table from '$lib/components/ui/table/index.js';
   import { session } from '$lib/session';
 
@@ -73,17 +72,10 @@
   }
 </script>
 
-<div class="container mx-auto flex max-w-4xl flex-col gap-6 p-4 md:p-6" in:fade>
+<PageLayout class="max-w-4xl!">
   <!-- Back Button & Action Controls -->
   <div class="flex items-center justify-between">
-    <Button
-      variant="ghost"
-      size="sm"
-      onclick={() => goto('/problems')}
-      class="h-8 cursor-pointer gap-1.5 pl-2 text-muted-foreground hover:text-foreground"
-    >
-      <ArrowLeft class="h-4 w-4" /> Back to Problems
-    </Button>
+    <BackButton href="/problems" label="Back to Problems" />
 
     {#if canManage}
       <div class="flex items-center gap-2">
@@ -109,8 +101,7 @@
 
   {#if problemQuery.isLoading}
     <div class="flex h-96 flex-col items-center justify-center gap-2">
-      <Loader2 class="h-8 w-8 animate-spin text-primary" />
-      <span class="text-xs font-semibold text-muted-foreground">Loading details...</span>
+      <Spinner class="size-8 text-primary" />
     </div>
   {:else if !problemQuery.data}
     <div class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed py-20 text-center">
@@ -172,8 +163,8 @@
       </Card.Header>
       <Card.Content class="p-6 pt-0">
         {#if testCasesQuery.isLoading}
-          <div class="flex items-center justify-center gap-1.5 py-6 text-sm text-muted-foreground italic">
-            <Loader2 class="h-4 w-4 animate-spin" /> Loading test cases...
+          <div class="flex items-center justify-center py-6">
+            <Spinner class="size-4" />
           </div>
         {:else if !testCasesQuery.data || testCasesQuery.data.length === 0}
           <div class="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground italic">
@@ -208,7 +199,7 @@
       </Card.Content>
     </Card.Root>
   {/if}
-</div>
+</PageLayout>
 
 <!-- Deletion Confirmation Dialog -->
 <AlertDialog.Root bind:open={deleteDialogOpen}>
@@ -224,7 +215,7 @@
       <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
       <AlertDialog.Action variant="destructive" onclick={confirmDelete} disabled={isDeleting}>
         {#if isDeleting}
-          <Loader2 class="h-3.5 w-3.5 animate-spin" /> Deleting...
+          <Spinner class="size-3.5" /> Deleting...
         {:else}
           Delete
         {/if}
