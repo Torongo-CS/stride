@@ -113,8 +113,7 @@
         toast.error('Failed to resolve image URL.');
       }
       isImagePopoverOpen = false;
-    } catch (err) {
-      console.error('Failed to upload image:', err);
+    } catch (_err) {
       toast.error('Failed to upload image. Please try again.');
     } finally {
       isUploadingImage = false;
@@ -209,6 +208,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleBold().run()}
+        aria-label="Bold"
       >
         <Bold size={16} />
       </Button>
@@ -217,6 +217,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleItalic().run()}
+        aria-label="Italic"
       >
         <Italic size={16} />
       </Button>
@@ -225,6 +226,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleStrike().run()}
+        aria-label="Strikethrough"
       >
         <Strikethrough size={16} />
       </Button>
@@ -233,6 +235,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleCode().run()}
+        aria-label="Inline Code"
       >
         <Code size={16} />
       </Button>
@@ -244,6 +247,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+        aria-label="Heading 1"
       >
         <Heading1 size={16} />
       </Button>
@@ -252,6 +256,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+        aria-label="Heading 2"
       >
         <Heading2 size={16} />
       </Button>
@@ -260,6 +265,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleBulletList().run()}
+        aria-label="Bullet List"
       >
         <List size={16} />
       </Button>
@@ -268,6 +274,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleOrderedList().run()}
+        aria-label="Ordered List"
       >
         <ListOrdered size={16} />
       </Button>
@@ -279,6 +286,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleBlockquote().run()}
+        aria-label="Blockquote"
       >
         <Quote size={16} />
       </Button>
@@ -350,7 +358,13 @@
           {/if}
         </Popover.Content>
       </Popover.Root>
-      <Button variant={checkActive('link') ? 'secondary' : 'ghost'} size="icon" class={btnClass} onclick={setLink}>
+      <Button
+        variant={checkActive('link') ? 'secondary' : 'ghost'}
+        size="icon"
+        class={btnClass}
+        onclick={setLink}
+        aria-label="Insert Link"
+      >
         <LinkIcon size={16} />
       </Button>
       <Button
@@ -358,6 +372,7 @@
         size="icon"
         class={btnClass}
         onclick={() => editor?.chain().focus().toggleCodeBlock().run()}
+        aria-label="Code Block"
       >
         <SquareCode size={16} />
       </Button>
@@ -377,6 +392,7 @@
           size="icon"
           class={btnClass}
           onclick={() => editor?.chain().focus().undo().run()}
+          aria-label="Undo"
           disabled={!canUndo()}
         >
           <Undo size={16} />
@@ -386,6 +402,7 @@
           size="icon"
           class={btnClass}
           onclick={() => editor?.chain().focus().redo().run()}
+          aria-label="Redo"
           disabled={!canRedo()}
         >
           <Redo size={16} />

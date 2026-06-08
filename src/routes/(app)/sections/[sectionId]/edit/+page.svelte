@@ -1,19 +1,22 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import BookOpen from '@lucide/svelte/icons/book-open';
   import Save from '@lucide/svelte/icons/save';
   import Search from '@lucide/svelte/icons/search';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
   import UserCheck from '@lucide/svelte/icons/user-check';
   import UserX from '@lucide/svelte/icons/user-x';
   import Users from '@lucide/svelte/icons/users';
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { toast } from 'svelte-sonner';
 
+  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -21,6 +24,7 @@
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
 
   const client = useConvexClient();
@@ -56,6 +60,12 @@
   let name = $state('');
   let aboutMd = $state('');
   let isSubmitting = $state(false);
+  let isDeleting = $state(false);
+  let deleteDialogOpen = $state(false);
+  let isAssigningTeacher = $state(false);
+  let isRemovingTeacher = $state(false);
+  let isEnrollingStudent = $state(false);
+  let isRemovingStudent = $state(false);
 
   // Sync loaded section data into local form states
   let initialized = $state(false);
@@ -102,7 +112,7 @@
   async function handleUpdateSection(e: Event) {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error('Section name is required');
+      toast.error('Section name is required.');
       return;
     }
     isSubmitting = true;
@@ -112,10 +122,10 @@
         name: name.trim(),
         aboutMd: aboutMd.trim() || undefined,
       });
-      toast.success('Section info updated successfully');
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to update section info');
+      toast.success('Section info updated successfully.');
+      goto(`/sections/${sectionId}`);
+    } catch (_e) {
+      toast.error('Failed to update section info.');
     } finally {
       isSubmitting = false;
     }
@@ -123,76 +133,95 @@
 
   async function assignTeacher(e?: Event) {
     if (e) e.preventDefault();
-    if (!teacherToAssignId) return;
+    if (!teacherToAssignId || isAssigningTeacher) return;
+    isAssigningTeacher = true;
     try {
       await client.mutation(api.sections.addTeacher, {
         sectionId,
         teacherId: teacherToAssignId as Id<'users'>,
       });
-      toast.success('Teacher assigned successfully');
+      toast.success('Teacher assigned successfully.', {
+        description: 'They can now manage this section.',
+      });
       teacherToAssignId = '';
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to assign teacher');
+    } catch (_e) {
+      toast.error('Failed to assign teacher.');
+    } finally {
+      isAssigningTeacher = false;
     }
   }
 
   async function removeTeacher(teacherId: string) {
+    if (isRemovingTeacher) return;
+    if (!confirm('Are you sure you want to unassign this instructor? They will need to be reassigned manually.'))
+      return;
+    isRemovingTeacher = true;
     try {
       await client.mutation(api.sections.removeTeacher, {
         sectionId,
         teacherId: teacherId as Id<'users'>,
       });
-      toast.success('Teacher assignment removed');
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to remove teacher');
+      toast.success('Teacher assignment removed.');
+    } catch (_e) {
+      toast.error('Failed to remove teacher.');
+    } finally {
+      isRemovingTeacher = false;
     }
   }
 
   async function enrollStudent(e?: Event) {
     if (e) e.preventDefault();
-    if (!studentToEnrollId) return;
+    if (!studentToEnrollId || isEnrollingStudent) return;
+    isEnrollingStudent = true;
     try {
       await client.mutation(api.sections.addStudent, {
         sectionId,
         studentId: studentToEnrollId as Id<'users'>,
       });
-      toast.success('Student enrolled successfully');
+      toast.success('Student enrolled successfully.', {
+        description: 'They now have access to the section assignments.',
+      });
       studentToEnrollId = '';
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to enroll student');
+    } catch (_e) {
+      toast.error('Failed to enroll student.');
+    } finally {
+      isEnrollingStudent = false;
     }
   }
 
   async function removeStudent(studentId: string) {
+    if (isRemovingStudent) return;
+    if (!confirm('Are you sure you want to unenroll this student? They will need to be re-enrolled manually.')) return;
+    isRemovingStudent = true;
     try {
       await client.mutation(api.sections.removeStudent, {
         sectionId,
         studentId: studentId as Id<'users'>,
       });
-      toast.success('Student unenrolled');
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to unenroll student');
+      toast.success('Student unenrolled.');
+    } catch (_e) {
+      toast.error('Failed to unenroll student.');
+    } finally {
+      isRemovingStudent = false;
+    }
+  }
+
+  async function confirmDelete() {
+    isDeleting = true;
+    try {
+      await client.mutation(api.sections.remove, { id: sectionId });
+      toast.success('Section deleted successfully.');
+      goto('/sections');
+    } catch (_err) {
+      toast.error('Failed to delete section.');
+    } finally {
+      isDeleting = false;
+      deleteDialogOpen = false;
     }
   }
 </script>
 
-<div class="container mx-auto max-w-4xl px-4 py-8 md:py-12">
-  <!-- Back Action -->
-  <div class="mb-6">
-    <Button
-      href="/sections"
-      variant="ghost"
-      class="h-8 gap-1.5 pl-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
-    >
-      <ArrowLeft class="h-3.5 w-3.5" />
-      Back to Sections
-    </Button>
-  </div>
-
+<PageLayout>
   {#if userRole !== 'admin'}
     <!-- Unauthorized Access Protection -->
     <Card.Root class="border-destructive bg-destructive/5 p-8 text-center">
@@ -236,18 +265,15 @@
       </Card.Content>
     </Card.Root>
   {:else}
-    <!-- Master Header -->
-    <div class="mb-10 flex flex-col gap-2">
-      <h1 class="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Section Management</h1>
-      <p class="text-xs text-muted-foreground">
-        Configure syllabus details, assigned faculty, and enrolled student rosters.
-      </p>
-    </div>
+    <PageHero
+      title="Section Management"
+      description="Configure syllabus details, assigned faculty, and enrolled student rosters."
+    />
 
     <!-- Stacked Cards (User Settings Profile UI style) -->
     <div class="flex flex-col gap-8">
       <!-- 1. Section Info Settings Card -->
-      <form onsubmit={handleUpdateSection}>
+      <form id="section-details-form" onsubmit={handleUpdateSection}>
         <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
           <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
             <Card.Title class="flex items-center gap-2 text-lg font-bold tracking-tight">
@@ -281,14 +307,30 @@
             </div>
           </Card.Content>
 
-          <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
+          <Card.Footer class="flex justify-between border-t bg-muted/5 px-6 py-4">
             <Button
+              variant="destructive"
+              size="lg"
+              class="font-semibold shadow-sm"
+              onclick={() => (deleteDialogOpen = true)}
+            >
+              <Trash2 class="mr-1.5 size-3.5" />
+              Delete Section
+            </Button>
+            <Button
+              form="section-details-form"
               type="submit"
               disabled={isSubmitting}
-              class="gap-1.5 bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+              size="lg"
+              class="font-semibold shadow-sm"
             >
-              <Save class="h-3.5 w-3.5" />
-              Save Course Info
+              {#if isSubmitting}
+                <Spinner class="size-3.5" />
+                Saving...
+              {:else}
+                <Save class="size-3.5" />
+                Save Course Info
+              {/if}
             </Button>
           </Card.Footer>
         </Card.Root>
@@ -334,12 +376,18 @@
                     </div>
                     <Button
                       variant="ghost"
-                      size="sm"
-                      class="h-8 gap-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      size="lg"
+                      class="text-destructive hover:bg-destructive/10 hover:text-destructive"
                       onclick={() => removeTeacher(teacher._id)}
+                      disabled={isRemovingTeacher}
                     >
-                      <UserX class="h-3.5 w-3.5" />
-                      Unassign Instructor
+                      {#if isRemovingTeacher}
+                        <Spinner class="h-3.5 w-3.5" />
+                        Removing...
+                      {:else}
+                        <UserX class="h-3.5 w-3.5" />
+                        Unassign Instructor
+                      {/if}
                     </Button>
                   </div>
                 {/each}
@@ -381,14 +429,18 @@
                       </div>
                       <Button
                         size="sm"
-                        class="h-7 px-3 text-xs"
                         variant="outline"
                         onclick={() => {
                           teacherToAssignId = t._id;
                           assignTeacher();
                         }}
+                        disabled={isAssigningTeacher}
                       >
-                        Assign
+                        {#if isAssigningTeacher}
+                          Assigning...
+                        {:else}
+                          Assign
+                        {/if}
                       </Button>
                     </div>
                   {/each}
@@ -447,13 +499,17 @@
                     <Button
                       size="sm"
                       variant="outline"
-                      class="h-7 px-3 text-xs"
                       onclick={() => {
                         studentToEnrollId = s._id;
                         enrollStudent();
                       }}
+                      disabled={isEnrollingStudent}
                     >
-                      Enroll
+                      {#if isEnrollingStudent}
+                        Enrolling...
+                      {:else}
+                        Enroll
+                      {/if}
                     </Button>
                   </div>
                 {/each}
@@ -509,8 +565,8 @@
                       </div>
                       <Button
                         variant="ghost"
-                        size="sm"
-                        class="h-8 gap-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        size="lg"
+                        class="text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onclick={() => removeStudent(student._id)}
                       >
                         <UserX class="h-3.5 w-3.5" />
@@ -526,4 +582,25 @@
       </Card.Root>
     </div>
   {/if}
-</div>
+</PageLayout>
+
+<AlertDialog.Root bind:open={deleteDialogOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Delete Section</AlertDialog.Title>
+      <AlertDialog.Description>
+        Are you sure you want to delete this section? This action cannot be undone. All associated data will be removed.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action variant="destructive" onclick={confirmDelete} disabled={isDeleting}>
+        {#if isDeleting}
+          <Spinner class="size-4" /> Deleting...
+        {:else}
+          Delete
+        {/if}
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>

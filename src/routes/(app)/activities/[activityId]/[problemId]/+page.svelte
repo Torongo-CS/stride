@@ -1,6 +1,7 @@
 <script lang="ts">
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { onMount } from 'svelte';
+  import { toast } from 'svelte-sonner';
 
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
@@ -12,6 +13,7 @@
   import SubmissionResultView from '$lib/components/submission-result-view.svelte';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Resizable from '$lib/components/ui/resizable/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { Textarea } from '$lib/components/ui/textarea/index.js';
   import { getLanguageName } from '$lib/judge0-utils';
@@ -52,8 +54,8 @@
       if (!submitRes.ok) throw new Error('Submission failed');
 
       result = await submitRes.json();
-    } catch (err) {
-      console.error('Execution error:', err);
+    } catch (_err) {
+      toast.error('Failed to run code. Check the console or try again.');
     } finally {
       isExecuting = false;
     }
@@ -83,11 +85,25 @@
 <div class="flex h-full w-full flex-1">
   <Resizable.PaneGroup direction="horizontal" class="h-full w-full rounded-lg border">
     <Resizable.Pane defaultSize={50} minSize={20}>
-      <Codemirror
-        language={codemirrorLanguage}
-        onUpdate={(text: string) => (sourceCode = text)}
-        editable={userRole !== 'admin'}
-      />
+      {#if problemQuery.isLoading}
+        <div class="flex h-full flex-col gap-3 p-4">
+          <div class="flex items-center gap-2">
+            <Skeleton class="h-9 w-28 rounded-md" />
+            <Skeleton class="h-9 w-20 rounded-md" />
+          </div>
+          <div class="flex-1 space-y-3">
+            {#each [1, 2, 3, 4, 5, 6, 7, 8] as i (i)}
+              <Skeleton class="h-4 w-full" />
+            {/each}
+          </div>
+        </div>
+      {:else}
+        <Codemirror
+          language={codemirrorLanguage}
+          onUpdate={(text: string) => (sourceCode = text)}
+          editable={userRole !== 'admin'}
+        />
+      {/if}
     </Resizable.Pane>
 
     <Resizable.Handle />
@@ -96,7 +112,17 @@
       <Resizable.PaneGroup direction="vertical" class="h-full">
         <Resizable.Pane defaultSize={70} minSize={15}>
           {#if problemQuery.isLoading}
-            <div class="flex h-full items-center justify-center text-muted-foreground">Loading...</div>
+            <div class="flex h-full flex-col gap-4 p-6">
+              <Skeleton class="h-6 w-3/4" />
+              <Skeleton class="h-4 w-1/2" />
+              <div class="mt-4 space-y-2">
+                <Skeleton class="h-4 w-full" />
+                <Skeleton class="h-4 w-full" />
+                <Skeleton class="h-4 w-5/6" />
+                <Skeleton class="h-4 w-4/5" />
+                <Skeleton class="h-4 w-3/4" />
+              </div>
+            </div>
           {:else if !problemQuery.data}
             <div class="mb-2 text-sm font-medium text-destructive">Error loading question</div>
           {:else}

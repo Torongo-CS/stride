@@ -1,7 +1,6 @@
 <script lang="ts">
   import { DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
   import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
-  import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
   import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
   import BookOpenIcon from '@lucide/svelte/icons/book-open';
   import CalendarIcon from '@lucide/svelte/icons/calendar';
@@ -18,6 +17,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Calendar } from '$lib/components/ui/calendar/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -27,6 +27,7 @@
   import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
   import * as Select from '$lib/components/ui/select/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
 
@@ -149,10 +150,11 @@
         activityId: act._id,
       });
       selectedProblems = clonedProblems.filter((cp) => cp.problem !== null).map((cp) => cp.problem);
-      toast.success('Activity details and problems cloned successfully!');
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to clone problems from the selected activity');
+      toast.success('Activity details and problems cloned successfully!', {
+        description: 'You can adjust the problems before creating the activity.',
+      });
+    } catch (_err) {
+      toast.error('Failed to clone problems from the selected activity.');
     }
   }
 
@@ -184,16 +186,16 @@
   async function handleSubmit(e: Event) {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error('Title is required');
+      toast.error('Title is required.');
       return;
     }
     if (!selectedSectionId) {
-      toast.error('Please select a section');
+      toast.error('Please select a section.');
       return;
     }
 
     if (endTime <= startTime) {
-      toast.error('End time must be after start time');
+      toast.error('End time must be after start time.');
       return;
     }
 
@@ -217,11 +219,12 @@
         });
       }
 
-      toast.success('Activity created successfully!');
-      goto(`/activities/${activityId}/edit`);
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to create activity');
+      toast.success('Activity created successfully!', {
+        description: `"${title.trim()}" is now scheduled for the selected section.`,
+      });
+      goto(`/activities/${activityId}`);
+    } catch (_err) {
+      toast.error('Failed to create activity.');
     } finally {
       isSubmitting = false;
     }
@@ -231,23 +234,13 @@
     if (urlSectionId) {
       goto(`/sections/${urlSectionId}`);
     } else {
-      goto('/dashboard');
+      goto('/activities');
     }
   }
 </script>
 
-<div class="mx-auto w-full max-w-3xl p-6">
-  <!-- Back Button & Header -->
-  <div class="mb-8 flex items-center gap-4">
-    <Button variant="outline" size="icon" onclick={handleBack}>
-      <ArrowLeftIcon class="size-4" />
-      <span class="sr-only">Go Back</span>
-    </Button>
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight">Create New Activity</h1>
-      <p class="text-sm text-muted-foreground">Schedule a class session or exam for your students.</p>
-    </div>
-  </div>
+<PageLayout>
+  <PageHero title="Create New Activity" description="Schedule a class session or exam for your students." />
 
   <form onsubmit={handleSubmit} class="flex flex-col gap-8">
     <!-- Card 1: Details -->
@@ -329,16 +322,9 @@
         <div class="flex flex-col gap-2">
           <Label for="section">Target Section</Label>
           {#if urlSectionId}
-            <Input
-              value={sections.find((s) => s?._id === urlSectionId)?.name ?? 'Loading...'}
-              disabled
-              class="bg-muted"
-            />
+            <Input value={sections.find((s) => s?._id === urlSectionId)?.name ?? ''} disabled class="bg-muted" />
           {:else if isSectionsLoading}
-            <div class="flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-3">
-              <Spinner class="mr-2 size-4" />
-              Loading sections...
-            </div>
+            <Skeleton class="h-10 w-full" />
           {:else if sections.length === 0}
             <div class="rounded-md border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
               You are not registered to teach any sections. You must be added to a section first.
@@ -523,8 +509,8 @@
 
           {#if libraryProblemsQuery.isLoading}
             <div class="flex flex-col gap-2">
-              <div class="h-10 w-full animate-pulse rounded bg-muted"></div>
-              <div class="h-10 w-full animate-pulse rounded bg-muted"></div>
+              <Skeleton class="h-10 w-full" />
+              <Skeleton class="h-10 w-full" />
             </div>
           {:else if availableProblems.length === 0}
             <p class="py-4 text-center text-xs text-muted-foreground">No matching unassigned problems found.</p>
@@ -558,4 +544,4 @@
       </Card.Footer>
     </Card.Root>
   </form>
-</div>
+</PageLayout>

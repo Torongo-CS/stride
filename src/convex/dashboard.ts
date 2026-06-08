@@ -222,6 +222,7 @@ export const getDashboardData = query({
         role: 'teacher' as const,
         stats: {
           sectionsTaught: sections.length,
+          totalStudents: enrolledStudentIds.size,
           totalActivities: activities.length,
           problemsCreated: teacherProblems.length,
           totalSubmissions: submissions.length,

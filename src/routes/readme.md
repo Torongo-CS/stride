@@ -1,6 +1,12 @@
 # Application Routing Structure
 
-This document outlines the URL structure for the application and what each page is responsible for.
+This document outlines the URL structure for the application, what each page is responsible for, and layout configurations.
+
+## Layouts
+
+- `src/routes/+layout.svelte` — Root layout initialized with Convex client, theme observer, and toast notification context.
+- `src/routes/(public)/+layout.svelte` — Public layout protecting against authenticated users accessing public paths (redirects to dashboard).
+- `src/routes/(app)/+layout.svelte` — Authenticated layout including the main navigation sidebar, screen sharing manager (for students), and route protection (redirects to login).
 
 ## Public Routes `(public)`
 
@@ -24,12 +30,11 @@ This document outlines the URL structure for the application and what each page 
 
 ### Sections (Courses/Classes)
 
-- [ ] `/(app)/sections/+page.svelte` — Grid view of sections (Students see enrolled, Teachers see assigned).
-- [ ] `/(app)/sections/new/+page.svelte` — Admins create new sections.
-- [ ] `/(app)/sections/[sectionId]/+page.svelte` — Section hub listing its activities and members.
-- [ ] `/(app)/sections/[sectionId]/edit/+page.svelte` — Manage section details and user enrollments.
+- [x] `/(app)/sections/+page.svelte` — Grid view of sections (Students see enrolled, Teachers see assigned).
+- [x] `/(app)/sections/new/+page.svelte` — Admins create new sections.
+- [x] `/(app)/sections/[sectionId]/+page.svelte` — Section hub listing its activities and members.
+- [x] `/(app)/sections/[sectionId]/edit/+page.svelte` — Manage section details and user enrollments.
 - [x] `/(app)/sections/[sectionId]/cctv/+page.svelte` — Class CCTV grid view (real-time student screen sharing monitoring).
-- [x] `/(app)/sections/sharescreen/+page.svelte` — Screen sharing client for students during live sessions.
 
 ### Activities (Exams & Live Classes)
 
@@ -40,6 +45,10 @@ This document outlines the URL structure for the application and what each page 
 - [x] `/(app)/activities/[activityId]/edit/+page.svelte` — Update activity settings, attach and reorder problems.
 - [x] `/(app)/activities/[activityId]/playback/+page.svelte` — Dashboard for reviewing student code progression.
 - [x] `/(app)/activities/[activityId]/playback/[problemId]/[studentId]/+page.svelte` — Playback of a student's code snapshots for a specific problem.
+
+### Screen Sharing
+
+- [x] `/(app)/sharescreen/+page.svelte` — Screen sharing client for students during live sessions.
 
 ### Problems (Question Bank)
 

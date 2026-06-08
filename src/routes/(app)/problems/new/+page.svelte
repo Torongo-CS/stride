@@ -1,21 +1,21 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Plus from '@lucide/svelte/icons/plus';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import { useConvexClient } from 'convex-svelte';
   import { toast } from 'svelte-sonner';
-  import { fade, slide } from 'svelte/transition';
+  import { slide } from 'svelte/transition';
 
   import { goto } from '$app/navigation';
   import { api } from '$convex/_generated/api.js';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { Textarea } from '$lib/components/ui/textarea/index.js';
   import { session } from '$lib/session';
 
@@ -74,10 +74,11 @@
         });
       }
 
-      toast.success('Problem created successfully!');
+      toast.success('Problem created successfully!', {
+        description: `"${title.trim()}" has been added to your problem library.`,
+      });
       goto(`/problems/${problemId}`);
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to create problem.');
     } finally {
       isSubmitting = false;
@@ -85,41 +86,21 @@
   }
 </script>
 
-<div class="container mx-auto flex max-w-4xl flex-col gap-6 p-4 md:p-6" in:fade>
-  <!-- Back button -->
-  <div class="flex items-center">
-    <Button
-      variant="ghost"
-      size="sm"
-      onclick={() => goto('/problems')}
-      class="h-8 cursor-pointer gap-1.5 pl-2 text-muted-foreground hover:text-foreground"
-    >
-      <ArrowLeft class="h-4 w-4" /> Back to Problems
-    </Button>
-  </div>
-
+<PageLayout>
   {#if !isTeacherOrAdmin}
     <div
       class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-destructive/30 py-20 text-center"
     >
       <h3 class="text-xl font-bold text-destructive">Access Restricted</h3>
       <p class="text-sm text-muted-foreground">Only teachers and admins can create programming problems.</p>
-      <Button size="sm" onclick={() => goto('/problems')} class="cursor-pointer">Back to Problems</Button>
     </div>
   {:else}
     <div class="flex flex-col gap-6">
       <!-- Title Card -->
-      <div
-        class="relative overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 md:p-8"
-      >
-        <div class="flex flex-col gap-2 md:max-w-2xl">
-          <h1 class="text-3xl font-black tracking-tight text-foreground md:text-4xl">New Problem</h1>
-          <p class="text-sm leading-relaxed text-muted-foreground">
-            Create a new programming problem for students. Define the description and seed test cases to automatically
-            validate submissions.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="New Problem"
+        description="Create a new programming problem for students. Define the description and seed test cases to automatically validate submissions."
+      />
 
       <!-- Problem Details Form -->
       <Card.Root class="border bg-card/45 shadow-sm backdrop-blur-md">
@@ -175,7 +156,7 @@
             <div class="flex flex-col gap-4">
               {#each testCases as tc, idx (idx)}
                 <div
-                  class="flex flex-col gap-3 rounded-xl border bg-muted/10 p-4 transition-all duration-300 hover:border-primary/10"
+                  class="flex flex-col gap-3 rounded-xl border bg-muted/10 p-4 transition-all duration-200 hover:border-primary/30"
                   transition:slide
                 >
                   <div class="flex items-center justify-between">
@@ -273,7 +254,7 @@
           class="min-w-36 cursor-pointer font-bold shadow-sm"
         >
           {#if isSubmitting}
-            <Loader2 class="h-4 w-4 animate-spin" /> Creating...
+            <Spinner class="size-4" /> Creating...
           {:else}
             Publish Problem
           {/if}
@@ -281,4 +262,4 @@
       </div>
     </div>
   {/if}
-</div>
+</PageLayout>

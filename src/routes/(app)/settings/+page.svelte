@@ -1,6 +1,5 @@
 <script lang="ts">
   import Camera from '@lucide/svelte/icons/camera';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Lock from '@lucide/svelte/icons/lock';
   import Mail from '@lucide/svelte/icons/mail';
   import Save from '@lucide/svelte/icons/save';
@@ -16,11 +15,15 @@
   import type { Id } from '$convex/_generated/dataModel';
 
   import Tiptap from '$lib/components/editor/Tiptap.svelte';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
+  import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session, setSession } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -122,7 +125,9 @@
     // Check size limit: 512KB
     const MAX_SIZE = 512 * 1024;
     if (file.size > MAX_SIZE) {
-      toast.warning('Profile picture must be less than 512KB to keep it lightweight.');
+      toast.warning('Profile picture must be less than 512KB to keep it lightweight.', {
+        description: 'Please select a smaller image or compress the file.',
+      });
       return;
     }
 
@@ -177,12 +182,13 @@
             avatarUrl: url,
           });
         }
-        toast.success('Avatar uploaded and saved successfully!');
+        toast.success('Avatar uploaded and saved successfully!', {
+          description: 'Your profile photo has been updated.',
+        });
       } else {
         toast.error('Failed to resolve avatar image URL.');
       }
-    } catch (err) {
-      console.error('Avatar upload failed:', err);
+    } catch (_err) {
       toast.error('Failed to upload avatar.');
     } finally {
       isUploadingAvatar = false;
@@ -216,9 +222,10 @@
         avatarUrl: generatedUrl,
       });
 
-      toast.success('Generated random avatar successfully!');
-    } catch (err) {
-      console.error('Failed to generate random avatar:', err);
+      toast.success('Generated random avatar successfully!', {
+        description: 'A new DiceBear avatar has been applied.',
+      });
+    } catch (_err) {
       toast.error('Failed to generate random avatar.');
     } finally {
       isUploadingAvatar = false;
@@ -249,9 +256,10 @@
         name: name.trim(),
       });
 
-      toast.success('Account name updated successfully.');
-    } catch (err) {
-      console.error('Failed to update name:', err);
+      toast.success('Account name updated successfully.', {
+        description: 'Your display name has been updated across the platform.',
+      });
+    } catch (_err) {
       toast.error('Failed to update name. Please try again.');
     } finally {
       isSavingProfile = false;
@@ -270,9 +278,10 @@
         id: $session.userId,
         aboutMd: aboutMd.trim(),
       });
-      toast.success('Biography saved successfully.');
-    } catch (err) {
-      console.error('Failed to save biography:', err);
+      toast.success('Biography saved successfully.', {
+        description: 'Your profile biography has been updated.',
+      });
+    } catch (_err) {
       toast.error('Failed to save biography. Please try again.');
     } finally {
       isSavingBiography = false;
@@ -296,9 +305,10 @@
         avatarUrl: avatarUrl ? avatarUrl.trim() : null,
       });
 
-      toast.success('Avatar photo saved successfully.');
-    } catch (err) {
-      console.error('Failed to save avatar photo:', err);
+      toast.success('Avatar photo saved successfully.', {
+        description: 'Your avatar URL has been updated.',
+      });
+    } catch (_err) {
       toast.error('Failed to save avatar photo.');
     }
   }
@@ -318,11 +328,12 @@
         passwordHash: newPassword,
       });
 
-      toast.success('Password updated successfully.');
+      toast.success('Password updated successfully.', {
+        description: 'You will need to use this new password on your next login.',
+      });
       newPassword = '';
       confirmPassword = '';
-    } catch (err) {
-      console.error('Failed to update password:', err);
+    } catch (_err) {
       toast.error('Failed to update password.');
     } finally {
       isUpdatingPassword = false;
@@ -330,16 +341,24 @@
   }
 </script>
 
-<div class="container mx-auto max-w-4xl px-4 py-8 md:py-12" in:fade>
-  <!-- Main Header Banner -->
-  <div class="mb-10 flex flex-col gap-2">
-    <h1 class="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Account Settings</h1>
-  </div>
+<PageLayout>
+  <PageHero title="Account Settings" description="Manage your profile, avatar, biography, and password security." />
 
   {#if profileQuery.isLoading}
-    <div class="flex h-96 flex-col items-center justify-center gap-4">
-      <Loader2 class="h-10 w-10 animate-spin text-primary opacity-60" />
-      <span class="text-sm font-medium text-muted-foreground">Loading configurations...</span>
+    <div class="flex flex-col gap-8">
+      {#each [0, 1, 2] as i (i)}
+        <Card.Root class="overflow-hidden border bg-card shadow-sm">
+          <Card.Header class="p-6">
+            <Skeleton class="h-5 w-36" />
+            <Skeleton class="mt-1 h-3 w-48" />
+          </Card.Header>
+          <Separator />
+          <Card.Content class="grid gap-4 p-6">
+            <Skeleton class="h-10 w-full" />
+            <Skeleton class="h-10 w-full" />
+          </Card.Content>
+        </Card.Root>
+      {/each}
     </div>
   {:else if profileQuery.data}
     <div class="flex flex-col gap-8">
@@ -406,12 +425,12 @@
             </div>
           </Card.Content>
           <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
-            <Button type="submit" disabled={isSavingProfile} class="gap-2 font-semibold shadow-sm">
+            <Button type="submit" disabled={isSavingProfile} size="lg" class="font-semibold shadow-sm">
               {#if isSavingProfile}
-                <Loader2 class="h-4 w-4 animate-spin" />
+                <Spinner class="size-4" />
                 Saving...
               {:else}
-                <Save class="h-4 w-4" />
+                <Save class="size-4" />
                 Save Account Info
               {/if}
             </Button>
@@ -436,11 +455,11 @@
                 type="button"
                 onclick={selectAvatarFile}
                 disabled={isUploadingAvatar}
-                class="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/40 transition-all duration-300 group-hover:scale-102 group-hover:brightness-90 focus:outline-none"
+                class="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/40 transition-all duration-200 group-hover:brightness-90 focus:outline-none"
               >
                 {#if isUploadingAvatar}
                   <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70">
-                    <Loader2 class="h-6 w-6 animate-spin text-primary" />
+                    <Spinner class="size-6 text-primary" />
                   </div>
                 {/if}
 
@@ -454,7 +473,7 @@
 
                 <!-- Camera hover overlay -->
                 <div
-                  class="absolute inset-0 flex items-center justify-center bg-pure-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  class="absolute inset-0 flex items-center justify-center bg-pure-black/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 >
                   <Camera class="h-6 w-6 text-pure-white" />
                 </div>
@@ -517,7 +536,9 @@
                           avatarUrl: defaultUrl,
                         });
                       }
-                      toast.info('Avatar reverted to default seed shape.');
+                      toast.info('Avatar reverted to default seed shape.', {
+                        description: 'Your avatar has been reset to the email-based default.',
+                      });
                     }}
                     disabled={isUploadingAvatar}
                   >
@@ -548,12 +569,12 @@
             {/if}
           </Card.Content>
           <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
-            <Button type="submit" disabled={isSavingBiography} class="gap-2 font-semibold shadow-sm">
+            <Button type="submit" disabled={isSavingBiography} size="lg" class="font-semibold shadow-sm">
               {#if isSavingBiography}
-                <Loader2 class="h-4 w-4 animate-spin" />
+                <Spinner class="size-4" />
                 Saving...
               {:else}
-                <Save class="h-4 w-4" />
+                <Save class="size-4" />
                 Save Biography
               {/if}
             </Button>
@@ -636,17 +657,12 @@
 
             <!-- Submit -->
             <div class="flex justify-end border-t pt-4">
-              <Button
-                type="submit"
-                variant="destructive"
-                disabled={isUpdatingPassword}
-                class="gap-2 font-semibold hover:bg-muted"
-              >
+              <Button type="submit" disabled={isUpdatingPassword} size="lg" class="font-semibold shadow-sm">
                 {#if isUpdatingPassword}
-                  <Loader2 class="h-4 w-4 animate-spin" />
+                  <Spinner class="size-4" />
                   Updating...
                 {:else}
-                  <Lock class="h-4 w-4" />
+                  <Lock class="size-4" />
                   Update Password
                 {/if}
               </Button>
@@ -656,4 +672,4 @@
       </Card.Root>
     </div>
   {/if}
-</div>
+</PageLayout>

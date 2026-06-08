@@ -15,6 +15,7 @@
 
   import { api } from '$convex/_generated/api.js';
 
+  import { PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
@@ -76,7 +77,7 @@
   }
 </script>
 
-<div class="flex-1 space-y-6 p-8 pt-6">
+<PageLayout wide>
   <!-- Top Header Action -->
   <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
     <div>
@@ -664,4 +665,4 @@
       </div>
     {/if}
   {/if}
-</div>
+</PageLayout>

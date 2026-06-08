@@ -70,7 +70,7 @@
           <div
             class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
           >
-            <img src={favicon} alt="Stride" class="size-4" />
+            <img src={favicon} alt="Stride" class="size-4 brightness-0 invert" />
           </div>
           <div class="grid flex-1 text-start text-sm leading-tight">
             <span class="truncate font-semibold">Stride</span>

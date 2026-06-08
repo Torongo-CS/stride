@@ -1,24 +1,24 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Calendar from '@lucide/svelte/icons/calendar';
   import Code2 from '@lucide/svelte/icons/code-2';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { toast } from 'svelte-sonner';
-  import { fade } from 'svelte/transition';
 
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
+  import { PageLayout } from '$lib/components/page/index.js';
   import ProblemContent from '$lib/components/problem-content.svelte';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import * as Table from '$lib/components/ui/table/index.js';
   import { session } from '$lib/session';
 
@@ -61,10 +61,11 @@
     isDeleting = true;
     try {
       await client.mutation(api.problems.remove, { id: problemId });
-      toast.success('Problem deleted successfully.');
+      toast.success('Problem deleted successfully.', {
+        description: 'This problem and all associated test cases have been removed.',
+      });
       goto('/problems');
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to delete problem.');
     } finally {
       isDeleting = false;
@@ -73,45 +74,49 @@
   }
 </script>
 
-<div class="container mx-auto flex max-w-4xl flex-col gap-6 p-4 md:p-6" in:fade>
-  <!-- Back Button & Action Controls -->
-  <div class="flex items-center justify-between">
-    <Button
-      variant="ghost"
-      size="sm"
-      onclick={() => goto('/problems')}
-      class="h-8 cursor-pointer gap-1.5 pl-2 text-muted-foreground hover:text-foreground"
-    >
-      <ArrowLeft class="h-4 w-4" /> Back to Problems
-    </Button>
-
-    {#if canManage}
-      <div class="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onclick={() => goto(`/problems/${problemId}/edit`)}
-          class="h-8 cursor-pointer gap-1.5 text-xs font-semibold"
-        >
-          <Pencil class="h-3.5 w-3.5" /> Edit Problem
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onclick={() => (deleteDialogOpen = true)}
-          class="h-8 cursor-pointer gap-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
-        >
-          <Trash2 class="h-3.5 w-3.5" /> Delete
-        </Button>
-      </div>
-    {/if}
-  </div>
+<PageLayout>
+  {#if canManage}
+    <div class="mb-4 flex items-center justify-end gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onclick={() => goto(`/problems/${problemId}/edit`)}
+        class="h-8 cursor-pointer gap-1.5 text-xs font-semibold"
+      >
+        <Pencil class="h-3.5 w-3.5" /> Edit Problem
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onclick={() => (deleteDialogOpen = true)}
+        class="h-8 cursor-pointer gap-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
+      >
+        <Trash2 class="h-3.5 w-3.5" /> Delete
+      </Button>
+    </div>
+  {/if}
 
   {#if problemQuery.isLoading}
-    <div class="flex h-96 flex-col items-center justify-center gap-2">
-      <Loader2 class="h-8 w-8 animate-spin text-primary" />
-      <span class="text-xs font-semibold text-muted-foreground">Loading details...</span>
-    </div>
+    <Card.Root class="border bg-card/45 shadow-sm backdrop-blur-md">
+      <Card.Header class="space-y-4 p-6">
+        <Skeleton class="h-8 w-3/4 md:h-9" />
+        <div class="flex gap-6">
+          <Skeleton class="h-4 w-32" />
+          <Skeleton class="h-4 w-24" />
+        </div>
+      </Card.Header>
+      <Separator />
+      <Card.Content class="p-6">
+        <Skeleton class="mb-3 h-4 w-40" />
+        <div class="space-y-2">
+          <Skeleton class="h-4 w-full" />
+          <Skeleton class="h-4 w-full" />
+          <Skeleton class="h-4 w-5/6" />
+          <Skeleton class="h-4 w-4/5" />
+          <Skeleton class="h-4 w-3/4" />
+        </div>
+      </Card.Content>
+    </Card.Root>
   {:else if !problemQuery.data}
     <div class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed py-20 text-center">
       <h3 class="text-xl font-bold">Problem not found</h3>
@@ -168,8 +173,25 @@
       </Card.Header>
       <Card.Content class="p-6 pt-0">
         {#if testCasesQuery.isLoading}
-          <div class="flex items-center justify-center gap-1.5 py-6 text-sm text-muted-foreground italic">
-            <Loader2 class="h-4 w-4 animate-spin" /> Loading test cases...
+          <div class="overflow-x-auto rounded-lg border">
+            <Table.Root>
+              <Table.Header class="bg-muted/50">
+                <Table.Row>
+                  <Table.Head class="w-12 text-center">#</Table.Head>
+                  <Table.Head>Input</Table.Head>
+                  <Table.Head>Expected Output</Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {#each [1, 2, 3] as i (i)}
+                  <Table.Row>
+                    <Table.Cell class="text-center"><Skeleton class="mx-auto h-4 w-6" /></Table.Cell>
+                    <Table.Cell><Skeleton class="h-4 w-32" /></Table.Cell>
+                    <Table.Cell><Skeleton class="h-4 w-40" /></Table.Cell>
+                  </Table.Row>
+                {/each}
+              </Table.Body>
+            </Table.Root>
           </div>
         {:else if !testCasesQuery.data || testCasesQuery.data.length === 0}
           <div class="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground italic">
@@ -204,7 +226,7 @@
       </Card.Content>
     </Card.Root>
   {/if}
-</div>
+</PageLayout>
 
 <!-- Deletion Confirmation Dialog -->
 <AlertDialog.Root bind:open={deleteDialogOpen}>
@@ -220,7 +242,7 @@
       <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
       <AlertDialog.Action variant="destructive" onclick={confirmDelete} disabled={isDeleting}>
         {#if isDeleting}
-          <Loader2 class="h-3.5 w-3.5 animate-spin" /> Deleting...
+          <Spinner class="size-3.5" /> Deleting...
         {:else}
           Delete
         {/if}

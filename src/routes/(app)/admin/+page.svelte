@@ -1,7 +1,5 @@
 <script lang="ts">
   import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
-  import Database from '@lucide/svelte/icons/database';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Lock from '@lucide/svelte/icons/lock';
   import Search from '@lucide/svelte/icons/search';
   import { useQuery } from 'convex-svelte';
@@ -10,10 +8,12 @@
 
   import { api } from '$convex/_generated/api.js';
 
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import * as Select from '$lib/components/ui/select/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
   import * as Table from '$lib/components/ui/table/index.js';
   import { session } from '$lib/session';
 
@@ -145,26 +145,12 @@
     <p class="max-w-md text-sm text-muted-foreground">This panel is only accessible to system administrators.</p>
   </div>
 {:else}
-  <div class="container mx-auto flex max-w-6xl flex-col gap-6 p-4 md:p-6" in:fade>
+  <PageLayout>
     <!-- Header -->
-    <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-      <div class="space-y-1">
-        <h1 class="flex items-center gap-2 text-2xl font-black tracking-tight text-foreground md:text-3xl">
-          <Database class="h-7 w-7 text-primary" /> Database Explorer
-        </h1>
-        <p class="text-sm text-muted-foreground">
-          Inspect, query, and search raw Convex tables and relational entities in real-time.
-        </p>
-      </div>
-
-      <!-- Info Banner -->
-      <div
-        class="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/40 px-3.5 py-2 text-xs text-muted-foreground"
-      >
-        <Lock class="h-3.5 w-3.5 shrink-0 text-primary" />
-        <span>Raw IDs and sensitive tables are hidden for clarity & privacy.</span>
-      </div>
-    </div>
+    <PageHero
+      title="Database Explorer"
+      description="Inspect, query, and search raw Convex tables and relational entities in real-time."
+    />
 
     <!-- Controls -->
     <div class="flex flex-col gap-4 rounded-xl border bg-card/30 p-4 md:flex-row md:items-center md:justify-between">
@@ -218,17 +204,15 @@
             </Table.Header>
             <Table.Body>
               {#if tableDataQuery.isLoading}
-                <Table.Row>
-                  <Table.Cell
-                    colspan={Math.max(allColumns.length, 1)}
-                    class="py-16 text-center text-xs text-muted-foreground italic"
-                  >
-                    <div class="flex items-center justify-center gap-2">
-                      <Loader2 class="h-5 w-5 animate-spin text-primary" />
-                      <span>Loading table entities...</span>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
+                {#each [1, 2, 3, 4] as i (i)}
+                  <Table.Row>
+                    {#each [1, 2, 3, 4] as j (j)}
+                      <Table.Cell class="px-4 py-3">
+                        <Skeleton class="h-4 w-24" />
+                      </Table.Cell>
+                    {/each}
+                  </Table.Row>
+                {/each}
               {:else if sortedRows.length === 0}
                 <Table.Row>
                   <Table.Cell
@@ -277,5 +261,5 @@
         <span>Filtered search results</span>
       {/if}
     </div>
-  </div>
+  </PageLayout>
 {/if}

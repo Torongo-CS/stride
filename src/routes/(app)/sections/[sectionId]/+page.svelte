@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Calendar from '@lucide/svelte/icons/calendar';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -8,8 +7,6 @@
   import File from '@lucide/svelte/icons/file';
   import Folder from '@lucide/svelte/icons/folder';
   import FolderOpen from '@lucide/svelte/icons/folder-open';
-  import GraduationCap from '@lucide/svelte/icons/graduation-cap';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Plus from '@lucide/svelte/icons/plus';
   import Trash2 from '@lucide/svelte/icons/trash-2';
@@ -23,12 +20,14 @@
   import type { Id } from '$convex/_generated/dataModel.js';
 
   import FileIcon from '$lib/components/FileIcon.svelte';
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
 
   const sectionId = $derived(page.params.sectionId as Id<'sections'>);
@@ -117,7 +116,7 @@
     for (const file of files) {
       if (file.size > MAX_SIZE) {
         toast.warning(`File "${file.name}" is over 50MB and was skipped.`);
-        return;
+        continue;
       }
     }
 
@@ -151,10 +150,10 @@
 
       toast.success(
         files.length === 1 ? 'File uploaded successfully!' : `Successfully uploaded ${uploadedCount} files!`,
+        { description: uploadFolderName.trim() ? `Added to "${uploadFolderName.trim()}" folder.` : undefined },
       );
       if (fileInputRef) fileInputRef.value = '';
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error(`Uploaded ${uploadedCount}/${files.length} files. An error occurred.`);
     } finally {
       isUploading = false;
@@ -177,8 +176,7 @@
         userId: userId as Id<'users'>,
       });
       toast.success('Resource deleted successfully.');
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
       toast.error('Failed to delete resource.');
     } finally {
       deleteDialogOpen = false;
@@ -187,19 +185,7 @@
   }
 </script>
 
-<div class="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6 md:p-8">
-  <!-- Back Action -->
-  <div>
-    <Button
-      href="/sections"
-      variant="ghost"
-      class="h-8 gap-1.5 pl-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
-    >
-      <ArrowLeft class="h-3.5 w-3.5" />
-      Back to Sections
-    </Button>
-  </div>
-
+<PageLayout>
   {#if isLoading}
     <div class="flex flex-col gap-6">
       <Card.Root class="overflow-hidden border border-border bg-card">
@@ -208,7 +194,82 @@
           <Skeleton class="h-4 w-1/2" />
         </Card.Header>
         <Card.Content class="gap-4">
-          <Skeleton class="h-24 w-full" />
+          <div class="space-y-2">
+            <Skeleton class="h-4 w-full" />
+            <Skeleton class="h-4 w-5/6" />
+            <Skeleton class="h-4 w-4/5" />
+            <Skeleton class="h-4 w-3/4" />
+          </div>
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="border-border bg-card shadow-xs">
+        <Card.Header class="pb-3">
+          <Skeleton class="h-4 w-28" />
+        </Card.Header>
+        <Card.Content class="grid gap-4 sm:grid-cols-3">
+          <div class="flex items-center justify-between pb-3 sm:border-r sm:border-b-0 sm:pr-4 sm:pb-0">
+            <Skeleton class="h-3 w-24" />
+            <Skeleton class="h-4 w-8" />
+          </div>
+          <div class="flex items-center justify-between pb-3 sm:border-r sm:border-b-0 sm:px-4 sm:pb-0">
+            <Skeleton class="h-3 w-28" />
+            <Skeleton class="h-4 w-8" />
+          </div>
+          <div class="flex items-center justify-between sm:pl-4">
+            <Skeleton class="h-3 w-20" />
+            <Skeleton class="h-4 w-24" />
+          </div>
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="border-border bg-card shadow-xs">
+        <Card.Header class="flex flex-row items-center justify-between pb-3">
+          <Skeleton class="h-4 w-40" />
+        </Card.Header>
+        <Card.Content class="space-y-3">
+          {#each [1, 2] as i (i)}
+            <div class="rounded-lg border border-border bg-card p-4">
+              <div class="flex items-center gap-3">
+                <Skeleton class="h-8 w-8 rounded-full" />
+                <div class="flex-1 space-y-1">
+                  <Skeleton class="h-4 w-48" />
+                  <Skeleton class="h-3 w-36" />
+                </div>
+                <Skeleton class="h-6 w-14 rounded-md" />
+              </div>
+            </div>
+          {/each}
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="border-border bg-card shadow-xs">
+        <Card.Header class="pb-3">
+          <Skeleton class="h-4 w-36" />
+        </Card.Header>
+        <Card.Content class="space-y-2">
+          {#each [1, 2] as i (i)}
+            <div class="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+              <Skeleton class="h-9 w-9 rounded-full" />
+              <div class="flex-1 space-y-1">
+                <Skeleton class="h-3.5 w-32" />
+                <Skeleton class="h-3 w-48" />
+              </div>
+            </div>
+          {/each}
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="border-border bg-card shadow-xs">
+        <Card.Header class="pb-3">
+          <Skeleton class="h-4 w-40" />
+        </Card.Header>
+        <Card.Content class="space-y-2">
+          {#each [1, 2, 3] as i (i)}
+            <div class="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+              <Skeleton class="h-9 w-9 rounded-full" />
+              <div class="flex-1 space-y-1">
+                <Skeleton class="h-3.5 w-28" />
+                <Skeleton class="h-3 w-44" />
+              </div>
+            </div>
+          {/each}
         </Card.Content>
       </Card.Root>
     </div>
@@ -242,27 +303,16 @@
     </Card.Root>
   {:else}
     <!-- Section Header Summary -->
-    <div class="flex flex-col justify-between gap-4 border-b border-border/40 pb-6 md:flex-row md:items-end">
-      <div class="space-y-1">
-        <div class="flex items-center gap-2">
-          <GraduationCap class="h-6 w-6 text-primary" />
-          <h1 class="text-3xl font-bold tracking-tight text-foreground">{section.name}</h1>
-        </div>
-        <p class="text-xs text-muted-foreground">Academic portal for class schedules, exams, and memberships.</p>
-      </div>
-
-      {#if userRole === 'admin'}
-        <Button
-          href="/sections/{section._id}/edit"
-          variant="outline"
-          size="sm"
-          class="h-9 gap-1.5 border-border bg-card text-xs font-semibold"
-        >
-          <Pencil class="h-3.5 w-3.5" />
-          Manage Settings
-        </Button>
-      {/if}
-    </div>
+    <PageHero title={section.name} description="Academic portal for class schedules, exams, and memberships.">
+      {#snippet actions()}
+        {#if userRole === 'admin'}
+          <Button href="/sections/{section._id}/edit" variant="outline" size="lg" class="font-semibold">
+            <Pencil class="size-4" />
+            Manage Settings
+          </Button>
+        {/if}
+      {/snippet}
+    </PageHero>
 
     <!-- Layout Cards Stacked Vertically -->
     <div class="flex flex-col gap-6">
@@ -320,8 +370,8 @@
           >
           <!-- Create Action for teachers only -->
           {#if isTeacher}
-            <Button href="/activities/new?sectionId={section._id}" size="sm" class="h-8 gap-1.5 text-xs font-semibold">
-              <Plus class="h-3.5 w-3.5" />
+            <Button href="/activities/new?sectionId={section._id}" size="lg" class="font-semibold">
+              <Plus class="size-3.5" />
               New Activity
             </Button>
           {/if}
@@ -370,9 +420,7 @@
                           {activity.type}
                         </Badge>
                         {#if userRole !== 'student'}
-                          <Button href="/activities/{activity._id}" size="sm" class="h-8 px-3 text-xs font-semibold">
-                            Enter
-                          </Button>
+                          <Button href="/activities/{activity._id}" size="lg" class="font-semibold">Enter</Button>
                         {/if}
                       </div>
                     </div>
@@ -387,8 +435,10 @@
                       {@const isUpcoming = now < activity.startTime}
 
                       {#if problemsQuery.isLoading}
-                        <div class="mt-3 flex items-center justify-center border-t border-border/30 py-2 pt-3">
-                          <span class="text-[10px] text-muted-foreground italic">Loading assigned tasks...</span>
+                        <div class="mt-3 flex flex-col gap-2 border-t border-border/30 px-2 pt-3">
+                          {#each [1, 2] as i (i)}
+                            <Skeleton class="h-10 w-full rounded-lg" />
+                          {/each}
                         </div>
                       {:else if problems.length === 0}
                         <div
@@ -422,7 +472,7 @@
                                       <Button
                                         href="/activities/{activity._id}/{p.problem._id}"
                                         size="sm"
-                                        class="h-7 bg-primary px-3 text-[10px] font-bold text-primary-foreground hover:bg-primary/90"
+                                        class="font-bold"
                                       >
                                         Enter Assignment Room
                                       </Button>
@@ -499,17 +549,12 @@
                     onchange={handleFileUpload}
                     disabled={isUploading}
                   />
-                  <Button
-                    onclick={() => fileInputRef?.click()}
-                    disabled={isUploading}
-                    class="h-8.5 text-xs font-semibold"
-                    size="sm"
-                  >
+                  <Button onclick={() => fileInputRef?.click()} disabled={isUploading} size="lg" class="font-semibold">
                     {#if isUploading}
-                      <Loader2 class="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      <Spinner class="mr-1.5 size-3.5" />
                       Uploading Files...
                     {:else}
-                      <UploadCloud class="mr-1.5 h-3.5 w-3.5" />
+                      <UploadCloud class="mr-1.5 size-3.5" />
                       Select & Upload Files
                     {/if}
                   </Button>
@@ -582,10 +627,10 @@
                             }}
                             variant="ghost"
                             size="sm"
-                            class="h-6 gap-1 px-2 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground"
+                            class="text-muted-foreground hover:bg-muted hover:text-foreground"
                             title="Upload files to this folder"
                           >
-                            <UploadCloud class="h-3 w-3" />
+                            <UploadCloud class="size-3" />
                             Upload Here
                           </Button>
                         {/if}
@@ -621,10 +666,10 @@
                                     rel="noopener noreferrer"
                                     variant="ghost"
                                     size="icon"
-                                    class="h-7 w-7 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    class="text-muted-foreground hover:bg-muted hover:text-foreground"
                                     title="Download File"
                                   >
-                                    <Download class="h-4 w-4" />
+                                    <Download class="size-4" />
                                   </Button>
                                 {/if}
                                 {#if isTeacher || userRole === 'admin'}
@@ -632,10 +677,10 @@
                                     onclick={() => triggerDelete(file._id)}
                                     variant="ghost"
                                     size="icon"
-                                    class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                    class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                     title="Delete File"
                                   >
-                                    <Trash2 class="h-4 w-4" />
+                                    <Trash2 class="size-4" />
                                   </Button>
                                 {/if}
                               </div>
@@ -775,7 +820,7 @@
       </Card.Root>
     </div>
   {/if}
-</div>
+</PageLayout>
 
 <AlertDialog.Root bind:open={deleteDialogOpen}>
   <AlertDialog.Content class="border border-border bg-card">
@@ -786,13 +831,8 @@
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer class="gap-2">
-      <AlertDialog.Cancel class="h-8 text-xs font-semibold">Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action
-        onclick={confirmDelete}
-        class="text-destructive-foreground h-8 bg-destructive text-xs font-semibold hover:bg-destructive/95"
-      >
-        Delete
-      </AlertDialog.Action>
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action variant="destructive" onclick={confirmDelete}>Delete</AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>

@@ -39,6 +39,7 @@ export const listAllByPost = query({
           ...c,
           authorName: author?.name ?? 'Anonymous',
           authorAvatar: author?.avatarUrl ?? null,
+          authorRole: author?.role ?? 'student',
           userVote,
           score: c.score ?? 0,
         };

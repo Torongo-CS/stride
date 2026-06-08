@@ -4,6 +4,7 @@
   import Send from '@lucide/svelte/icons/send';
   import Trash from '@lucide/svelte/icons/trash';
   import { useConvexClient, useQuery } from 'convex-svelte';
+  import { toast } from 'svelte-sonner';
 
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
@@ -16,6 +17,8 @@
   import * as Resizable from '$lib/components/ui/resizable/index.js';
   import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -34,6 +37,8 @@
   let editingMessageId = $state<Id<'messages'> | null>(null);
   let editingContent = $state('');
 
+  let isSending = $state(false);
+  let isSavingEdit = $state(false);
   const chatsQuery = useQuery(api.chats.listByUser, () => ($session?.userId ? { userId: $session.userId } : 'skip'));
 
   const messagesQuery = useQuery(api.messages.listWithSender, () =>
@@ -41,14 +46,21 @@
   );
 
   async function sendMessage() {
-    if (!newMessage.trim() || !selectedChatId || !$session?.userId) return;
+    if (!newMessage.trim() || !selectedChatId || !$session?.userId || isSending) return;
+    isSending = true;
     const content = newMessage;
     newMessage = '';
-    await client.mutation(api.messages.send, {
-      chatId: selectedChatId,
-      senderId: $session.userId,
-      content,
-    });
+    try {
+      await client.mutation(api.messages.send, {
+        chatId: selectedChatId,
+        senderId: $session.userId,
+        content,
+      });
+    } catch (_err) {
+      toast.error('Failed to send message.');
+    } finally {
+      isSending = false;
+    }
   }
 
   function startEditing(
@@ -66,14 +78,25 @@
   }
 
   async function saveEdit() {
-    if (!editingMessageId || !editingContent.trim()) return;
-    await client.mutation(api.messages.edit, { id: editingMessageId, content: editingContent });
-    editingMessageId = null;
-    editingContent = '';
+    if (!editingMessageId || !editingContent.trim() || isSavingEdit) return;
+    isSavingEdit = true;
+    try {
+      await client.mutation(api.messages.edit, { id: editingMessageId, content: editingContent });
+      editingMessageId = null;
+      editingContent = '';
+    } catch (_err) {
+      toast.error('Failed to edit message.');
+    } finally {
+      isSavingEdit = false;
+    }
   }
 
   async function deleteMessage(id: Id<'messages'>) {
-    await client.mutation(api.messages.remove, { id });
+    try {
+      await client.mutation(api.messages.remove, { id });
+    } catch (_err) {
+      toast.error('Failed to delete message.');
+    }
   }
 
   const selectedChat = $derived(chatsQuery.data?.find((c) => c?._id === selectedChatId));
@@ -105,7 +128,17 @@
       <ScrollArea class="flex-1">
         <div class="flex flex-col gap-1 p-2">
           {#if chatsQuery.isLoading}
-            <div class="p-4 text-center text-sm text-muted-foreground">Loading chats...</div>
+            <div class="flex flex-col gap-1 p-2">
+              {#each [1, 2, 3, 4] as i (i)}
+                <div class="flex items-center gap-3 rounded-lg p-3">
+                  <Skeleton class="h-10 w-10 rounded-full" />
+                  <div class="flex-1 space-y-1.5">
+                    <Skeleton class="h-4 w-32" />
+                    <Skeleton class="h-3 w-48" />
+                  </div>
+                </div>
+              {/each}
+            </div>
           {:else if chatsQuery.data?.length === 0}
             <div class="p-4 text-center text-sm text-muted-foreground">No chats found</div>
           {:else}
@@ -158,8 +191,21 @@
         <ScrollArea class="flex-1" bind:viewportRef>
           <div class="flex flex-col gap-6 p-6">
             {#if messagesQuery.isLoading}
-              <div class="flex h-full items-center justify-center py-10">
-                <span class="text-sm text-muted-foreground italic">Loading messages...</span>
+              <div class="flex flex-col gap-6 p-6">
+                {#each [1, 2, 3] as i (i)}
+                  <div class="flex items-start gap-3">
+                    <Skeleton class="h-8 w-8 shrink-0 rounded-full" />
+                    <div class="flex flex-col gap-2">
+                      <Skeleton class="h-3 w-16" />
+                      <div class="rounded-2xl rounded-tl-none bg-muted p-4 shadow-sm">
+                        <div class="space-y-2">
+                          <Skeleton class="h-4 w-48" />
+                          <Skeleton class="h-4 w-32" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {/each}
               </div>
             {:else if messagesQuery.data?.length === 0}
               <div class="flex h-full items-center justify-center py-10">
@@ -188,7 +234,13 @@
                           class="w-full"
                         />
                         <div class="flex gap-2">
-                          <Button size="sm" onclick={saveEdit}>Save</Button>
+                          <Button size="sm" onclick={saveEdit} disabled={isSavingEdit}>
+                            {#if isSavingEdit}
+                              Saving...
+                            {:else}
+                              Save
+                            {/if}
+                          </Button>
                           <Button size="sm" variant="ghost" onclick={cancelEditing}>Cancel</Button>
                         </div>
                       </div>
@@ -249,8 +301,12 @@
               bind:value={newMessage}
               class="flex-1 border-primary/20 focus-visible:ring-primary/30"
             />
-            <Button type="submit" size="icon" disabled={!newMessage.trim()} class="shrink-0">
-              <Send class="h-4 w-4" />
+            <Button type="submit" size="icon" disabled={!newMessage.trim() || isSending} class="shrink-0">
+              {#if isSending}
+                <Spinner class="h-4 w-4" />
+              {:else}
+                <Send class="h-4 w-4" />
+              {/if}
             </Button>
           </form>
         </div>

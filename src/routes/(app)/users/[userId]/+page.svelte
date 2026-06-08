@@ -5,7 +5,6 @@
   import BookOpen from '@lucide/svelte/icons/book-open';
   import Calendar from '@lucide/svelte/icons/calendar';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
-  import Loader2 from '@lucide/svelte/icons/loader-2';
   import MessageSquare from '@lucide/svelte/icons/message-square';
   import PenTool from '@lucide/svelte/icons/pen-tool';
   import Settings from '@lucide/svelte/icons/settings';
@@ -22,10 +21,13 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
 
+  import { PageLayout } from '$lib/components/page/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -50,8 +52,7 @@
         userB: profileQuery.data.user._id,
       });
       goto(`/chat?chatId=${chatId}`);
-    } catch (err) {
-      console.error('Failed to start conversation:', err);
+    } catch (_err) {
       toast.error('Failed to start conversation.');
     } finally {
       isStartingChat = false;
@@ -84,11 +85,55 @@
   }
 </script>
 
-<div class="container mx-auto max-w-5xl px-4 py-8 md:py-12" in:fade>
+<PageLayout>
   {#if profileQuery.isLoading}
-    <div class="flex h-96 flex-col items-center justify-center gap-4">
-      <Loader2 class="h-10 w-10 animate-spin text-primary opacity-60" />
-      <span class="text-sm font-medium text-muted-foreground">Loading profile...</span>
+    <div class="flex flex-col gap-8">
+      <div class="rounded-2xl border bg-card p-6 shadow-sm md:p-8">
+        <div class="flex flex-col items-center gap-6 md:flex-row md:items-start">
+          <Skeleton class="h-24 w-24 shrink-0 rounded-full md:h-28 md:w-28" />
+          <div class="flex flex-col items-center gap-3 md:items-start">
+            <Skeleton class="h-8 w-48 md:h-9 md:w-56" />
+            <Skeleton class="h-4 w-32" />
+            <div class="flex flex-wrap justify-center gap-x-4 gap-y-1.5 md:justify-start">
+              <Skeleton class="h-4 w-36" />
+              <Skeleton class="h-4 w-28" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <Card.Root class="border">
+          <Card.Content class="flex flex-col items-center gap-2 p-5">
+            <Skeleton class="h-8 w-16" />
+            <Skeleton class="h-3 w-24" />
+          </Card.Content>
+        </Card.Root>
+        <Card.Root class="border">
+          <Card.Content class="flex flex-col items-center gap-2 p-5">
+            <Skeleton class="h-8 w-16" />
+            <Skeleton class="h-3 w-28" />
+          </Card.Content>
+        </Card.Root>
+        <Card.Root class="col-span-2 border sm:col-span-1">
+          <Card.Content class="flex flex-col items-center gap-2 p-5">
+            <Skeleton class="h-8 w-16" />
+            <Skeleton class="h-3 w-32" />
+          </Card.Content>
+        </Card.Root>
+      </div>
+      <div class="flex flex-col gap-6">
+        <div class="flex border-b">
+          <div class="px-5 py-3"><Skeleton class="h-4 w-20" /></div>
+          <div class="px-5 py-3"><Skeleton class="h-4 w-24" /></div>
+          <div class="px-5 py-3"><Skeleton class="h-4 w-28" /></div>
+          <div class="px-5 py-3"><Skeleton class="h-4 w-32" /></div>
+        </div>
+        <div class="space-y-3">
+          {#each [1, 2, 3] as i (i)}
+            <Skeleton class="h-16 w-full rounded-lg" />
+          {/each}
+        </div>
+      </div>
     </div>
   {:else if !profileQuery.data}
     <div class="flex h-96 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed p-8 text-center">
@@ -178,7 +223,7 @@
                 class="gap-1.5 font-semibold shadow-xs"
               >
                 {#if isStartingChat}
-                  <Loader2 class="h-4 w-4 animate-spin" />
+                  <Spinner class="size-4" />
                   Connecting...
                 {:else}
                   <MessageSquare class="h-4 w-4" />
@@ -193,7 +238,7 @@
       <!-- 2. QUICK STATISTICS COUNTERS -->
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <!-- Forum Posts -->
-        <Card.Root class="border transition-all duration-300 hover:border-primary/10 hover:shadow-md">
+        <Card.Root class="border transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
           <Card.Content class="flex flex-col justify-center p-5 text-center">
             <span class="text-3xl font-extrabold tracking-tight text-primary">
               {profile.posts.length}
@@ -205,7 +250,7 @@
         </Card.Root>
 
         <!-- Comments -->
-        <Card.Root class="border transition-all duration-300 hover:border-primary/10 hover:shadow-md">
+        <Card.Root class="border transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
           <Card.Content class="flex flex-col justify-center p-5 text-center">
             <span class="text-3xl font-extrabold tracking-tight text-primary">
               {profile.comments.length}
@@ -218,7 +263,7 @@
 
         <!-- Sections Count -->
         <Card.Root
-          class="col-span-2 border transition-all duration-300 hover:border-primary/10 hover:shadow-md sm:col-span-1"
+          class="col-span-2 border transition-all duration-200 hover:border-primary/30 hover:shadow-sm sm:col-span-1"
         >
           <Card.Content class="flex flex-col justify-center p-5 text-center">
             <span class="text-3xl font-extrabold tracking-tight text-primary">
@@ -234,9 +279,11 @@
       <!-- 3. DETAILED VIEW TABS -->
       <div class="flex flex-col gap-6">
         <!-- Tab selector headers -->
-        <div class="flex border-b">
+        <div class="flex border-b" role="tablist">
           <button
             onclick={() => (activeTab = 'about')}
+            role="tab"
+            aria-selected={activeTab === 'about'}
             class={cn(
               'border-b-2 px-5 py-3 text-sm font-bold tracking-tight transition-all duration-200 focus:outline-none',
               activeTab === 'about'
@@ -248,6 +295,8 @@
           </button>
           <button
             onclick={() => (activeTab = 'sections')}
+            role="tab"
+            aria-selected={activeTab === 'sections'}
             class={cn(
               'border-b-2 px-5 py-3 text-sm font-bold tracking-tight transition-all duration-200 focus:outline-none',
               activeTab === 'sections'
@@ -259,6 +308,8 @@
           </button>
           <button
             onclick={() => (activeTab = 'posts')}
+            role="tab"
+            aria-selected={activeTab === 'posts'}
             class={cn(
               'border-b-2 px-5 py-3 text-sm font-bold tracking-tight transition-all duration-200 focus:outline-none',
               activeTab === 'posts'
@@ -270,6 +321,8 @@
           </button>
           <button
             onclick={() => (activeTab = 'comments')}
+            role="tab"
+            aria-selected={activeTab === 'comments'}
             class={cn(
               'border-b-2 px-5 py-3 text-sm font-bold tracking-tight transition-all duration-200 focus:outline-none',
               activeTab === 'comments'
@@ -332,32 +385,32 @@
                 <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {#each profile.sections as s (s._id)}
                     <button onclick={() => goto(`/sections/${s._id}`)} class="w-full text-left focus:outline-none">
-                      <Card.Root
-                        class="group flex h-full cursor-pointer flex-col gap-3 border border-border bg-card p-5"
-                      >
-                        <div class="flex shrink-0 items-start gap-3">
-                          <div class="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">
-                            <BookOpen class="h-5 w-5" />
+                      <Card.Root class="group flex h-full cursor-pointer flex-col gap-3 border border-border bg-card">
+                        <Card.Content class="flex flex-col gap-3 p-5">
+                          <div class="flex shrink-0 items-start gap-3">
+                            <div class="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">
+                              <BookOpen class="h-5 w-5" />
+                            </div>
+                            <div class="min-w-0 flex-1 space-y-0.5">
+                              <h4 class="line-clamp-2 text-sm leading-snug font-bold text-foreground">
+                                {s.name}
+                              </h4>
+                              <p class="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+                                <User class="h-3.5 w-3.5 text-muted-foreground/80" />
+                                Instructor: {s.teacherName}
+                              </p>
+                            </div>
                           </div>
-                          <div class="min-w-0 flex-1 space-y-0.5">
-                            <h4 class="line-clamp-2 text-sm leading-snug font-bold text-foreground">
-                              {s.name}
-                            </h4>
-                            <p class="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                              <User class="h-3.5 w-3.5 text-muted-foreground/80" />
-                              Instructor: {s.teacherName}
-                            </p>
-                          </div>
-                        </div>
-                        {#if s.aboutMd && s.aboutMd.trim() !== ''}
-                          <Separator class="my-0.5 opacity-60" />
-                          <div
-                            class="prose line-clamp-3 max-w-none text-xs leading-relaxed text-muted-foreground/80 prose-zinc dark:prose-invert"
-                          >
-                            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                            {@html DOMPurify.sanitize(s.aboutMd)}
-                          </div>
-                        {/if}
+                          {#if s.aboutMd && s.aboutMd.trim() !== ''}
+                            <Separator class="my-0.5 opacity-60" />
+                            <div
+                              class="prose line-clamp-3 max-w-none text-xs leading-relaxed text-muted-foreground/80 prose-zinc dark:prose-invert"
+                            >
+                              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                              {@html DOMPurify.sanitize(s.aboutMd)}
+                            </div>
+                          {/if}
+                        </Card.Content>
                       </Card.Root>
                     </button>
                   {/each}
@@ -383,7 +436,7 @@
               {:else}
                 {#each profile.posts as post (post._id)}
                   <Card.Root
-                    class="group cursor-pointer border-border transition-all duration-300 hover:border-primary/30 hover:shadow-xs"
+                    class="group cursor-pointer border-border transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
                     onclick={() => goto(`/forum/${post._id}`)}
                   >
                     <Card.Content class="flex flex-col gap-2.5 p-5">
@@ -438,12 +491,10 @@
                         </div>
 
                         <span
-                          class="flex items-center gap-0.5 text-primary/80 transition-all duration-300 group-hover:text-primary"
+                          class="flex items-center gap-0.5 text-primary/80 transition-all duration-200 group-hover:text-primary"
                         >
                           Read Post
-                          <ChevronRight
-                            class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
-                          />
+                          <ChevronRight class="h-3.5 w-3.5" />
                         </span>
                       </div>
                     </Card.Content>
@@ -470,7 +521,7 @@
               {:else}
                 {#each profile.comments as comment (comment._id)}
                   <Card.Root
-                    class="group cursor-pointer border-border transition-all duration-300 hover:border-primary/30 hover:shadow-xs"
+                    class="group cursor-pointer border-border transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
                     onclick={() => goto(`/forum/${comment.postId}`)}
                   >
                     <Card.Content class="flex flex-col gap-2.5 p-5">
@@ -507,12 +558,10 @@
                         </div>
 
                         <span
-                          class="flex items-center gap-0.5 text-primary/80 transition-all duration-300 group-hover:text-primary"
+                          class="flex items-center gap-0.5 text-primary/80 transition-all duration-200 group-hover:text-primary"
                         >
                           View Comment Location
-                          <ChevronRight
-                            class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
-                          />
+                          <ChevronRight class="h-3.5 w-3.5" />
                         </span>
                       </div>
                     </Card.Content>
@@ -525,4 +574,4 @@
       </div>
     </div>
   {/if}
-</div>
+</PageLayout>

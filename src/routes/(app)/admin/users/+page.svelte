@@ -9,6 +9,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Doc } from '$convex/_generated/dataModel.js';
 
+  import { PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
@@ -57,11 +58,12 @@
         aboutMd: editingUser.aboutMd,
         avatarUrl: editingUser.avatarUrl,
       });
-      toast.success('User updated successfully');
+      toast.success('User updated successfully.', {
+        description: 'Their role and profile information have been saved.',
+      });
       editDialogOpen = false;
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to update user');
+    } catch (_err) {
+      toast.error('Failed to update user.');
     } finally {
       isSaving = false;
     }
@@ -83,11 +85,10 @@
     isDeleting = true;
     try {
       await client.mutation(api.users.remove, { id: deletingUser._id });
-      toast.success('User deleted successfully');
+      toast.success('User deleted successfully.');
       deleteDialogOpen = false;
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to delete user');
+    } catch (_err) {
+      toast.error('Failed to delete user.');
     } finally {
       isDeleting = false;
     }
@@ -126,7 +127,7 @@
 
   async function handleCreateUser() {
     if (!newUser.name || !newUser.email || !newUser.password) {
-      toast.error('Please fill in all required fields');
+      toast.error('Please fill in all required fields.');
       return;
     }
     isCreating = true;
@@ -139,11 +140,10 @@
         aboutMd: newUser.aboutMd || undefined,
         avatarUrl: newUser.avatarUrl || undefined,
       });
-      toast.success('User created successfully');
+      toast.success('User created successfully.');
       addDialogOpen = false;
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to create user');
+    } catch (_err) {
+      toast.error('Failed to create user.');
     } finally {
       isCreating = false;
     }
@@ -164,17 +164,15 @@
   ];
 </script>
 
-<div class="flex h-full flex-col gap-6 p-8">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight">User Management</h1>
-      <p class="text-muted-foreground">Manage your application users and their roles.</p>
-    </div>
-    <Button onclick={openAddDialog}>
-      <PlusIcon class="mr-2 h-4 w-4" />
-      Add User
-    </Button>
-  </div>
+<PageLayout>
+  <PageHero title="User Management" description="Manage your application users and their roles.">
+    {#snippet actions()}
+      <Button onclick={openAddDialog}>
+        <PlusIcon class="mr-2 h-4 w-4" />
+        Add User
+      </Button>
+    {/snippet}
+  </PageHero>
 
   <div class="flex items-center gap-4">
     <div class="relative w-full max-w-sm">
@@ -240,7 +238,7 @@
       </Table.Body>
     </Table.Root>
   </div>
-</div>
+</PageLayout>
 
 <!-- Edit User Dialog -->
 <Dialog.Root bind:open={editDialogOpen}>
@@ -317,15 +315,15 @@
     <AlertDialog.Footer>
       <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
       <AlertDialog.Action
+        variant="destructive"
         onclick={async () => {
           await handleDeleteUser();
           editDialogOpen = false;
         }}
-        class="text-destructive-foreground bg-destructive hover:bg-destructive/90"
         disabled={isDeleting}
       >
         {#if isDeleting}
-          <Spinner class="mr-2 h-4 w-4 text-current" />
+          <Spinner class="mr-2 h-4 w-4" />
           Deleting...
         {:else}
           Delete

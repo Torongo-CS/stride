@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
   import AwardIcon from '@lucide/svelte/icons/award';
   import BookOpenIcon from '@lucide/svelte/icons/book-open';
   import DownloadIcon from '@lucide/svelte/icons/download';
@@ -14,6 +13,7 @@
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel.js';
 
+  import { PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
@@ -130,196 +130,243 @@
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success('Status scoreboard exported as CSV successfully!');
+    toast.success('Status scoreboard exported as CSV successfully!', {
+      description: 'The file has been downloaded to your device.',
+    });
   }
 </script>
 
-<div class="flex flex-col gap-6 p-6">
-  <!-- Header -->
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="flex items-center gap-4">
-      {#if activity}
-        <Button variant="outline" size="icon" onclick={() => goto(`/sections/${activity.sectionId}`)}>
-          <ArrowLeftIcon class="size-4" />
-        </Button>
-      {:else}
-        <Skeleton class="size-10" />
-      {/if}
-      <div class="flex flex-col">
-        <h1 class="text-2xl font-bold tracking-tight">
-          {#if activity}
-            Status: {activity.title}
-          {:else}
-            <Skeleton class="h-8 w-48" />
-          {/if}
-        </h1>
-        <p class="text-sm text-muted-foreground">Classroom status matrix and student submissions.</p>
-      </div>
+{#if isLoading}
+  <PageLayout>
+    <div class="grid gap-6 md:grid-cols-3">
+      {#each [0, 1, 2] as i (i)}
+        <Card.Root>
+          <Card.Header class="flex flex-row items-center justify-between pb-2">
+            <Skeleton class="h-4 w-28" />
+            <Skeleton class="size-4" />
+          </Card.Header>
+          <Card.Content>
+            <Skeleton class="h-8 w-16" />
+            <Skeleton class="mt-1 h-3 w-32" />
+          </Card.Content>
+        </Card.Root>
+      {/each}
     </div>
-
-    <!-- Actions -->
-    <div class="flex items-center gap-2">
-      {#if activity}
-        <Button variant="outline" onclick={() => goto(`/activities/${activityId}/playback`)}>
-          <PlayIcon class="mr-2 size-4" />
-          Code Playback
-        </Button>
-      {/if}
-      <Button onclick={handleExportCSV} disabled={isLoading || students.length === 0}>
-        <DownloadIcon class="mr-2 size-4" />
-        Export CSV
-      </Button>
-    </div>
-  </div>
-
-  <!-- Summary Cards -->
-  <div class="grid gap-6 md:grid-cols-3">
     <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between pb-2">
-        <Card.Title class="text-sm font-medium">Students Enrolled</Card.Title>
-        <UsersIcon class="size-4 text-muted-foreground" />
+      <Card.Header>
+        <Skeleton class="h-5 w-32" />
+        <Skeleton class="h-3 w-48" />
       </Card.Header>
-      <Card.Content>
-        {#if isLoading}
-          <Skeleton class="h-8 w-16" />
-        {:else}
-          <div class="text-2xl font-bold">{students.length}</div>
-          <p class="text-xs text-muted-foreground">Active members in this section.</p>
-        {/if}
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between pb-2">
-        <Card.Title class="text-sm font-medium">Class Participation</Card.Title>
-        <BookOpenIcon class="size-4 text-muted-foreground" />
-      </Card.Header>
-      <Card.Content>
-        {#if isLoading}
-          <Skeleton class="h-8 w-16" />
-        {:else}
-          <div class="text-2xl font-bold">{participationCount} / {students.length}</div>
-          <p class="text-xs text-muted-foreground">Students who submitted code.</p>
-        {/if}
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between pb-2">
-        <Card.Title class="text-sm font-medium">Section Success Rate</Card.Title>
-        <AwardIcon class="size-4 text-muted-foreground" />
-      </Card.Header>
-      <Card.Content>
-        {#if isLoading}
-          <Skeleton class="h-8 w-16" />
-        {:else}
-          <div class="text-2xl font-bold">{sectionSolvedAverage}%</div>
-          <p class="text-xs text-muted-foreground">Percentage of total problems solved.</p>
-        {/if}
-      </Card.Content>
-    </Card.Root>
-  </div>
-
-  <!-- Scoreboard Matrix -->
-  <Card.Root>
-    <Card.Header>
-      <Card.Title>Status Matrix</Card.Title>
-      <Card.Description>Click on any student verdict badge to inspect their playback history.</Card.Description>
-    </Card.Header>
-    <Separator />
-    <Card.Content class="p-0">
-      <div class="overflow-x-auto">
-        <Table.Root class="w-full min-w-[700px]">
-          <Table.Header>
-            <Table.Row>
-              <Table.Head class="w-[200px]">Student</Table.Head>
-              {#each problems as ap, idx (ap._id)}
-                <Table.Head class="max-w-[150px] truncate text-center text-xs font-semibold" title={ap.problem?.title}>
-                  P{idx + 1}: {ap.problem?.title}
-                </Table.Head>
-              {/each}
-              <Table.Head class="w-[120px] text-right">Solved</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {#if isLoading}
+      <Separator />
+      <Card.Content class="p-0">
+        <div class="overflow-x-auto">
+          <Table.Root class="w-full min-w-[700px]">
+            <Table.Header>
+              <Table.Row>
+                <Table.Head class="p-4"><Skeleton class="h-4 w-20" /></Table.Head>
+                {#each [0, 1, 2] as j (j)}
+                  <Table.Head class="p-4"><Skeleton class="mx-auto h-4 w-16" /></Table.Head>
+                {/each}
+                <Table.Head class="p-4 text-right"><Skeleton class="ml-auto h-4 w-12" /></Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
               {#each [0, 1, 2, 3] as i (i)}
                 <Table.Row>
-                  <Table.Cell>
+                  <Table.Cell class="p-4">
                     <div class="flex items-center gap-2">
                       <Skeleton class="size-8 rounded-full" />
-                      <div class="flex flex-col gap-1">
+                      <div>
                         <Skeleton class="h-4 w-24" />
                         <Skeleton class="h-3 w-32" />
                       </div>
                     </div>
                   </Table.Cell>
-                  {#each problems as ap (ap._id)}
-                    <Table.Cell class="text-center">
-                      <Skeleton class="mx-auto h-6 w-16" />
-                    </Table.Cell>
+                  {#each [0, 1, 2] as j (j)}
+                    <Table.Cell class="p-4 text-center"><Skeleton class="mx-auto h-6 w-16" /></Table.Cell>
                   {/each}
-                  <Table.Cell class="text-right">
-                    <Skeleton class="ml-auto h-4 w-8" />
-                  </Table.Cell>
+                  <Table.Cell class="p-4 text-right"><Skeleton class="ml-auto h-4 w-8" /></Table.Cell>
                 </Table.Row>
               {/each}
-            {:else if students.length === 0}
+            </Table.Body>
+          </Table.Root>
+        </div>
+      </Card.Content>
+    </Card.Root>
+  </PageLayout>
+{:else if !activity}
+  <PageLayout>
+    <PageEmpty icon={BookOpenIcon} title="Activity not found" description="This activity could not be found." />
+  </PageLayout>
+{:else}
+  <PageLayout>
+    <PageHero title={'Status: ' + activity.title} description="Classroom status matrix and student submissions.">
+      {#snippet actions()}
+        <Button
+          variant="outline"
+          onclick={() => goto(`/activities/${activityId}/playback`)}
+          size="lg"
+          class="font-semibold"
+        >
+          <PlayIcon class="mr-1.5 size-4" />
+          Code Playback
+        </Button>
+        <Button onclick={handleExportCSV} disabled={students.length === 0} size="lg" class="font-semibold shadow-sm">
+          <DownloadIcon class="mr-1.5 size-4" />
+          Export CSV
+        </Button>
+      {/snippet}
+    </PageHero>
+
+    <!-- Summary Cards -->
+    <div class="grid gap-6 md:grid-cols-3">
+      <Card.Root>
+        <Card.Header class="flex flex-row items-center justify-between pb-2">
+          <Card.Title class="text-sm font-medium">Students Enrolled</Card.Title>
+          <UsersIcon class="size-4 text-muted-foreground" />
+        </Card.Header>
+        <Card.Content>
+          {#if isLoading}
+            <Skeleton class="h-8 w-16" />
+          {:else}
+            <div class="text-2xl font-bold">{students.length}</div>
+            <p class="text-xs text-muted-foreground">Active members in this section.</p>
+          {/if}
+        </Card.Content>
+      </Card.Root>
+
+      <Card.Root>
+        <Card.Header class="flex flex-row items-center justify-between pb-2">
+          <Card.Title class="text-sm font-medium">Class Participation</Card.Title>
+          <BookOpenIcon class="size-4 text-muted-foreground" />
+        </Card.Header>
+        <Card.Content>
+          {#if isLoading}
+            <Skeleton class="h-8 w-16" />
+          {:else}
+            <div class="text-2xl font-bold">{participationCount} / {students.length}</div>
+            <p class="text-xs text-muted-foreground">Students who submitted code.</p>
+          {/if}
+        </Card.Content>
+      </Card.Root>
+
+      <Card.Root>
+        <Card.Header class="flex flex-row items-center justify-between pb-2">
+          <Card.Title class="text-sm font-medium">Section Success Rate</Card.Title>
+          <AwardIcon class="size-4 text-muted-foreground" />
+        </Card.Header>
+        <Card.Content>
+          {#if isLoading}
+            <Skeleton class="h-8 w-16" />
+          {:else}
+            <div class="text-2xl font-bold">{sectionSolvedAverage}%</div>
+            <p class="text-xs text-muted-foreground">Percentage of total problems solved.</p>
+          {/if}
+        </Card.Content>
+      </Card.Root>
+    </div>
+
+    <!-- Scoreboard Matrix -->
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>Status Matrix</Card.Title>
+        <Card.Description>Click on any student verdict badge to inspect their playback history.</Card.Description>
+      </Card.Header>
+      <Separator />
+      <Card.Content class="p-0">
+        <div class="overflow-x-auto">
+          <Table.Root class="w-full min-w-[700px]">
+            <Table.Header>
               <Table.Row>
-                <Table.Cell colspan={problems.length + 2} class="h-24 text-center text-sm text-muted-foreground">
-                  No students enrolled in this section.
-                </Table.Cell>
+                <Table.Head class="w-[200px] p-4">Student</Table.Head>
+                {#each problems as ap, idx (ap._id)}
+                  <Table.Head
+                    class="max-w-[150px] truncate p-4 text-center text-xs font-semibold"
+                    title={ap.problem?.title}
+                  >
+                    P{idx + 1}: {ap.problem?.title}
+                  </Table.Head>
+                {/each}
+                <Table.Head class="w-[120px] p-4 text-right">Solved</Table.Head>
               </Table.Row>
-            {:else}
-              {#each students as student (student._id)}
-                <Table.Row>
-                  <!-- Student Avatar & Name -->
-                  <Table.Cell>
-                    <div class="flex items-center gap-3">
-                      <Avatar.Root class="size-8">
-                        <Avatar.Image src={student.avatarUrl} alt={student.name} />
-                        <Avatar.Fallback class="text-xs">{student.name.slice(0, 2).toUpperCase()}</Avatar.Fallback>
-                      </Avatar.Root>
-                      <div class="flex min-w-0 flex-col">
-                        <span class="truncate text-sm font-medium">{student.name}</span>
-                        <span class="truncate text-xs text-muted-foreground">{student.email}</span>
+            </Table.Header>
+            <Table.Body>
+              {#if isLoading}
+                {#each [0, 1, 2, 3] as i (i)}
+                  <Table.Row>
+                    <Table.Cell class="p-4">
+                      <div class="flex items-center gap-2">
+                        <Skeleton class="size-8 rounded-full" />
+                        <div class="flex flex-col gap-1">
+                          <Skeleton class="h-4 w-24" />
+                          <Skeleton class="h-3 w-32" />
+                        </div>
                       </div>
-                    </div>
-                  </Table.Cell>
-
-                  <!-- Problem Cells -->
-                  {#each problems as ap (ap._id)}
-                    {@const problemId = ap.problemId}
-                    {@const sub = getBestSubmission(student._id, problemId)}
-                    <Table.Cell class="text-center">
-                      {#if sub}
-                        {@const isAccepted = sub.judgeVerdict === 'Accepted'}
-                        <a
-                          href="/activities/${activityId}/playback/${problemId}/${student._id}"
-                          class="inline-block transition-transform hover:scale-105"
-                        >
-                          <Badge variant={isAccepted ? 'success' : 'destructive'} class="cursor-pointer text-xs">
-                            {sub.judgeVerdict ?? 'Submitted'}
-                          </Badge>
-                        </a>
-                      {:else}
-                        <span class="text-xs text-muted-foreground/50">—</span>
-                      {/if}
                     </Table.Cell>
-                  {/each}
-
-                  <!-- Summary Cell -->
-                  <Table.Cell class="text-right font-medium">
-                    <Badge variant="outline" class="font-semibold tabular-nums">
-                      {getSolvedCount(student._id)} / {problems.length}
-                    </Badge>
+                    {#each problems as ap (ap._id)}
+                      <Table.Cell class="p-4 text-center">
+                        <Skeleton class="mx-auto h-6 w-16" />
+                      </Table.Cell>
+                    {/each}
+                    <Table.Cell class="p-4 text-right">
+                      <Skeleton class="ml-auto h-4 w-8" />
+                    </Table.Cell>
+                  </Table.Row>
+                {/each}
+              {:else if students.length === 0}
+                <Table.Row>
+                  <Table.Cell colspan={problems.length + 2} class="h-24 p-4 text-center text-sm text-muted-foreground">
+                    No students enrolled in this section.
                   </Table.Cell>
                 </Table.Row>
-              {/each}
-            {/if}
-          </Table.Body>
-        </Table.Root>
-      </div>
-    </Card.Content>
-  </Card.Root>
-</div>
+              {:else}
+                {#each students as student (student._id)}
+                  <Table.Row>
+                    <!-- Student Avatar & Name -->
+                    <Table.Cell class="p-4">
+                      <div class="flex items-center gap-3">
+                        <Avatar.Root class="size-8">
+                          <Avatar.Image src={student.avatarUrl} alt={student.name} />
+                          <Avatar.Fallback class="text-xs">{student.name.slice(0, 2).toUpperCase()}</Avatar.Fallback>
+                        </Avatar.Root>
+                        <div class="flex min-w-0 flex-col">
+                          <span class="truncate text-sm font-medium">{student.name}</span>
+                          <span class="truncate text-xs text-muted-foreground">{student.email}</span>
+                        </div>
+                      </div>
+                    </Table.Cell>
+
+                    <!-- Problem Cells -->
+                    {#each problems as ap (ap._id)}
+                      {@const problemId = ap.problemId}
+                      {@const sub = getBestSubmission(student._id, problemId)}
+                      <Table.Cell class="p-4 text-center">
+                        {#if sub}
+                          {@const isAccepted = sub.judgeVerdict === 'Accepted'}
+                          <a href="/activities/{activityId}/playback/{problemId}/{student._id}" class="inline-block">
+                            <Badge variant={isAccepted ? 'success' : 'destructive'} class="cursor-pointer text-xs">
+                              {sub.judgeVerdict ?? 'Submitted'}
+                            </Badge>
+                          </a>
+                        {:else}
+                          <span class="text-xs text-muted-foreground/50">—</span>
+                        {/if}
+                      </Table.Cell>
+                    {/each}
+
+                    <!-- Summary Cell -->
+                    <Table.Cell class="p-4 text-right font-medium">
+                      <Badge variant="outline" class="font-semibold tabular-nums">
+                        {getSolvedCount(student._id)} / {problems.length}
+                      </Badge>
+                    </Table.Cell>
+                  </Table.Row>
+                {/each}
+              {/if}
+            </Table.Body>
+          </Table.Root>
+        </div>
+      </Card.Content>
+    </Card.Root>
+  </PageLayout>
+{/if}
