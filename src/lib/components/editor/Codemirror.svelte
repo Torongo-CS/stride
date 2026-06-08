@@ -8,12 +8,9 @@
   import { Compartment, EditorState } from '@codemirror/state';
   import { oneDark } from '@codemirror/theme-one-dark';
   import { EditorView, keymap } from '@codemirror/view';
-  import Moon from '@lucide/svelte/icons/moon';
-  import Sun from '@lucide/svelte/icons/sun';
   import { basicSetup } from 'codemirror';
+  import { mode } from 'mode-watcher';
   import { onDestroy, onMount } from 'svelte';
-
-  import { Button } from '$lib/components/ui/button';
 
   let { initialContent = '', language = 'cpp', onUpdate, editable = true } = $props();
 
@@ -24,7 +21,7 @@
   let editableConf = new Compartment();
   let themeConf = new Compartment();
 
-  let isEditorDark = $state(true);
+  const isEditorDark = $derived(mode.current === 'dark');
 
   function getLanguageExtension(lang: string) {
     if (!lang) return [];
@@ -104,19 +101,6 @@
     <span class="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
       {language || 'Code Editor'}
     </span>
-    <Button
-      variant="ghost"
-      size="sm"
-      class="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
-      onclick={() => (isEditorDark = !isEditorDark)}
-    >
-      {#if isEditorDark}
-        <Sun class="h-3.5 w-3.5" />
-      {:else}
-        <Moon class="h-3.5 w-3.5" />
-      {/if}
-      <span class="sr-only">Toggle Editor Theme</span>
-    </Button>
   </div>
 
   <div class="flex-1 overflow-hidden" bind:this={element}></div>
