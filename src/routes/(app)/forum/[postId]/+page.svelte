@@ -104,7 +104,7 @@
             id: comment.authorId,
             name: comment.authorName,
             avatar: comment.authorAvatar ?? undefined,
-            role: undefined,
+            role: comment.authorRole ?? undefined,
           });
         }
       }
@@ -866,7 +866,7 @@
                   {activeUser.name}
                 </span>
                 <span class="truncate text-[9px] text-muted-foreground capitalize">
-                  {activeUser.role ?? 'Peer Student'}
+                  {activeUser.role}
                 </span>
               </div>
             </button>
