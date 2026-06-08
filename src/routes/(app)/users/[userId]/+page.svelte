@@ -386,32 +386,32 @@
                 <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {#each profile.sections as s (s._id)}
                     <button onclick={() => goto(`/sections/${s._id}`)} class="w-full text-left focus:outline-none">
-                      <Card.Root
-                        class="group flex h-full cursor-pointer flex-col gap-3 border border-border bg-card p-5"
-                      >
-                        <div class="flex shrink-0 items-start gap-3">
-                          <div class="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">
-                            <BookOpen class="h-5 w-5" />
+                      <Card.Root class="group flex h-full cursor-pointer flex-col gap-3 border border-border bg-card">
+                        <Card.Content class="flex flex-col gap-3 p-5">
+                          <div class="flex shrink-0 items-start gap-3">
+                            <div class="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">
+                              <BookOpen class="h-5 w-5" />
+                            </div>
+                            <div class="min-w-0 flex-1 space-y-0.5">
+                              <h4 class="line-clamp-2 text-sm leading-snug font-bold text-foreground">
+                                {s.name}
+                              </h4>
+                              <p class="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+                                <User class="h-3.5 w-3.5 text-muted-foreground/80" />
+                                Instructor: {s.teacherName}
+                              </p>
+                            </div>
                           </div>
-                          <div class="min-w-0 flex-1 space-y-0.5">
-                            <h4 class="line-clamp-2 text-sm leading-snug font-bold text-foreground">
-                              {s.name}
-                            </h4>
-                            <p class="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                              <User class="h-3.5 w-3.5 text-muted-foreground/80" />
-                              Instructor: {s.teacherName}
-                            </p>
-                          </div>
-                        </div>
-                        {#if s.aboutMd && s.aboutMd.trim() !== ''}
-                          <Separator class="my-0.5 opacity-60" />
-                          <div
-                            class="prose line-clamp-3 max-w-none text-xs leading-relaxed text-muted-foreground/80 prose-zinc dark:prose-invert"
-                          >
-                            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                            {@html DOMPurify.sanitize(s.aboutMd)}
-                          </div>
-                        {/if}
+                          {#if s.aboutMd && s.aboutMd.trim() !== ''}
+                            <Separator class="my-0.5 opacity-60" />
+                            <div
+                              class="prose line-clamp-3 max-w-none text-xs leading-relaxed text-muted-foreground/80 prose-zinc dark:prose-invert"
+                            >
+                              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                              {@html DOMPurify.sanitize(s.aboutMd)}
+                            </div>
+                          {/if}
+                        </Card.Content>
                       </Card.Root>
                     </button>
                   {/each}

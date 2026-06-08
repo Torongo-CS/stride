@@ -243,7 +243,7 @@
                     <Skeleton class="h-4 w-6" />
                     <Skeleton class="h-5 w-5 rounded" />
                   </div>
-                  <div class="flex flex-1 flex-col gap-3 p-5">
+                  <Card.Content class="flex flex-1 flex-col gap-3 p-5">
                     <div class="flex items-center gap-2">
                       <Skeleton class="h-5 w-5 rounded-full" />
                       <Skeleton class="h-3 w-24" />
@@ -256,7 +256,7 @@
                       <Skeleton class="h-4 w-20" />
                       <Skeleton class="h-4 w-16" />
                     </div>
-                  </div>
+                  </Card.Content>
                 </div>
               </Card.Root>
             {/each}
@@ -320,7 +320,7 @@
                     </div>
 
                     <!-- Main Card Content -->
-                    <div class="flex flex-1 flex-col gap-3 p-5">
+                    <Card.Content class="flex flex-1 flex-col gap-3 p-5">
                       <!-- Meta Header -->
                       <div class="flex items-center justify-between text-xs text-muted-foreground">
                         <div class="flex items-center gap-2">
@@ -407,7 +407,7 @@
                           <span>Share</span>
                         </div>
                       </div>
-                    </div>
+                    </Card.Content>
                   </div>
                 </Card.Root>
               </div>

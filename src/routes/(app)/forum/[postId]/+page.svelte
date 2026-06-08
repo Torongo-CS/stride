@@ -352,7 +352,7 @@
             <Skeleton class="h-5 w-8" />
             <Skeleton class="h-6 w-6 rounded" />
           </div>
-          <div class="flex flex-1 flex-col gap-4 p-6">
+          <Card.Content class="flex flex-1 flex-col gap-4 p-6">
             <div class="flex items-center gap-2.5">
               <Skeleton class="h-6 w-6 rounded-full" />
               <div class="flex flex-col gap-1">
@@ -377,7 +377,7 @@
               <Skeleton class="h-4 w-24" />
               <Skeleton class="h-4 w-16" />
             </div>
-          </div>
+          </Card.Content>
         </div>
       </Card.Root>
     {:else if !postQuery.data}
@@ -426,7 +426,7 @@
           </div>
 
           <!-- Main Post Content -->
-          <div class="flex flex-1 flex-col gap-4 p-6">
+          <Card.Content class="flex flex-1 flex-col gap-4 p-6">
             <!-- Author Header -->
             <div class="flex items-center gap-2.5 text-xs text-muted-foreground">
               <Avatar.Root class="h-6 w-6 border shadow-sm">
@@ -540,7 +540,7 @@
                 </Button>
               {/if}
             </div>
-          </div>
+          </Card.Content>
         </div>
       </Card.Root>
 

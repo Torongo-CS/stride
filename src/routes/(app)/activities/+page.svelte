@@ -160,7 +160,7 @@
     <div class="flex flex-col gap-4">
       {#each [0, 1, 2] as i (i)}
         <Card.Root class="overflow-hidden border bg-card shadow-sm transition-all duration-200 hover:shadow-sm">
-          <div class="flex items-center justify-between p-5">
+          <Card.Content class="flex items-center justify-between p-5">
             <div class="flex items-center gap-4">
               <Skeleton class="size-10 rounded-lg" />
               <div class="flex flex-col gap-1.5">
@@ -172,7 +172,7 @@
               <Skeleton class="h-8 w-20" />
               <Skeleton class="h-8 w-20" />
             </div>
-          </div>
+          </Card.Content>
         </Card.Root>
       {/each}
     </div>
@@ -187,7 +187,7 @@
       {#each filteredActivities as activity (activity._id)}
         {@const status = getStatus(activity.startTime, activity.endTime)}
         <Card.Root class="border bg-card shadow-sm transition-all duration-200 hover:shadow-sm">
-          <div class="flex flex-col justify-between gap-4 p-5 md:flex-row md:items-center">
+          <Card.Content class="flex flex-col justify-between gap-4 p-5 md:flex-row md:items-center">
             <!-- Left Side: Activity details -->
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2">
@@ -259,7 +259,7 @@
                 {/if}
               {/if}
             </div>
-          </div>
+          </Card.Content>
         </Card.Root>
       {/each}
     </div>
