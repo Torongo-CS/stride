@@ -18,6 +18,7 @@
   import type { Id } from '$convex/_generated/dataModel';
 
   import { BackButton, PageHero, PageLayout } from '$lib/components/page/index.js';
+  import { Button } from '$lib/components/ui/button/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 
   const client = useConvexClient();
@@ -348,14 +349,16 @@
             {activeStreamCount} / {totalStudents} Screens Active
           </span>
         </div>
-        <button
+        <Button
+          variant="secondary"
           onclick={triggerBroadcastPing}
           disabled={isRefreshing}
-          class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-border/30 bg-secondary px-4 py-2 text-xs font-semibold text-secondary-foreground transition-all duration-200 hover:bg-secondary/80 disabled:opacity-50"
+          class="gap-2 rounded-xl text-xs font-semibold"
+          aria-label="Refresh all streams"
         >
           <RefreshCwIcon class="size-3.5 {isRefreshing ? 'animate-spin' : ''}" />
           <span>Refresh All Streams</span>
-        </button>
+        </Button>
       {/snippet}
     </PageHero>
 
@@ -454,6 +457,7 @@
                     }}
                     class="flex cursor-pointer items-center justify-center rounded-full bg-primary p-3 text-primary-foreground shadow-lg transition-all duration-200 hover:bg-primary/90"
                     title="Expand Fullscreen"
+                    aria-label="Expand Fullscreen"
                   >
                     <Maximize2Icon class="size-4" />
                   </button>
@@ -549,6 +553,7 @@
           fullscreenStudentId = null;
         }}
         class="flex cursor-pointer items-center justify-center rounded-xl border border-cinema-border bg-cinema-bg p-2.5 text-pure-white transition-all duration-200 hover:bg-cinema-border hover:text-pure-white"
+        aria-label="Close fullscreen"
       >
         <Minimize2Icon class="size-4" />
       </button>

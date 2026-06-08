@@ -19,6 +19,7 @@
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
 
   const client = useConvexClient();
@@ -378,6 +379,7 @@
           disabled={isSubmitting}
         >
           {#if isSubmitting}
+            <Spinner class="mr-1.5 h-3.5 w-3.5" />
             Creating...
           {:else}
             <Plus class="mr-1.5 h-3.5 w-3.5" />

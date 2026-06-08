@@ -31,6 +31,7 @@
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -51,6 +52,7 @@
   let isCreatingTag = $state(false);
   let isUpdatingTag = $state(false);
   let isDeletingTag = $state(false);
+  let isDeletingPost = $state(false);
 
   // Queries
   const postsQuery = useQuery(api.posts.list, () => ({
@@ -86,7 +88,8 @@
   }
 
   async function confirmDeletePost() {
-    if (!postToDeleteId) return;
+    if (!postToDeleteId || isDeletingPost) return;
+    isDeletingPost = true;
     try {
       await client.mutation(api.posts.remove, { id: postToDeleteId });
       toast.success('Post deleted successfully.');
@@ -96,6 +99,7 @@
     } finally {
       postToDeleteId = null;
       deletePostDialogOpen = false;
+      isDeletingPost = false;
     }
   }
 
@@ -149,6 +153,7 @@
   }
 
   async function handleDeleteTag(tagId: Id<'tags'>) {
+    if (!confirm('Are you sure you want to delete this tag? This action cannot be undone.')) return;
     isDeletingTag = true;
     try {
       await client.mutation(api.posts.deleteTag, { id: tagId });
@@ -167,8 +172,8 @@
   <!-- Wide Hero -->
   <PageHero title="Stride Community Forum" description="Discuss programming, share problems, and help your peers.">
     {#snippet actions()}
-      <Button onclick={() => goto('/forum/new')} class="gap-1.5 font-semibold">
-        <Plus class="h-4 w-4" />
+      <Button onclick={() => goto('/forum/new')} size="lg" class="font-semibold shadow-sm">
+        <Plus class="size-4" />
         Create Post
       </Button>
     {/snippet}
@@ -332,13 +337,15 @@
 
                         <!-- Delete button if authorized -->
                         {#if $session?.userId && (post.authorId === $session.userId || $session.role === 'admin' || $session.role === 'teacher')}
-                          <button
+                          <Button
                             onclick={(e) => post._id && deletePost(e, post._id)}
-                            class="rounded p-1 text-muted-foreground transition-all duration-200 hover:bg-destructive/10 hover:text-destructive"
+                            variant="ghost"
+                            size="sm"
+                            class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                             title="Delete Post"
                           >
-                            <Trash2 class="h-4 w-4" />
-                          </button>
+                            <Trash2 class="size-4" />
+                          </Button>
                         {/if}
                       </div>
 
@@ -533,7 +540,13 @@
     </AlertDialog.Header>
     <AlertDialog.Footer>
       <AlertDialog.Cancel onclick={() => (postToDeleteId = null)}>Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action variant="destructive" onclick={confirmDeletePost}>Delete</AlertDialog.Action>
+      <AlertDialog.Action variant="destructive" onclick={confirmDeletePost} disabled={isDeletingPost}>
+        {#if isDeletingPost}
+          Deleting...
+        {:else}
+          Delete
+        {/if}
+      </AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
@@ -559,7 +572,13 @@
             onkeydown={(e) => e.key === 'Enter' && handleCreateTag()}
           />
         </div>
-        <Button size="sm" onclick={handleCreateTag} disabled={isCreatingTag}>Add Tag</Button>
+        <Button size="sm" onclick={handleCreateTag} disabled={isCreatingTag}>
+          {#if isCreatingTag}
+            Adding...
+          {:else}
+            Add Tag
+          {/if}
+        </Button>
       </div>
 
       <div class="max-h-60 space-y-2 overflow-y-auto pr-1">
@@ -588,7 +607,11 @@
                     onclick={() => handleUpdateTag(tag._id)}
                     disabled={isUpdatingTag}
                   >
-                    Save
+                    {#if isUpdatingTag}
+                      Saving...
+                    {:else}
+                      Save
+                    {/if}
                   </Button>
                   <Button
                     variant="ghost"
@@ -618,7 +641,11 @@
                     disabled={isDeletingTag}
                     title="Delete Tag"
                   >
-                    <Trash2 class="h-3.5 w-3.5" />
+                    {#if isDeletingTag}
+                      <Spinner class="h-3 w-3" />
+                    {:else}
+                      <Trash2 class="h-3.5 w-3.5" />
+                    {/if}
                   </Button>
                 </div>
               {/if}

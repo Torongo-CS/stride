@@ -280,9 +280,11 @@
       <!-- 3. DETAILED VIEW TABS -->
       <div class="flex flex-col gap-6">
         <!-- Tab selector headers -->
-        <div class="flex border-b">
+        <div class="flex border-b" role="tablist">
           <button
             onclick={() => (activeTab = 'about')}
+            role="tab"
+            aria-selected={activeTab === 'about'}
             class={cn(
               'border-b-2 px-5 py-3 text-sm font-bold tracking-tight transition-all duration-200 focus:outline-none',
               activeTab === 'about'
@@ -294,6 +296,8 @@
           </button>
           <button
             onclick={() => (activeTab = 'sections')}
+            role="tab"
+            aria-selected={activeTab === 'sections'}
             class={cn(
               'border-b-2 px-5 py-3 text-sm font-bold tracking-tight transition-all duration-200 focus:outline-none',
               activeTab === 'sections'
@@ -305,6 +309,8 @@
           </button>
           <button
             onclick={() => (activeTab = 'posts')}
+            role="tab"
+            aria-selected={activeTab === 'posts'}
             class={cn(
               'border-b-2 px-5 py-3 text-sm font-bold tracking-tight transition-all duration-200 focus:outline-none',
               activeTab === 'posts'
@@ -316,6 +322,8 @@
           </button>
           <button
             onclick={() => (activeTab = 'comments')}
+            role="tab"
+            aria-selected={activeTab === 'comments'}
             class={cn(
               'border-b-2 px-5 py-3 text-sm font-bold tracking-tight transition-all duration-200 focus:outline-none',
               activeTab === 'comments'

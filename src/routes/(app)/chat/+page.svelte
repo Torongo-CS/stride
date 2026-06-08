@@ -17,6 +17,7 @@
   import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -35,6 +36,8 @@
   let editingMessageId = $state<Id<'messages'> | null>(null);
   let editingContent = $state('');
 
+  let isSending = $state(false);
+  let isSavingEdit = $state(false);
   const chatsQuery = useQuery(api.chats.listByUser, () => ($session?.userId ? { userId: $session.userId } : 'skip'));
 
   const messagesQuery = useQuery(api.messages.listWithSender, () =>
@@ -42,14 +45,19 @@
   );
 
   async function sendMessage() {
-    if (!newMessage.trim() || !selectedChatId || !$session?.userId) return;
+    if (!newMessage.trim() || !selectedChatId || !$session?.userId || isSending) return;
+    isSending = true;
     const content = newMessage;
     newMessage = '';
-    await client.mutation(api.messages.send, {
-      chatId: selectedChatId,
-      senderId: $session.userId,
-      content,
-    });
+    try {
+      await client.mutation(api.messages.send, {
+        chatId: selectedChatId,
+        senderId: $session.userId,
+        content,
+      });
+    } finally {
+      isSending = false;
+    }
   }
 
   function startEditing(
@@ -67,10 +75,15 @@
   }
 
   async function saveEdit() {
-    if (!editingMessageId || !editingContent.trim()) return;
-    await client.mutation(api.messages.edit, { id: editingMessageId, content: editingContent });
-    editingMessageId = null;
-    editingContent = '';
+    if (!editingMessageId || !editingContent.trim() || isSavingEdit) return;
+    isSavingEdit = true;
+    try {
+      await client.mutation(api.messages.edit, { id: editingMessageId, content: editingContent });
+      editingMessageId = null;
+      editingContent = '';
+    } finally {
+      isSavingEdit = false;
+    }
   }
 
   async function deleteMessage(id: Id<'messages'>) {
@@ -212,7 +225,13 @@
                           class="w-full"
                         />
                         <div class="flex gap-2">
-                          <Button size="sm" onclick={saveEdit}>Save</Button>
+                          <Button size="sm" onclick={saveEdit} disabled={isSavingEdit}>
+                            {#if isSavingEdit}
+                              Saving...
+                            {:else}
+                              Save
+                            {/if}
+                          </Button>
                           <Button size="sm" variant="ghost" onclick={cancelEditing}>Cancel</Button>
                         </div>
                       </div>
@@ -273,8 +292,12 @@
               bind:value={newMessage}
               class="flex-1 border-primary/20 focus-visible:ring-primary/30"
             />
-            <Button type="submit" size="icon" disabled={!newMessage.trim()} class="shrink-0">
-              <Send class="h-4 w-4" />
+            <Button type="submit" size="icon" disabled={!newMessage.trim() || isSending} class="shrink-0">
+              {#if isSending}
+                <Spinner class="h-4 w-4" />
+              {:else}
+                <Send class="h-4 w-4" />
+              {/if}
             </Button>
           </form>
         </div>

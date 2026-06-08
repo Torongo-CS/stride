@@ -104,8 +104,8 @@
   >
     {#snippet actions()}
       {#if $session && ($session.role === 'teacher' || $session.role === 'admin')}
-        <Button size="sm" onclick={() => goto('/problems/new')} class="cursor-pointer gap-1.5 font-bold shadow-sm">
-          <Plus class="h-4 w-4" /> Create Problem
+        <Button onclick={() => goto('/problems/new')} size="lg" class="font-semibold shadow-sm">
+          <Plus class="size-4" /> Create Problem
         </Button>
       {/if}
     {/snippet}
@@ -185,29 +185,29 @@
           <Card.Footer class="flex items-center justify-between border-t border-border/40 bg-muted/5 p-4">
             <Button
               variant="ghost"
-              size="sm"
-              class="h-8 cursor-pointer gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
+              size="lg"
+              class="font-semibold text-muted-foreground hover:text-foreground"
               onclick={() => goto(`/problems/${problem._id}`)}
             >
-              <Eye class="h-3.5 w-3.5" /> View Details
+              <Eye class="size-3.5" /> View Details
             </Button>
             {#if canManage(problem.createdBy)}
               <div class="flex items-center gap-1">
                 <Button
                   variant="ghost"
-                  size="icon"
-                  class="h-8 w-8 cursor-pointer text-muted-foreground hover:text-primary"
+                  size="icon-lg"
+                  class="text-muted-foreground hover:text-primary"
                   onclick={() => goto(`/problems/${problem._id}/edit`)}
                 >
-                  <Pencil class="h-3.5 w-3.5" />
+                  <Pencil class="size-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  class="h-8 w-8 cursor-pointer text-muted-foreground hover:text-destructive"
+                  size="icon-lg"
+                  class="text-muted-foreground hover:text-destructive"
                   onclick={() => startDelete(problem._id)}
                 >
-                  <Trash2 class="h-3.5 w-3.5" />
+                  <Trash2 class="size-3.5" />
                 </Button>
               </div>
             {/if}

@@ -316,15 +316,15 @@
     <AlertDialog.Footer>
       <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
       <AlertDialog.Action
+        variant="destructive"
         onclick={async () => {
           await handleDeleteUser();
           editDialogOpen = false;
         }}
-        class="text-destructive-foreground bg-destructive hover:bg-destructive/90"
         disabled={isDeleting}
       >
         {#if isDeleting}
-          <Spinner class="mr-2 h-4 w-4 text-current" />
+          <Spinner class="mr-2 h-4 w-4" />
           Deleting...
         {:else}
           Delete

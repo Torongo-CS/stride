@@ -19,10 +19,12 @@
 </script>
 
 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-  <div class="flex items-center gap-1.5 rounded-lg border bg-muted/20 p-1">
+  <div class="flex items-center gap-1.5 rounded-lg border bg-muted/20 p-1" role="tablist">
     {#each tabs as tab (tab.value)}
       <button
         onclick={() => (activeTab = tab.value)}
+        role="tab"
+        aria-selected={activeTab === tab.value}
         class="cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-all {activeTab === tab.value
           ? 'bg-card text-foreground shadow-sm'
           : 'text-muted-foreground hover:text-foreground'}"

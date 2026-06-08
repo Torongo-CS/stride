@@ -21,6 +21,7 @@
   import { Label } from '$lib/components/ui/label/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
 
   const client = useConvexClient();
@@ -56,6 +57,10 @@
   let name = $state('');
   let aboutMd = $state('');
   let isSubmitting = $state(false);
+  let isAssigningTeacher = $state(false);
+  let isRemovingTeacher = $state(false);
+  let isEnrollingStudent = $state(false);
+  let isRemovingStudent = $state(false);
 
   // Sync loaded section data into local form states
   let initialized = $state(false);
@@ -123,7 +128,8 @@
 
   async function assignTeacher(e?: Event) {
     if (e) e.preventDefault();
-    if (!teacherToAssignId) return;
+    if (!teacherToAssignId || isAssigningTeacher) return;
+    isAssigningTeacher = true;
     try {
       await client.mutation(api.sections.addTeacher, {
         sectionId,
@@ -134,10 +140,16 @@
     } catch (e) {
       console.error(e);
       toast.error('Failed to assign teacher');
+    } finally {
+      isAssigningTeacher = false;
     }
   }
 
   async function removeTeacher(teacherId: string) {
+    if (isRemovingTeacher) return;
+    if (!confirm('Are you sure you want to unassign this instructor? They will need to be reassigned manually.'))
+      return;
+    isRemovingTeacher = true;
     try {
       await client.mutation(api.sections.removeTeacher, {
         sectionId,
@@ -147,12 +159,15 @@
     } catch (e) {
       console.error(e);
       toast.error('Failed to remove teacher');
+    } finally {
+      isRemovingTeacher = false;
     }
   }
 
   async function enrollStudent(e?: Event) {
     if (e) e.preventDefault();
-    if (!studentToEnrollId) return;
+    if (!studentToEnrollId || isEnrollingStudent) return;
+    isEnrollingStudent = true;
     try {
       await client.mutation(api.sections.addStudent, {
         sectionId,
@@ -163,10 +178,15 @@
     } catch (e) {
       console.error(e);
       toast.error('Failed to enroll student');
+    } finally {
+      isEnrollingStudent = false;
     }
   }
 
   async function removeStudent(studentId: string) {
+    if (isRemovingStudent) return;
+    if (!confirm('Are you sure you want to unenroll this student? They will need to be re-enrolled manually.')) return;
+    isRemovingStudent = true;
     try {
       await client.mutation(api.sections.removeStudent, {
         sectionId,
@@ -176,6 +196,8 @@
     } catch (e) {
       console.error(e);
       toast.error('Failed to unenroll student');
+    } finally {
+      isRemovingStudent = false;
     }
   }
 </script>
@@ -270,13 +292,14 @@
           </Card.Content>
 
           <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              class="gap-1.5 bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
-            >
-              <Save class="h-3.5 w-3.5" />
-              Save Course Info
+            <Button type="submit" disabled={isSubmitting} size="lg" class="font-semibold shadow-sm">
+              {#if isSubmitting}
+                <Spinner class="size-3.5" />
+                Saving...
+              {:else}
+                <Save class="size-3.5" />
+                Save Course Info
+              {/if}
             </Button>
           </Card.Footer>
         </Card.Root>
@@ -322,12 +345,18 @@
                     </div>
                     <Button
                       variant="ghost"
-                      size="sm"
-                      class="h-8 gap-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      size="lg"
+                      class="text-destructive hover:bg-destructive/10 hover:text-destructive"
                       onclick={() => removeTeacher(teacher._id)}
+                      disabled={isRemovingTeacher}
                     >
-                      <UserX class="h-3.5 w-3.5" />
-                      Unassign Instructor
+                      {#if isRemovingTeacher}
+                        <Spinner class="h-3.5 w-3.5" />
+                        Removing...
+                      {:else}
+                        <UserX class="h-3.5 w-3.5" />
+                        Unassign Instructor
+                      {/if}
                     </Button>
                   </div>
                 {/each}
@@ -369,14 +398,18 @@
                       </div>
                       <Button
                         size="sm"
-                        class="h-7 px-3 text-xs"
                         variant="outline"
                         onclick={() => {
                           teacherToAssignId = t._id;
                           assignTeacher();
                         }}
+                        disabled={isAssigningTeacher}
                       >
-                        Assign
+                        {#if isAssigningTeacher}
+                          Assigning...
+                        {:else}
+                          Assign
+                        {/if}
                       </Button>
                     </div>
                   {/each}
@@ -435,13 +468,17 @@
                     <Button
                       size="sm"
                       variant="outline"
-                      class="h-7 px-3 text-xs"
                       onclick={() => {
                         studentToEnrollId = s._id;
                         enrollStudent();
                       }}
+                      disabled={isEnrollingStudent}
                     >
-                      Enroll
+                      {#if isEnrollingStudent}
+                        Enrolling...
+                      {:else}
+                        Enroll
+                      {/if}
                     </Button>
                   </div>
                 {/each}
@@ -497,8 +534,8 @@
                       </div>
                       <Button
                         variant="ghost"
-                        size="sm"
-                        class="h-8 gap-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        size="lg"
+                        class="text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onclick={() => removeStudent(student._id)}
                       >
                         <UserX class="h-3.5 w-3.5" />

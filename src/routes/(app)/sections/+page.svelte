@@ -90,8 +90,8 @@
   >
     {#snippet actions()}
       {#if userRole === 'admin'}
-        <Button href="/sections/new" size="sm" class="h-9 px-4 text-xs font-semibold shadow-xs">
-          <Plus class="mr-1.5 h-4 w-4" />
+        <Button href="/sections/new" size="lg" class="font-semibold shadow-sm">
+          <Plus class="mr-1.5 size-4" />
           Create Section
         </Button>
       {/if}
@@ -194,31 +194,25 @@
           </Card.Content>
 
           <Card.Footer class="flex gap-2 border-t border-border/40 bg-muted/5 p-3">
-            <Button href="/sections/{section._id}" size="sm" class="h-8 flex-1 text-xs font-semibold">
+            <Button href="/sections/{section._id}" size="lg" class="flex-1 font-semibold">
               View More
-              <ArrowRight class="ml-1.5 h-3.5 w-3.5" />
+              <ArrowRight class="ml-1.5 size-3.5" />
             </Button>
             {#if userRole === 'admin'}
-              <Button
-                href="/sections/{section._id}/edit"
-                variant="outline"
-                size="sm"
-                class="h-8 w-8 p-0"
-                title="Edit settings"
-              >
-                <Pencil class="h-3.5 w-3.5" />
+              <Button href="/sections/{section._id}/edit" variant="outline" size="icon-lg" title="Edit settings">
+                <Pencil class="size-3.5" />
               </Button>
               <Button
                 variant="outline"
-                size="sm"
-                class="h-8 w-8 border-border p-0 hover:bg-destructive/10 hover:text-destructive"
+                size="icon-lg"
+                class="border-border hover:bg-destructive/10 hover:text-destructive"
                 title="Delete section"
                 onclick={() => {
                   deletingSection = section;
                   deleteDialogOpen = true;
                 }}
               >
-                <Trash2 class="h-3.5 w-3.5" />
+                <Trash2 class="size-3.5" />
               </Button>
             {/if}
           </Card.Footer>
@@ -240,12 +234,8 @@
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer class="gap-2">
-      <AlertDialog.Cancel class="h-8 text-xs font-semibold">Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action
-        class="text-destructive-foreground h-8 bg-destructive text-xs font-semibold hover:bg-destructive/90"
-        onclick={handleDeleteSection}
-        disabled={isSubmitting}
-      >
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action variant="destructive" onclick={handleDeleteSection} disabled={isSubmitting}>
         {#if isSubmitting}
           Deleting...
         {:else}

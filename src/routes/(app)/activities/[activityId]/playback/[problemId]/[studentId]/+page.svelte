@@ -231,6 +231,7 @@
   }
 
   async function removeTestCase(id: Id<'problemIos'>) {
+    if (!confirm('Are you sure you want to delete this test case? This action cannot be undone.')) return;
     await client.mutation(api.problems.removeIO, { id });
     results.delete(id);
   }
@@ -346,11 +347,19 @@
               currentIndex--;
               isPlaying = false;
             }}
+            aria-label="Step back"
           >
             <SkipBackIcon class="size-4" />
           </Button>
 
-          <Button variant="ghost" size="icon" class="size-8" disabled={totalSnapshots <= 1} onclick={togglePlay}>
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-8"
+            disabled={totalSnapshots <= 1}
+            onclick={togglePlay}
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+          >
             {#if isPlaying}
               <PauseIcon class="size-4" />
             {:else}
@@ -367,6 +376,7 @@
               currentIndex++;
               isPlaying = false;
             }}
+            aria-label="Step forward"
           >
             <SkipForwardIcon class="size-4" />
           </Button>
@@ -381,6 +391,7 @@
               isPlaying = false;
             }}
             title="Jump to last snapshot"
+            aria-label="Jump to last snapshot"
           >
             <FastForwardIcon class="size-4" />
           </Button>
@@ -530,6 +541,7 @@
                       size="icon"
                       class="size-6 text-muted-foreground hover:text-destructive"
                       onclick={() => removeTestCase(tc._id)}
+                      aria-label="Remove test case"
                     >
                       <Trash2Icon class="size-3.5" />
                     </Button>

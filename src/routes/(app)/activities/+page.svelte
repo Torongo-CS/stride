@@ -135,8 +135,8 @@
   <PageHero title="Activities Hub" description="View and manage scheduled classes, exams, and performance reviews.">
     {#snippet actions()}
       {#if role === 'teacher' || role === 'admin'}
-        <Button onclick={() => goto('/activities/new')}>
-          <PlusIcon class="mr-2 size-4" />
+        <Button onclick={() => goto('/activities/new')} size="lg" class="font-semibold shadow-sm">
+          <PlusIcon class="mr-1.5 size-4" />
           New Activity
         </Button>
       {/if}
@@ -233,53 +233,27 @@
             <!-- Right Side: Action buttons -->
             <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
               {#if role === 'teacher' || role === 'admin'}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="h-8 px-3 text-xs"
-                  onclick={() => goto(`/activities/${activity._id}`)}
-                >
+                <Button size="lg" variant="outline" onclick={() => goto(`/activities/${activity._id}`)}>
                   <ActivityIcon class="mr-1.5 size-3.5" />
                   Status
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="h-8 px-3 text-xs"
-                  onclick={() => goto(`/activities/${activity._id}/playback`)}
-                >
+                <Button size="lg" variant="outline" onclick={() => goto(`/activities/${activity._id}/playback`)}>
                   <PlayCircleIcon class="mr-1.5 size-3.5" />
                   Playback
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="h-8 px-3 text-xs"
-                  onclick={() => goto(`/activities/${activity._id}/edit`)}
-                >
+                <Button size="lg" variant="outline" onclick={() => goto(`/activities/${activity._id}/edit`)}>
                   <PencilIcon class="mr-1.5 size-3.5" />
                   Edit
                 </Button>
               {:else if role === 'student'}
                 {#if status === 'active'}
-                  <Button
-                    size="sm"
-                    class="h-8 px-4 text-xs font-semibold"
-                    onclick={() => handleStudentJoin(activity._id)}
-                  >
+                  <Button size="lg" class="font-semibold" onclick={() => handleStudentJoin(activity._id)}>
                     Join Live Room
                   </Button>
                 {:else if status === 'upcoming'}
-                  <Button size="sm" variant="outline" class="h-8 cursor-default px-4 text-xs" disabled>
-                    Starts Soon
-                  </Button>
+                  <Button size="lg" variant="outline" class="cursor-default" disabled>Starts Soon</Button>
                 {:else}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    class="h-8 px-4 text-xs"
-                    onclick={() => goto(`/sections/${activity.sectionId}`)}
-                  >
+                  <Button size="lg" variant="outline" onclick={() => goto(`/sections/${activity.sectionId}`)}>
                     View Performance
                   </Button>
                 {/if}

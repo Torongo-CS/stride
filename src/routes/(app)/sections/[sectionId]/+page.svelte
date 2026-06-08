@@ -310,13 +310,8 @@
     <PageHero title={section.name} description="Academic portal for class schedules, exams, and memberships.">
       {#snippet actions()}
         {#if userRole === 'admin'}
-          <Button
-            href="/sections/{section._id}/edit"
-            variant="outline"
-            size="sm"
-            class="h-9 gap-1.5 border-border bg-card text-xs font-semibold"
-          >
-            <Pencil class="h-3.5 w-3.5" />
+          <Button href="/sections/{section._id}/edit" variant="outline" size="lg" class="font-semibold">
+            <Pencil class="size-4" />
             Manage Settings
           </Button>
         {/if}
@@ -379,8 +374,8 @@
           >
           <!-- Create Action for teachers only -->
           {#if isTeacher}
-            <Button href="/activities/new?sectionId={section._id}" size="sm" class="h-8 gap-1.5 text-xs font-semibold">
-              <Plus class="h-3.5 w-3.5" />
+            <Button href="/activities/new?sectionId={section._id}" size="lg" class="font-semibold">
+              <Plus class="size-3.5" />
               New Activity
             </Button>
           {/if}
@@ -429,9 +424,7 @@
                           {activity.type}
                         </Badge>
                         {#if userRole !== 'student'}
-                          <Button href="/activities/{activity._id}" size="sm" class="h-8 px-3 text-xs font-semibold">
-                            Enter
-                          </Button>
+                          <Button href="/activities/{activity._id}" size="lg" class="font-semibold">Enter</Button>
                         {/if}
                       </div>
                     </div>
@@ -483,7 +476,7 @@
                                       <Button
                                         href="/activities/{activity._id}/{p.problem._id}"
                                         size="sm"
-                                        class="h-7 bg-primary px-3 text-[10px] font-bold text-primary-foreground hover:bg-primary/90"
+                                        class="font-bold"
                                       >
                                         Enter Assignment Room
                                       </Button>
@@ -560,17 +553,12 @@
                     onchange={handleFileUpload}
                     disabled={isUploading}
                   />
-                  <Button
-                    onclick={() => fileInputRef?.click()}
-                    disabled={isUploading}
-                    class="h-8.5 text-xs font-semibold"
-                    size="sm"
-                  >
+                  <Button onclick={() => fileInputRef?.click()} disabled={isUploading} size="lg" class="font-semibold">
                     {#if isUploading}
                       <Spinner class="mr-1.5 size-3.5" />
                       Uploading Files...
                     {:else}
-                      <UploadCloud class="mr-1.5 h-3.5 w-3.5" />
+                      <UploadCloud class="mr-1.5 size-3.5" />
                       Select & Upload Files
                     {/if}
                   </Button>
@@ -643,10 +631,10 @@
                             }}
                             variant="ghost"
                             size="sm"
-                            class="h-6 gap-1 px-2 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground"
+                            class="text-muted-foreground hover:bg-muted hover:text-foreground"
                             title="Upload files to this folder"
                           >
-                            <UploadCloud class="h-3 w-3" />
+                            <UploadCloud class="size-3" />
                             Upload Here
                           </Button>
                         {/if}
@@ -682,10 +670,10 @@
                                     rel="noopener noreferrer"
                                     variant="ghost"
                                     size="icon"
-                                    class="h-7 w-7 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    class="text-muted-foreground hover:bg-muted hover:text-foreground"
                                     title="Download File"
                                   >
-                                    <Download class="h-4 w-4" />
+                                    <Download class="size-4" />
                                   </Button>
                                 {/if}
                                 {#if isTeacher || userRole === 'admin'}
@@ -693,10 +681,10 @@
                                     onclick={() => triggerDelete(file._id)}
                                     variant="ghost"
                                     size="icon"
-                                    class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                    class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                     title="Delete File"
                                   >
-                                    <Trash2 class="h-4 w-4" />
+                                    <Trash2 class="size-4" />
                                   </Button>
                                 {/if}
                               </div>
@@ -847,13 +835,8 @@
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer class="gap-2">
-      <AlertDialog.Cancel class="h-8 text-xs font-semibold">Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action
-        onclick={confirmDelete}
-        class="text-destructive-foreground h-8 bg-destructive text-xs font-semibold hover:bg-destructive/95"
-      >
-        Delete
-      </AlertDialog.Action>
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action variant="destructive" onclick={confirmDelete}>Delete</AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>

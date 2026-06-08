@@ -30,6 +30,7 @@
   import { Input } from '$lib/components/ui/input/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
   import { cn } from '$lib/utils';
 
@@ -65,7 +66,9 @@
 
   let commentToDeleteId = $state<Id<'comments'> | null>(null);
   let deleteCommentDialogOpen = $state(false);
+  let isDeletingComment = $state(false);
   let deletePostDialogOpen = $state(false);
+  let isDeletingPost = $state(false);
 
   // Edit Post state
   let isEditingPost = $state(false);
@@ -206,7 +209,8 @@
   }
 
   async function confirmDeleteComment() {
-    if (!commentToDeleteId) return;
+    if (!commentToDeleteId || isDeletingComment) return;
+    isDeletingComment = true;
     try {
       if ($session?.userId) {
         await client.mutation(api.comments.remove, { id: commentToDeleteId, userId: $session.userId });
@@ -218,6 +222,7 @@
     } finally {
       commentToDeleteId = null;
       deleteCommentDialogOpen = false;
+      isDeletingComment = false;
     }
   }
 
@@ -254,6 +259,8 @@
   }
 
   async function confirmDeletePost() {
+    if (isDeletingPost) return;
+    isDeletingPost = true;
     try {
       await client.mutation(api.posts.remove, { id: postId });
       toast.success('Post deleted successfully.');
@@ -263,6 +270,7 @@
       toast.error('Failed to delete post.');
     } finally {
       deletePostDialogOpen = false;
+      isDeletingPost = false;
     }
   }
 
@@ -376,7 +384,7 @@
       <div class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed py-16 text-center">
         <h3 class="text-xl font-bold">Post not found</h3>
         <p class="text-sm text-muted-foreground">The post you are looking for may have been deleted.</p>
-        <Button size="sm" onclick={() => goto('/forum')}>Return to Feed</Button>
+        <Button onclick={() => goto('/forum')} size="lg" class="font-semibold shadow-sm">Return to Feed</Button>
       </div>
     {:else}
       {@const post = postQuery.data}
@@ -463,7 +471,11 @@
                     disabled={isSavingPost || !editPostTitle.trim() || !editPostContent.replace(/<[^>]*>/g, '').trim()}
                     class="gap-1 font-semibold"
                   >
-                    <Check class="h-4 w-4" /> Save Post
+                    {#if isSavingPost}
+                      <Spinner class="h-4 w-4" /> Saving...
+                    {:else}
+                      <Check class="h-4 w-4" /> Save Post
+                    {/if}
                   </Button>
                 </div>
               </div>
@@ -508,22 +520,24 @@
                 <MessageSquare class="h-4 w-4" />
                 <span>{post.commentCount ?? 0} {post.commentCount === 1 ? 'Comment' : 'Comments'}</span>
               </div>
-              <button onclick={sharePost} class="flex items-center gap-1 transition-colors hover:text-foreground">
-                <Share2 class="h-4 w-4" />
+              <Button variant="ghost" size="sm" onclick={sharePost} class="gap-1">
+                <Share2 class="size-4" />
                 <span>Share</span>
-              </button>
+              </Button>
               {#if $session?.userId && (post.authorId === $session.userId || $session.role === 'admin' || $session.role === 'teacher')}
-                <button onclick={startEditPost} class="flex items-center gap-1 transition-colors hover:text-primary">
-                  <Pencil class="h-4 w-4" />
+                <Button variant="ghost" size="sm" onclick={startEditPost} class="gap-1">
+                  <Pencil class="size-4" />
                   <span>Edit</span>
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onclick={() => (deletePostDialogOpen = true)}
-                  class="flex items-center gap-1 transition-colors hover:text-destructive"
+                  class="gap-1 text-destructive hover:text-destructive"
                 >
-                  <Trash2 class="h-4 w-4" />
+                  <Trash2 class="size-4" />
                   <span>Delete</span>
-                </button>
+                </Button>
               {/if}
             </div>
           </div>
@@ -549,7 +563,11 @@
                 size="sm"
                 class="gap-1.5 font-semibold shadow-sm"
               >
-                <Send class="h-3.5 w-3.5" /> Post Comment
+                {#if isSubmittingComment}
+                  <Spinner class="h-3.5 w-3.5" /> Posting...
+                {:else}
+                  <Send class="h-3.5 w-3.5" /> Post Comment
+                {/if}
               </Button>
             </div>
           </form>
@@ -674,7 +692,6 @@
                                 editCommentContent = '';
                               }}
                               disabled={isSavingComment}
-                              class="h-7 text-xs"
                             >
                               Cancel
                             </Button>
@@ -682,9 +699,13 @@
                               size="sm"
                               onclick={() => saveCommentEdit(comment._id)}
                               disabled={isSavingComment || !editCommentContent.replace(/<[^>]*>/g, '').trim()}
-                              class="h-7 gap-1 text-xs font-semibold"
+                              class="font-semibold"
                             >
-                              <Check class="h-3 w-3" /> Save
+                              {#if isSavingComment}
+                                <Spinner class="size-3" /> Saving...
+                              {:else}
+                                <Check class="size-3" /> Save
+                              {/if}
                             </Button>
                           </div>
                         </div>
@@ -709,7 +730,9 @@
                         {#if !comment.isDeleted}
                           <div class="flex items-center gap-3 text-[11px] font-bold text-muted-foreground">
                             {#if $session?.userId}
-                              <button
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 onclick={() => {
                                   if (activeReplyCommentId === comment._id) {
                                     activeReplyCommentId = null;
@@ -719,33 +742,37 @@
                                     replyContent = '';
                                   }
                                 }}
-                                class="flex items-center gap-1 transition-colors hover:text-primary"
+                                class="gap-1"
                               >
-                                <CornerDownRight class="h-3.5 w-3.5" />
+                                <CornerDownRight class="size-3.5" />
                                 Reply
-                              </button>
+                              </Button>
                             {/if}
 
                             <!-- Edit Option -->
                             {#if $session?.userId && (comment.authorId === $session.userId || $session.role === 'admin' || $session.role === 'teacher')}
-                              <button
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 onclick={() => startEditComment(comment._id, comment.content)}
-                                class="flex items-center gap-1 transition-colors hover:text-primary"
+                                class="gap-1"
                               >
-                                <Pencil class="h-3.5 w-3.5" />
+                                <Pencil class="size-3.5" />
                                 Edit
-                              </button>
+                              </Button>
                             {/if}
 
                             <!-- Delete Option -->
                             {#if $session?.userId && (comment.authorId === $session.userId || $session.role === 'admin' || $session.role === 'teacher')}
-                              <button
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 onclick={() => deleteComment(comment._id)}
-                                class="flex items-center gap-1 transition-colors hover:text-destructive"
+                                class="gap-1 text-destructive hover:text-destructive"
                               >
-                                <Trash2 class="h-3.5 w-3.5" />
+                                <Trash2 class="size-3.5" />
                                 Delete
-                              </button>
+                              </Button>
                             {/if}
                           </div>
                         {/if}
@@ -766,7 +793,6 @@
                                 replyContent = '';
                               }}
                               disabled={isSubmittingReply}
-                              class="h-7 text-xs"
                             >
                               Cancel
                             </Button>
@@ -774,9 +800,13 @@
                               size="sm"
                               onclick={() => submitReply(comment._id)}
                               disabled={isSubmittingReply || !replyContent.replace(/<[^>]*>/g, '').trim()}
-                              class="h-7 gap-1 text-xs font-semibold"
+                              class="font-semibold"
                             >
-                              <Send class="h-3 w-3" /> Reply
+                              {#if isSubmittingReply}
+                                <Spinner class="size-3" /> Replying...
+                              {:else}
+                                <Send class="size-3" /> Reply
+                              {/if}
                             </Button>
                           </div>
                         </div>
@@ -855,7 +885,13 @@
     </AlertDialog.Header>
     <AlertDialog.Footer>
       <AlertDialog.Cancel onclick={() => (commentToDeleteId = null)}>Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action variant="destructive" onclick={confirmDeleteComment}>Delete</AlertDialog.Action>
+      <AlertDialog.Action variant="destructive" onclick={confirmDeleteComment} disabled={isDeletingComment}>
+        {#if isDeletingComment}
+          Deleting...
+        {:else}
+          Delete
+        {/if}
+      </AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
@@ -870,7 +906,13 @@
     </AlertDialog.Header>
     <AlertDialog.Footer>
       <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action variant="destructive" onclick={confirmDeletePost}>Delete</AlertDialog.Action>
+      <AlertDialog.Action variant="destructive" onclick={confirmDeletePost} disabled={isDeletingPost}>
+        {#if isDeletingPost}
+          Deleting...
+        {:else}
+          Delete
+        {/if}
+      </AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>

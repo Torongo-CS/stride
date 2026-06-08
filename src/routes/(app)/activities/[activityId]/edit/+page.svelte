@@ -123,6 +123,7 @@
   // Settings Actions
   let isSavingSettings = $state(false);
   let isDeletingActivity = $state(false);
+  let isRemovingProblem = $state(false);
   let deleteDialogOpen = $state(false);
 
   async function handleUpdateSettings(e: Event) {
@@ -207,6 +208,14 @@
   }
 
   async function handleRemoveProblem(problemId: Id<'problems'>) {
+    if (isRemovingProblem) return;
+    if (
+      !confirm(
+        'Are you sure you want to remove this problem from the activity? The problem itself will not be deleted.',
+      )
+    )
+      return;
+    isRemovingProblem = true;
     try {
       await client.mutation(api.activities.removeProblem, {
         activityId,
@@ -227,6 +236,8 @@
       toast.success('Problem detached from activity');
     } catch (_err) {
       toast.error('Failed to remove problem');
+    } finally {
+      isRemovingProblem = false;
     }
   }
 
@@ -475,8 +486,13 @@
                           size="icon"
                           class="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                           onclick={() => handleRemoveProblem(ap.problemId)}
+                          disabled={isRemovingProblem}
                         >
-                          <Trash2Icon class="size-4" />
+                          {#if isRemovingProblem}
+                            <Spinner class="size-4" />
+                          {:else}
+                            <Trash2Icon class="size-4" />
+                          {/if}
                         </Button>
                       </div>
                     </div>
@@ -541,13 +557,9 @@
     </AlertDialog.Header>
     <AlertDialog.Footer>
       <AlertDialog.Cancel disabled={isDeletingActivity}>Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action
-        onclick={handleDeleteActivity}
-        class="text-destructive-foreground bg-destructive hover:bg-destructive/90"
-        disabled={isDeletingActivity}
-      >
+      <AlertDialog.Action variant="destructive" onclick={handleDeleteActivity} disabled={isDeletingActivity}>
         {#if isDeletingActivity}
-          <Spinner class="mr-2 size-4 text-current" />
+          <Spinner class="mr-2 size-4" />
           Deleting...
         {:else}
           Delete

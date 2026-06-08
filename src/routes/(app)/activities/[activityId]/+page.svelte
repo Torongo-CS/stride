@@ -201,12 +201,17 @@
     <BackButton href={`/sections/${activity.sectionId}`} label="Back to Section" />
     <PageHero title={'Status: ' + activity.title} description="Classroom status matrix and student submissions.">
       {#snippet actions()}
-        <Button variant="outline" onclick={() => goto(`/activities/${activityId}/playback`)}>
-          <PlayIcon class="mr-2 size-4" />
+        <Button
+          variant="outline"
+          onclick={() => goto(`/activities/${activityId}/playback`)}
+          size="lg"
+          class="font-semibold"
+        >
+          <PlayIcon class="mr-1.5 size-4" />
           Code Playback
         </Button>
-        <Button onclick={handleExportCSV} disabled={students.length === 0}>
-          <DownloadIcon class="mr-2 size-4" />
+        <Button onclick={handleExportCSV} disabled={students.length === 0} size="lg" class="font-semibold shadow-sm">
+          <DownloadIcon class="mr-1.5 size-4" />
           Export CSV
         </Button>
       {/snippet}

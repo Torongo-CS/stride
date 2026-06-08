@@ -417,12 +417,12 @@
             </div>
           </Card.Content>
           <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
-            <Button type="submit" disabled={isSavingProfile} class="gap-2 font-semibold shadow-sm">
+            <Button type="submit" disabled={isSavingProfile} size="lg" class="font-semibold shadow-sm">
               {#if isSavingProfile}
                 <Spinner class="size-4" />
                 Saving...
               {:else}
-                <Save class="h-4 w-4" />
+                <Save class="size-4" />
                 Save Account Info
               {/if}
             </Button>
@@ -559,12 +559,12 @@
             {/if}
           </Card.Content>
           <Card.Footer class="flex justify-end border-t bg-muted/5 px-6 py-4">
-            <Button type="submit" disabled={isSavingBiography} class="gap-2 font-semibold shadow-sm">
+            <Button type="submit" disabled={isSavingBiography} size="lg" class="font-semibold shadow-sm">
               {#if isSavingBiography}
                 <Spinner class="size-4" />
                 Saving...
               {:else}
-                <Save class="h-4 w-4" />
+                <Save class="size-4" />
                 Save Biography
               {/if}
             </Button>
@@ -647,17 +647,12 @@
 
             <!-- Submit -->
             <div class="flex justify-end border-t pt-4">
-              <Button
-                type="submit"
-                variant="destructive"
-                disabled={isUpdatingPassword}
-                class="gap-2 font-semibold hover:bg-muted"
-              >
+              <Button type="submit" disabled={isUpdatingPassword} size="lg" class="font-semibold shadow-sm">
                 {#if isUpdatingPassword}
                   <Spinner class="size-4" />
                   Updating...
                 {:else}
-                  <Lock class="h-4 w-4" />
+                  <Lock class="size-4" />
                   Update Password
                 {/if}
               </Button>

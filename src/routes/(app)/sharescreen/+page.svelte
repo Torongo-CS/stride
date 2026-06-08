@@ -13,6 +13,7 @@
   import { api } from '$convex/_generated/api.js';
 
   import { PageHero } from '$lib/components/page/index.js';
+  import { Button } from '$lib/components/ui/button/index.js';
   import * as Select from '$lib/components/ui/select/index.js';
   import { session } from '$lib/session';
   import { screenShareState } from '$lib/sharescreen.svelte';
@@ -210,22 +211,25 @@
       <!-- Action Button -->
       <div class="flex flex-col gap-3">
         {#if !screenShareState.sharing}
-          <button
+          <Button
             onclick={startSharing}
             disabled={!studentId || sections.length === 0}
-            class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/95 disabled:pointer-events-none disabled:opacity-50"
+            class="w-full gap-2 font-semibold shadow-lg shadow-primary/20"
+            aria-label="Start sharing screen"
           >
             <ScreenShareIcon class="size-4" />
             <span>Start Sharing</span>
-          </button>
+          </Button>
         {:else}
-          <button
+          <Button
+            variant="destructive"
             onclick={stopSharing}
-            class="text-destructive-foreground flex w-full animate-pulse cursor-pointer items-center justify-center gap-2 rounded-xl bg-destructive px-5 py-3 font-semibold shadow-lg shadow-destructive/20 transition-all duration-200 hover:bg-destructive/95"
+            class="w-full animate-pulse gap-2 font-semibold shadow-lg shadow-destructive/20"
+            aria-label="Stop sharing screen"
           >
             <MonitorOffIcon class="size-4" />
             <span>Stop Sharing</span>
-          </button>
+          </Button>
         {/if}
       </div>
 
