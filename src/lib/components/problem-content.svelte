@@ -1,5 +1,7 @@
 <script lang="ts">
   import DOMPurify from 'isomorphic-dompurify';
+  // @ts-expect-error - katex does not ship mjs typings for auto-render
+  import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 
   let {
     title,
@@ -14,6 +16,22 @@
   } = $props();
 
   const sanitizedContent = $derived(contentMd ? DOMPurify.sanitize(contentMd) : '');
+
+  let container: HTMLDivElement | undefined = $state();
+
+  $effect(() => {
+    if (container && sanitizedContent) {
+      renderMathInElement(container, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false },
+          { left: '\\(', right: '\\)', display: false },
+          { left: '\\[', right: '\\]', display: true },
+        ],
+        throwOnError: false,
+      });
+    }
+  });
 </script>
 
 <div class="flex h-full flex-col overflow-hidden {className}">
@@ -24,7 +42,7 @@
   {/if}
   <div class="flex-1 overflow-y-auto px-4 py-3">
     {#if contentMd}
-      <div class="prose prose-sm max-w-none text-muted-foreground dark:prose-invert">
+      <div bind:this={container} class="prose prose-sm max-w-none dark:prose-invert">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html sanitizedContent}
       </div>
@@ -35,3 +53,15 @@
     {/if}
   </div>
 </div>
+
+<style>
+  :global(.prose pre) {
+    color: var(--foreground) !important;
+  }
+  :global(.prose pre code) {
+    color: inherit !important;
+  }
+  :global(.prose :not(pre) > code) {
+    color: var(--foreground) !important;
+  }
+</style>

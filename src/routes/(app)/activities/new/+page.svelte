@@ -456,7 +456,6 @@
                   </div>
                   <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-semibold">{p.title}</p>
-                    <p class="mt-0.5 truncate text-xs text-muted-foreground">{p.contentMd}</p>
                   </div>
                   <div class="flex shrink-0 items-center gap-1">
                     <Button
@@ -519,7 +518,6 @@
                 <div class="flex items-center justify-between gap-4 p-3 hover:bg-muted/10">
                   <div class="min-w-0 flex-1">
                     <p class="truncate text-xs font-semibold">{p.title}</p>
-                    <p class="mt-0.5 truncate text-[10px] text-muted-foreground">{p.contentMd}</p>
                   </div>
                   <Button size="icon-sm" variant="outline" onclick={() => handleAddProblem(p)}>
                     <PlusIcon class="size-3.5" />
