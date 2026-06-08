@@ -93,7 +93,7 @@
   }
 </script>
 
-<PageLayout class="max-w-4xl!">
+<PageLayout>
   <PageHero title="Create a New Post" description="Share questions, codes, or guides. Be respectful of others." />
 
   <Card.Root class="border bg-card shadow-md">

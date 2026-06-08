@@ -162,7 +162,7 @@
   }
 </script>
 
-<PageLayout class="max-w-4xl!">
+<PageLayout>
   {#if problemQuery.isLoading}
     <div class="flex flex-col gap-6">
       <Card.Root class="border bg-card/45 shadow-sm backdrop-blur-md">

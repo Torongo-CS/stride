@@ -272,7 +272,7 @@
 </script>
 
 {#if !activity || !initializedDate}
-  <PageLayout class="max-w-4xl!">
+  <PageLayout>
     <div class="flex flex-col gap-8">
       <Card.Root class="overflow-hidden border border-border bg-card shadow-sm">
         <Card.Header class="space-y-1.5 border-b bg-muted/10 p-6">
@@ -298,7 +298,7 @@
     </div>
   </PageLayout>
 {:else}
-  <PageLayout class="max-w-4xl!">
+  <PageLayout>
     <PageHero
       title={'Edit Activity: ' + activity.title}
       description="Modify settings and problems assigned to this activity."
@@ -404,13 +404,6 @@
 
           <Card.Footer class="flex items-center justify-between border-t bg-muted/5 px-6 py-4">
             <div class="flex items-center gap-2">
-              <Button
-                href="/activities/{activityId}"
-                variant="outline"
-                disabled={isSavingSettings || isDeletingActivity}
-              >
-                Back to Activity
-              </Button>
               <Button
                 variant="destructive"
                 type="button"

@@ -77,7 +77,7 @@
   }
 </script>
 
-<PageLayout>
+<PageLayout wide>
   <!-- Top Header Action -->
   <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
     <div>

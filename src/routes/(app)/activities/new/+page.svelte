@@ -237,7 +237,7 @@
   }
 </script>
 
-<PageLayout class="max-w-4xl!">
+<PageLayout>
   <PageHero title="Create New Activity" description="Schedule a class session or exam for your students." />
 
   <form onsubmit={handleSubmit} class="flex flex-col gap-8">

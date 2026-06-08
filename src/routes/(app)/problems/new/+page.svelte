@@ -85,14 +85,13 @@
   }
 </script>
 
-<PageLayout class="max-w-4xl!">
+<PageLayout>
   {#if !isTeacherOrAdmin}
     <div
       class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-destructive/30 py-20 text-center"
     >
       <h3 class="text-xl font-bold text-destructive">Access Restricted</h3>
       <p class="text-sm text-muted-foreground">Only teachers and admins can create programming problems.</p>
-      <Button size="sm" onclick={() => goto('/problems')} class="cursor-pointer">Back to Problems</Button>
     </div>
   {:else}
     <div class="flex flex-col gap-6">

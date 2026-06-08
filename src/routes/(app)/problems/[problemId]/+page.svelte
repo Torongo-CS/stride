@@ -73,7 +73,7 @@
   }
 </script>
 
-<PageLayout class="max-w-4xl!">
+<PageLayout>
   {#if canManage}
     <div class="mb-4 flex items-center justify-end gap-2">
       <Button

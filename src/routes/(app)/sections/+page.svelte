@@ -1,20 +1,16 @@
 <script lang="ts">
-  import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import GraduationCap from '@lucide/svelte/icons/graduation-cap';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Plus from '@lucide/svelte/icons/plus';
   import Search from '@lucide/svelte/icons/search';
-  import Trash2 from '@lucide/svelte/icons/trash-2';
   import Users from '@lucide/svelte/icons/users';
-  import { useConvexClient, useQuery } from 'convex-svelte';
+  import { useQuery } from 'convex-svelte';
   import DOMPurify from 'isomorphic-dompurify';
-  import { toast } from 'svelte-sonner';
 
   import { goto } from '$app/navigation';
   import { api } from '$convex/_generated/api.js';
 
   import { PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
-  import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import * as Avatar from '$lib/components/ui/avatar/index.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
@@ -27,7 +23,6 @@
   const userRole = $derived($session?.role);
 
   // --- Real-time Convex Queries ---
-  const client = useConvexClient();
   const sectionsQuery = useQuery(api.sections.listWithMembers, {});
 
   // --- Reactive Derived States (Svelte 5 Runes) ---
@@ -57,29 +52,6 @@
 
   // --- Loader State ---
   const isLoading = $derived(sectionsQuery.isLoading);
-
-  // --- Modals State ---
-  let deleteDialogOpen = $state(false);
-  let isSubmitting = $state(false);
-
-  // --- Delete Target Details ---
-  let deletingSection = $state<any>(null);
-
-  async function handleDeleteSection() {
-    if (!deletingSection) return;
-    isSubmitting = true;
-    try {
-      await client.mutation(api.sections.remove, { id: deletingSection._id });
-      toast.success('Section deleted successfully');
-      deleteDialogOpen = false;
-      deletingSection = null;
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to delete section');
-    } finally {
-      isSubmitting = false;
-    }
-  }
 </script>
 
 <PageLayout>
@@ -194,10 +166,7 @@
           </Card.Content>
 
           <Card.Footer class="flex gap-2 border-t border-border/40 bg-muted/5 p-3">
-            <Button href="/sections/{section._id}" size="lg" class="flex-1 font-semibold">
-              View More
-              <ArrowRight class="ml-1.5 size-3.5" />
-            </Button>
+            <Button href="/sections/{section._id}" size="lg" class="flex-1 font-semibold">View More</Button>
             {#if userRole === 'admin'}
               <Button href="/sections/{section._id}/edit" variant="outline" size="icon-lg" title="Edit settings">
                 <Pencil class="size-3.5" />
@@ -209,27 +178,3 @@
     </div>
   {/if}
 </PageLayout>
-
-<!-- Deletion Dialog -->
-<AlertDialog.Root bind:open={deleteDialogOpen}>
-  <AlertDialog.Content class="border border-border bg-card">
-    <AlertDialog.Header>
-      <AlertDialog.Title class="text-md font-bold text-foreground">Are you absolutely sure?</AlertDialog.Title>
-      <AlertDialog.Description class="text-xs text-muted-foreground">
-        This will permanently delete the section <span class="font-semibold text-foreground"
-          >{deletingSection?.name}</span
-        > and remove all teacher assignments and student enrollments. This action cannot be undone.
-      </AlertDialog.Description>
-    </AlertDialog.Header>
-    <AlertDialog.Footer class="gap-2">
-      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action variant="destructive" onclick={handleDeleteSection} disabled={isSubmitting}>
-        {#if isSubmitting}
-          Deleting...
-        {:else}
-          Delete Section
-        {/if}
-      </AlertDialog.Action>
-    </AlertDialog.Footer>
-  </AlertDialog.Content>
-</AlertDialog.Root>

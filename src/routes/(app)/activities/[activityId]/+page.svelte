@@ -135,7 +135,7 @@
 </script>
 
 {#if isLoading}
-  <PageLayout class="max-w-4xl!">
+  <PageLayout>
     <div class="grid gap-6 md:grid-cols-3">
       {#each [0, 1, 2] as i (i)}
         <Card.Root>
@@ -193,11 +193,11 @@
     </Card.Root>
   </PageLayout>
 {:else if !activity}
-  <PageLayout class="max-w-4xl!">
+  <PageLayout>
     <PageEmpty icon={BookOpenIcon} title="Activity not found" description="This activity could not be found." />
   </PageLayout>
 {:else}
-  <PageLayout class="max-w-4xl!">
+  <PageLayout>
     <PageHero title={'Status: ' + activity.title} description="Classroom status matrix and student submissions.">
       {#snippet actions()}
         <Button

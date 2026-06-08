@@ -223,7 +223,7 @@
   }
 </script>
 
-<PageLayout class="max-w-4xl!">
+<PageLayout>
   {#if userRole !== 'admin'}
     <!-- Unauthorized Access Protection -->
     <Card.Root class="border-destructive bg-destructive/5 p-8 text-center">

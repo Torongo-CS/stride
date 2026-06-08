@@ -62,7 +62,10 @@
     class="relative flex items-center gap-1.5 rounded-lg border bg-muted/20 p-1"
     role="tablist"
   >
-    <div bind:this={indicatorRef} class="pointer-events-none absolute inset-y-1 rounded-md bg-card shadow-sm"></div>
+    <div
+      bind:this={indicatorRef}
+      class="pointer-events-none absolute inset-y-1 left-0 rounded-md bg-card shadow-sm"
+    ></div>
     {#each tabs as tab (tab.value)}
       <button
         onclick={() => (activeTab = tab.value)}

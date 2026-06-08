@@ -333,7 +333,7 @@
   }
 </script>
 
-<PageLayout class="max-w-4xl!">
+<PageLayout>
   <PageHero title="Account Settings" description="Manage your profile, avatar, biography, and password security." />
 
   {#if profileQuery.isLoading}

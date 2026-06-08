@@ -1,28 +1,20 @@
 <script lang="ts">
   import Calendar from '@lucide/svelte/icons/calendar';
   import Code2 from '@lucide/svelte/icons/code-2';
-  import Eye from '@lucide/svelte/icons/eye';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Plus from '@lucide/svelte/icons/plus';
   import Search from '@lucide/svelte/icons/search';
-  import Trash2 from '@lucide/svelte/icons/trash-2';
-  import { useConvexClient, useQuery } from 'convex-svelte';
-  import { toast } from 'svelte-sonner';
+  import { useQuery } from 'convex-svelte';
 
   import { goto } from '$app/navigation';
   import { api } from '$convex/_generated/api.js';
-  import type { Id } from '$convex/_generated/dataModel';
 
   import { FilterTabs, PageEmpty, PageHero, PageLayout } from '$lib/components/page/index.js';
-  import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
-  import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { session } from '$lib/session';
-
-  const client = useConvexClient();
 
   // Queries
   const problemsQuery = useQuery(api.problems.list, {});
@@ -30,9 +22,6 @@
   // State
   let searchQuery = $state('');
   let activeTab = $state<'all' | 'my'>('all');
-  let problemToDeleteId = $state<Id<'problems'> | null>(null);
-  let deleteDialogOpen = $state(false);
-  let isDeleting = $state(false);
 
   // Filtered problems list
   const filteredProblems = $derived.by(() => {
@@ -72,27 +61,6 @@
       day: 'numeric',
       year: 'numeric',
     });
-  }
-
-  function startDelete(id: Id<'problems'>) {
-    problemToDeleteId = id;
-    deleteDialogOpen = true;
-  }
-
-  async function confirmDelete() {
-    if (!problemToDeleteId) return;
-    isDeleting = true;
-    try {
-      await client.mutation(api.problems.remove, { id: problemToDeleteId });
-      toast.success('Problem deleted successfully.');
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to delete problem.');
-    } finally {
-      isDeleting = false;
-      problemToDeleteId = null;
-      deleteDialogOpen = false;
-    }
   }
 </script>
 
@@ -178,7 +146,7 @@
           </Card.Header>
           <Card.Footer class="flex items-center justify-between gap-2 border-t border-border/40 bg-muted/5 p-3">
             <Button size="lg" class="flex-1 font-semibold" onclick={() => goto(`/problems/${problem._id}`)}>
-              <Eye class="mr-1.5 size-3.5" /> View Details
+              View Details
             </Button>
             {#if canManage(problem.createdBy)}
               <div class="flex items-center gap-1">
@@ -193,26 +161,3 @@
     </div>
   {/if}
 </PageLayout>
-
-<!-- Deletion Confirmation Dialog -->
-<AlertDialog.Root bind:open={deleteDialogOpen}>
-  <AlertDialog.Content>
-    <AlertDialog.Header>
-      <AlertDialog.Title>Delete Problem</AlertDialog.Title>
-      <AlertDialog.Description>
-        Are you sure you want to delete this problem? This action cannot be undone and will delete all associated test
-        cases.
-      </AlertDialog.Description>
-    </AlertDialog.Header>
-    <AlertDialog.Footer>
-      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action variant="destructive" onclick={confirmDelete} disabled={isDeleting}>
-        {#if isDeleting}
-          <Spinner class="size-3.5" /> Deleting...
-        {:else}
-          Delete
-        {/if}
-      </AlertDialog.Action>
-    </AlertDialog.Footer>
-  </AlertDialog.Content>
-</AlertDialog.Root>
