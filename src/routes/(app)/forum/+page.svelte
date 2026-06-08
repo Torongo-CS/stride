@@ -269,7 +269,7 @@
             {#if post}
               <div in:fade>
                 <Card.Root
-                  class="group cursor-pointer overflow-hidden border-border transition-all duration-300 hover:border-primary/30 hover:shadow-md"
+                  class="group cursor-pointer overflow-hidden border-border transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
                   onclick={() => post._id && goto(`/forum/${post._id}`)}
                 >
                   <div class="flex">
@@ -358,12 +358,7 @@
                       <!-- Image Preview -->
                       {#if post.imageUrl}
                         <div class="mt-2 max-h-72 overflow-hidden rounded-lg border bg-muted/5">
-                          <img
-                            src={post.imageUrl}
-                            alt={post.title}
-                            class="h-full w-full object-cover transition-transform duration-500 hover:scale-102"
-                            loading="lazy"
-                          />
+                          <img src={post.imageUrl} alt={post.title} class="h-full w-full object-cover" loading="lazy" />
                         </div>
                       {/if}
 

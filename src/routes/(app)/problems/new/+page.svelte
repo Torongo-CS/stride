@@ -159,7 +159,7 @@
             <div class="flex flex-col gap-4">
               {#each testCases as tc, idx (idx)}
                 <div
-                  class="flex flex-col gap-3 rounded-xl border bg-muted/10 p-4 transition-all duration-300 hover:border-primary/10"
+                  class="flex flex-col gap-3 rounded-xl border bg-muted/10 p-4 transition-all duration-200 hover:border-primary/30"
                   transition:slide
                 >
                   <div class="flex items-center justify-between">

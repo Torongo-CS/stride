@@ -161,7 +161,7 @@
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {#each filteredProblems as problem (problem._id)}
         <Card.Root
-          class="group flex flex-col justify-between border bg-card/40 shadow-sm transition-all duration-300 hover:border-primary/20 hover:shadow-md"
+          class="group flex flex-col justify-between border bg-card/40 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
         >
           <Card.Header class="p-5 pb-3">
             <Card.Title

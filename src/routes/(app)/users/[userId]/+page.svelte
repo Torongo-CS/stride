@@ -193,7 +193,7 @@
       <!-- 2. QUICK STATISTICS COUNTERS -->
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <!-- Forum Posts -->
-        <Card.Root class="border transition-all duration-300 hover:border-primary/10 hover:shadow-md">
+        <Card.Root class="border transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
           <Card.Content class="flex flex-col justify-center p-5 text-center">
             <span class="text-3xl font-extrabold tracking-tight text-primary">
               {profile.posts.length}
@@ -205,7 +205,7 @@
         </Card.Root>
 
         <!-- Comments -->
-        <Card.Root class="border transition-all duration-300 hover:border-primary/10 hover:shadow-md">
+        <Card.Root class="border transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
           <Card.Content class="flex flex-col justify-center p-5 text-center">
             <span class="text-3xl font-extrabold tracking-tight text-primary">
               {profile.comments.length}
@@ -218,7 +218,7 @@
 
         <!-- Sections Count -->
         <Card.Root
-          class="col-span-2 border transition-all duration-300 hover:border-primary/10 hover:shadow-md sm:col-span-1"
+          class="col-span-2 border transition-all duration-200 hover:border-primary/30 hover:shadow-sm sm:col-span-1"
         >
           <Card.Content class="flex flex-col justify-center p-5 text-center">
             <span class="text-3xl font-extrabold tracking-tight text-primary">
@@ -383,7 +383,7 @@
               {:else}
                 {#each profile.posts as post (post._id)}
                   <Card.Root
-                    class="group cursor-pointer border-border transition-all duration-300 hover:border-primary/30 hover:shadow-xs"
+                    class="group cursor-pointer border-border transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
                     onclick={() => goto(`/forum/${post._id}`)}
                   >
                     <Card.Content class="flex flex-col gap-2.5 p-5">
@@ -438,12 +438,10 @@
                         </div>
 
                         <span
-                          class="flex items-center gap-0.5 text-primary/80 transition-all duration-300 group-hover:text-primary"
+                          class="flex items-center gap-0.5 text-primary/80 transition-all duration-200 group-hover:text-primary"
                         >
                           Read Post
-                          <ChevronRight
-                            class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
-                          />
+                          <ChevronRight class="h-3.5 w-3.5" />
                         </span>
                       </div>
                     </Card.Content>
@@ -470,7 +468,7 @@
               {:else}
                 {#each profile.comments as comment (comment._id)}
                   <Card.Root
-                    class="group cursor-pointer border-border transition-all duration-300 hover:border-primary/30 hover:shadow-xs"
+                    class="group cursor-pointer border-border transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
                     onclick={() => goto(`/forum/${comment.postId}`)}
                   >
                     <Card.Content class="flex flex-col gap-2.5 p-5">
@@ -507,12 +505,10 @@
                         </div>
 
                         <span
-                          class="flex items-center gap-0.5 text-primary/80 transition-all duration-300 group-hover:text-primary"
+                          class="flex items-center gap-0.5 text-primary/80 transition-all duration-200 group-hover:text-primary"
                         >
                           View Comment Location
-                          <ChevronRight
-                            class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
-                          />
+                          <ChevronRight class="h-3.5 w-3.5" />
                         </span>
                       </div>
                     </Card.Content>

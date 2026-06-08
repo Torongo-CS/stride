@@ -213,7 +213,7 @@
           <button
             onclick={startSharing}
             disabled={!studentId || sections.length === 0}
-            class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 hover:scale-[1.01] hover:bg-primary/95 disabled:pointer-events-none disabled:opacity-50"
+            class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/95 disabled:pointer-events-none disabled:opacity-50"
           >
             <ScreenShareIcon class="size-4" />
             <span>Start Sharing</span>
@@ -221,7 +221,7 @@
         {:else}
           <button
             onclick={stopSharing}
-            class="text-destructive-foreground flex w-full animate-pulse cursor-pointer items-center justify-center gap-2 rounded-xl bg-destructive px-5 py-3 font-semibold shadow-lg shadow-destructive/20 transition-all duration-300 hover:scale-[1.01] hover:bg-destructive/95"
+            class="text-destructive-foreground flex w-full animate-pulse cursor-pointer items-center justify-center gap-2 rounded-xl bg-destructive px-5 py-3 font-semibold shadow-lg shadow-destructive/20 transition-all duration-200 hover:bg-destructive/95"
           >
             <MonitorOffIcon class="size-4" />
             <span>Stop Sharing</span>

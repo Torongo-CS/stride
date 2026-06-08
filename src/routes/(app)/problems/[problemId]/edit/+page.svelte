@@ -243,7 +243,7 @@
             <div class="flex flex-col gap-6">
               {#each testCasesQuery.data as io, idx (io._id)}
                 <div
-                  class="flex flex-col gap-4 rounded-xl border bg-muted/10 p-4 transition-all duration-300 hover:border-primary/10"
+                  class="flex flex-col gap-4 rounded-xl border bg-muted/10 p-4 transition-all duration-200 hover:border-primary/30"
                 >
                   <div class="flex items-center justify-between">
                     <span class="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary"

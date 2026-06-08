@@ -337,10 +337,7 @@
                       <Table.Cell class="text-center">
                         {#if sub}
                           {@const isAccepted = sub.judgeVerdict === 'Accepted'}
-                          <a
-                            href="/activities/${activityId}/playback/${problemId}/${student._id}"
-                            class="inline-block transition-transform hover:scale-105"
-                          >
+                          <a href="/activities/${activityId}/playback/${problemId}/${student._id}" class="inline-block">
                             <Badge variant={isAccepted ? 'success' : 'destructive'} class="cursor-pointer text-xs">
                               {sub.judgeVerdict ?? 'Submitted'}
                             </Badge>

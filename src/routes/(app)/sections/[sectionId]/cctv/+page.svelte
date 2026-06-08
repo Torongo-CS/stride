@@ -351,7 +351,7 @@
         <button
           onclick={triggerBroadcastPing}
           disabled={isRefreshing}
-          class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-border/30 bg-secondary px-4 py-2 text-xs font-semibold text-secondary-foreground transition-all duration-300 hover:bg-secondary/80 disabled:opacity-50"
+          class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-border/30 bg-secondary px-4 py-2 text-xs font-semibold text-secondary-foreground transition-all duration-200 hover:bg-secondary/80 disabled:opacity-50"
         >
           <RefreshCwIcon class="size-3.5 {isRefreshing ? 'animate-spin' : ''}" />
           <span>Refresh All Streams</span>
@@ -446,13 +446,13 @@
 
                 <!-- Hover Control Overlay -->
                 <div
-                  class="absolute inset-0 flex items-center justify-center gap-4 bg-pure-black/60 opacity-0 transition-opacity duration-300 group-hover/panel:opacity-100"
+                  class="absolute inset-0 flex items-center justify-center gap-4 bg-pure-black/60 opacity-0 transition-opacity duration-200 group-hover/panel:opacity-100"
                 >
                   <button
                     onclick={() => {
                       fullscreenStudentId = student._id;
                     }}
-                    class="flex cursor-pointer items-center justify-center rounded-full bg-primary p-3 text-primary-foreground shadow-lg transition-all duration-300 hover:scale-110 hover:bg-primary/90"
+                    class="flex cursor-pointer items-center justify-center rounded-full bg-primary p-3 text-primary-foreground shadow-lg transition-all duration-200 hover:bg-primary/90"
                     title="Expand Fullscreen"
                   >
                     <Maximize2Icon class="size-4" />
@@ -524,7 +524,7 @@
   {@const fullscreenStudentObj = studentsList.find((s) => s?._id === fullscreenStudentId)}
   {@const fsConnection = activeStreams[fullscreenStudentId]}
 
-  <div class="animate-fade-in fixed inset-0 z-50 flex flex-col bg-pure-black/90 p-6 backdrop-blur-md">
+  <div class="fixed inset-0 z-50 flex animate-in flex-col bg-pure-black/90 p-6 backdrop-blur-md duration-300 fade-in">
     <!-- Overlay Header -->
     <div class="mb-4 flex w-full items-center justify-between border-b border-border/20 pb-4">
       <div class="flex items-center gap-3">
@@ -548,7 +548,7 @@
         onclick={() => {
           fullscreenStudentId = null;
         }}
-        class="flex cursor-pointer items-center justify-center rounded-xl border border-cinema-border bg-cinema-bg p-2.5 text-pure-white transition-all duration-300 hover:scale-105 hover:bg-cinema-border hover:text-pure-white"
+        class="flex cursor-pointer items-center justify-center rounded-xl border border-cinema-border bg-cinema-bg p-2.5 text-pure-white transition-all duration-200 hover:bg-cinema-border hover:text-pure-white"
       >
         <Minimize2Icon class="size-4" />
       </button>

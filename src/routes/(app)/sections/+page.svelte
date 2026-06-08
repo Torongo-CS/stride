@@ -144,7 +144,7 @@
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {#each filteredSections as section (section._id)}
         <Card.Root
-          class="flex h-full flex-col justify-between border border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          class="flex h-full flex-col justify-between border border-border bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
         >
           <Card.Header class="pb-3">
             <div class="flex items-start justify-between gap-4">

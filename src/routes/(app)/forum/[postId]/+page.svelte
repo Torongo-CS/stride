@@ -742,7 +742,7 @@
                 <!-- Sub-Replies (Indented with Guide Lines) -->
                 {#if !isCollapsed && replies.length > 0}
                   <div
-                    class="relative ml-3 flex flex-col gap-2 border-l border-border/60 pl-5 transition-all duration-300 hover:border-primary/30"
+                    class="relative ml-3 flex flex-col gap-2 border-l border-border/60 pl-5 transition-all duration-200 hover:border-primary/30"
                   >
                     {#each replies as reply (reply._id)}
                       {@render renderComment(reply, depth + 1)}
@@ -777,7 +777,7 @@
               onclick={() => goto(`/users/${activeUser.id}`)}
               class="group flex w-full items-center gap-3 rounded-lg p-1 text-left transition-all hover:bg-muted/40"
             >
-              <Avatar.Root class="h-8 w-8 border shadow-sm transition-transform duration-250 group-hover:scale-105">
+              <Avatar.Root class="h-8 w-8 border shadow-sm">
                 <Avatar.Image src={activeUser.avatar} />
                 <Avatar.Fallback class="bg-primary/5 text-xs font-bold text-primary">
                   {activeUser.name.substring(0, 2).toUpperCase()}

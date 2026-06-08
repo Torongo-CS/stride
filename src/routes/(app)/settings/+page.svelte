@@ -447,7 +447,7 @@
                 type="button"
                 onclick={selectAvatarFile}
                 disabled={isUploadingAvatar}
-                class="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/40 transition-all duration-300 group-hover:scale-102 group-hover:brightness-90 focus:outline-none"
+                class="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/40 transition-all duration-200 group-hover:brightness-90 focus:outline-none"
               >
                 {#if isUploadingAvatar}
                   <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70">
@@ -465,7 +465,7 @@
 
                 <!-- Camera hover overlay -->
                 <div
-                  class="absolute inset-0 flex items-center justify-center bg-pure-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  class="absolute inset-0 flex items-center justify-center bg-pure-black/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 >
                   <Camera class="h-6 w-6 text-pure-white" />
                 </div>
