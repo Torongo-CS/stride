@@ -188,9 +188,7 @@
 
           {#if screenShareState.actualWidth && screenShareState.actualHeight}
             <div class="flex items-center gap-3">
-              <div
-                class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-success/10 text-success"
-              >
+              <div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-success/10 text-success">
                 <TvIcon class="size-4" />
               </div>
               <div class="flex flex-col">
@@ -204,9 +202,7 @@
 
           {#if screenShareState.actualFPS}
             <div class="flex items-center gap-3">
-              <div
-                class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-success/10 text-success"
-              >
+              <div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-success/10 text-success">
                 <Settings2Icon class="size-4" />
               </div>
               <div class="flex flex-col">
