@@ -114,6 +114,7 @@ export default defineSchema({
     chatId: v.id('chats'),
     userId: v.id('users'),
     joinedAt: v.number(),
+    lastReadAt: v.optional(v.number()),
   })
     .index('by_chat', ['chatId'])
     .index('by_user', ['userId']),
@@ -123,7 +124,32 @@ export default defineSchema({
     senderId: v.id('users'),
     content: v.string(),
     sentAt: v.number(),
-  }).index('by_chat', ['chatId']),
+    imageStorageId: v.optional(v.id('_storage')),
+    replyToId: v.optional(v.id('messages')),
+  })
+    .index('by_chat', ['chatId'])
+    .index('by_chat_sentAt', ['chatId', 'sentAt']),
+
+  messageReactions: defineTable({
+    messageId: v.id('messages'),
+    userId: v.id('users'),
+    emoji: v.string(),
+  })
+    .index('by_message', ['messageId'])
+    .index('by_message_and_user', ['messageId', 'userId']),
+
+  presence: defineTable({
+    userId: v.id('users'),
+    lastSeenAt: v.number(),
+  }).index('by_user', ['userId']),
+
+  typingIndicators: defineTable({
+    chatId: v.id('chats'),
+    userId: v.id('users'),
+    lastTypingAt: v.number(),
+  })
+    .index('by_chat', ['chatId'])
+    .index('by_chat_and_user', ['chatId', 'userId']),
 
   posts: defineTable({
     authorId: v.id('users'),
