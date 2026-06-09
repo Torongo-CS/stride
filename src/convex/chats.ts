@@ -17,7 +17,70 @@ export const listByUser = query({
       .query('chatMembers')
       .withIndex('by_user', (q) => q.eq('userId', args.userId))
       .collect();
-    return Promise.all(memberships.map((m) => ctx.db.get(m.chatId)));
+
+    const chatIds = memberships.map((m) => m.chatId);
+    const membershipMap = new Map(memberships.map((m) => [m.chatId, m]));
+
+    return Promise.all(
+      chatIds.map(async (chatId) => {
+        const chat = await ctx.db.get(chatId);
+        if (!chat) return null;
+
+        const allMembers = await ctx.db
+          .query('chatMembers')
+          .withIndex('by_chat', (q) => q.eq('chatId', chatId))
+          .collect();
+
+        let displayName: string | null = null;
+        let displayAvatar: string | null = null;
+
+        if (allMembers.length === 2) {
+          const otherMembership = allMembers.find((m) => m.userId !== args.userId);
+          if (otherMembership) {
+            const otherUser = await ctx.db.get(otherMembership.userId);
+            if (otherUser) {
+              displayName = otherUser.name;
+              displayAvatar = otherUser.avatarUrl ?? null;
+            }
+          }
+        }
+
+        const lastMsg = await ctx.db
+          .query('messages')
+          .withIndex('by_chat', (q) => q.eq('chatId', chatId))
+          .order('desc')
+          .first();
+
+        const myMembership = membershipMap.get(chatId);
+        let unreadCount = 0;
+        if (myMembership?.lastReadAt) {
+          const unreadMessages = await ctx.db
+            .query('messages')
+            .withIndex('by_chat_sentAt', (q) => q.eq('chatId', chatId).gt('sentAt', myMembership.lastReadAt!))
+            .collect();
+          unreadCount = unreadMessages.length;
+        }
+
+        let lastMessageSnippet: string | null = null;
+        if (lastMsg) {
+          if (lastMsg.content) {
+            lastMessageSnippet = lastMsg.content;
+          } else if (lastMsg.imageStorageId) {
+            lastMessageSnippet = '📷 Image';
+          }
+        }
+
+        return {
+          ...chat,
+          displayName,
+          displayAvatar,
+          lastMessageSnippet,
+          lastMessageAt: lastMsg?.sentAt ?? null,
+          lastMessageSenderId: lastMsg?.senderId ?? null,
+          unreadCount,
+        };
+      }),
+    );
   },
 });
 
@@ -27,9 +90,10 @@ export const create = mutation({
     memberIds: v.array(v.id('users')),
   },
   handler: async (ctx, args) => {
-    const chatId = await ctx.db.insert('chats', { name: args.name, createdAt: Date.now() });
+    const now = Date.now();
+    const chatId = await ctx.db.insert('chats', { name: args.name, createdAt: now });
     await Promise.all(
-      args.memberIds.map((userId) => ctx.db.insert('chatMembers', { chatId, userId, joinedAt: Date.now() })),
+      args.memberIds.map((userId) => ctx.db.insert('chatMembers', { chatId, userId, joinedAt: now, lastReadAt: now })),
     );
     return chatId;
   },
@@ -105,25 +169,21 @@ export const getOrCreateDirectChat = mutation({
       throw new Error('Cannot start a chat with yourself.');
     }
 
-    // Fetch memberships of User A
     const membershipsA = await ctx.db
       .query('chatMembers')
       .withIndex('by_user', (q) => q.eq('userId', args.userA))
       .collect();
 
-    // Fetch memberships of User B
     const membershipsB = await ctx.db
       .query('chatMembers')
       .withIndex('by_user', (q) => q.eq('userId', args.userB))
       .collect();
 
-    // Find if any chatId is in both sets
     const chatIdsA = new Set(membershipsA.map((m) => m.chatId));
     let commonChatId: Id<'chats'> | null = null;
 
     for (const mB of membershipsB) {
       if (chatIdsA.has(mB.chatId)) {
-        // Check if this chat has exactly 2 members (direct message)
         const members = await ctx.db
           .query('chatMembers')
           .withIndex('by_chat', (q) => q.eq('chatId', mB.chatId))
@@ -139,14 +199,14 @@ export const getOrCreateDirectChat = mutation({
       return commonChatId;
     }
 
-    // Create new chat if not found
     const userADoc = await ctx.db.get(args.userA);
     const userBDoc = await ctx.db.get(args.userB);
     const chatName = `${userADoc?.name || 'User'} & ${userBDoc?.name || 'User'}`;
 
-    const chatId = await ctx.db.insert('chats', { name: chatName, createdAt: Date.now() });
-    await ctx.db.insert('chatMembers', { chatId, userId: args.userA, joinedAt: Date.now() });
-    await ctx.db.insert('chatMembers', { chatId, userId: args.userB, joinedAt: Date.now() });
+    const now = Date.now();
+    const chatId = await ctx.db.insert('chats', { name: chatName, createdAt: now });
+    await ctx.db.insert('chatMembers', { chatId, userId: args.userA, joinedAt: now, lastReadAt: now });
+    await ctx.db.insert('chatMembers', { chatId, userId: args.userB, joinedAt: now, lastReadAt: now });
 
     return chatId;
   },

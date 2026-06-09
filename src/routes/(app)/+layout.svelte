@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { useConvexClient } from 'convex-svelte';
   import gsap from 'gsap';
   import { onMount } from 'svelte';
 
   import { goto, onNavigate } from '$app/navigation';
+  import { api } from '$convex/_generated/api.js';
 
   import AppSidebar from '$lib/components/app-sidebar.svelte';
   import ScreenShareManager from '$lib/components/screen-share-manager.svelte';
@@ -12,12 +14,26 @@
   const { children } = $props();
   const currentSession = $derived($session);
 
+  const client = useConvexClient();
+  let heartbeatInterval: ReturnType<typeof setInterval> | undefined;
+
   onMount(() => {
     loadSession();
     const unsub = session.subscribe((s) => {
       if (!s) goto('/login');
     });
-    return unsub;
+
+    heartbeatInterval = setInterval(() => {
+      const s = $session;
+      if (s?.userId) {
+        client.mutation(api.presence.heartbeat, { userId: s.userId }).catch(() => {});
+      }
+    }, 30000);
+
+    return () => {
+      unsub();
+      if (heartbeatInterval) clearInterval(heartbeatInterval);
+    };
   });
 
   onNavigate((navigation) => {
