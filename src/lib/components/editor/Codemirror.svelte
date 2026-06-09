@@ -91,6 +91,17 @@
     }
   });
 
+  $effect(() => {
+    if (view) {
+      const current = view.state.doc.toString();
+      if (initialContent !== current) {
+        view.dispatch({
+          changes: { from: 0, to: current.length, insert: initialContent },
+        });
+      }
+    }
+  });
+
   onDestroy(() => {
     if (view) view.destroy();
   });

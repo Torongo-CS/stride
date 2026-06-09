@@ -6,6 +6,7 @@
   import { page } from '$app/state';
   import { api } from '$convex/_generated/api.js';
   import type { Id } from '$convex/_generated/dataModel';
+  import { env } from '$env/dynamic/public';
 
   import Codemirror from '$lib/components/editor/Codemirror.svelte';
   import LanguageSelect from '$lib/components/language-select.svelte';
@@ -25,6 +26,19 @@
   const problemQuery = useQuery(api.problems.get, () =>
     page.params.problemId ? { id: page.params.problemId as Id<'problems'> } : 'skip',
   );
+  const testCasesQuery = useQuery(api.problems.listIO, () =>
+    page.params.problemId ? { problemId: page.params.problemId as Id<'problems'> } : 'skip',
+  );
+  const latestSnapshotArgs = $derived(
+    $session?.userId && page.params.problemId && page.params.activityId
+      ? {
+          authorId: $session.userId as Id<'users'>,
+          activityId: page.params.activityId as Id<'activities'>,
+          problemId: page.params.problemId as Id<'problems'>,
+        }
+      : 'skip',
+  );
+  const latestSnapshotQuery = useQuery(api.snapshots.getLatest, () => latestSnapshotArgs);
 
   let sourceCode = $state('');
   let stdinData = $state('');
@@ -32,7 +46,17 @@
   let codemirrorLanguage = $derived(getLanguageName(selectedLanguageId));
 
   let isExecuting = $state(false);
+  let isSubmitting = $state(false);
   let result = $state<SubmissionResult | null>(null);
+
+  const testCases = $derived(testCasesQuery.data ?? []);
+
+  $effect(() => {
+    const snap = latestSnapshotQuery.data;
+    if (snap?.content && sourceCode === '') {
+      sourceCode = snap.content;
+    }
+  });
 
   async function executeCode() {
     if (!selectedLanguageId) return;
@@ -61,8 +85,65 @@
     }
   }
 
+  async function submitCode() {
+    if (!selectedLanguageId || !sourceCode || !$session?.userId) return;
+
+    isSubmitting = true;
+    try {
+      const id = await client.mutation(api.submissions.submit, {
+        authorId: $session.userId,
+        problemId: page.params.problemId as Id<'problems'>,
+        activityId: page.params.activityId as Id<'activities'>,
+        content: sourceCode,
+        languageId: Number(selectedLanguageId),
+      });
+
+      if (testCases.length > 0) {
+        const submissions = testCases.map((tc) => ({
+          source_code: sourceCode,
+          language_id: Number(selectedLanguageId),
+          stdin: tc.inputData || undefined,
+        }));
+
+        const res = await fetch('/api/judge0/submissions/batch?wait=true', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ submissions }),
+        });
+
+        if (res.ok) {
+          const data: { submissions: SubmissionResult[] } = await res.json();
+
+          const allPassed = data.submissions.every((r, i) => {
+            if (r.status?.id !== 3) return false;
+            return r.stdout?.trim() === testCases[i].outputData.trim();
+          });
+          const anyError = data.submissions.some((r) => r.status?.id !== 3);
+
+          let verdict: string;
+          if (allPassed) {
+            verdict = 'Accepted';
+          } else if (anyError) {
+            verdict = data.submissions.find((r) => r.status?.id !== 3)?.status?.description ?? 'Runtime Error';
+          } else {
+            verdict = 'Wrong Answer';
+          }
+
+          await client.mutation(api.submissions.setVerdict, { id, judgeVerdict: verdict });
+        }
+      }
+
+      toast.success('Code submitted successfully');
+    } catch (_err) {
+      toast.error('Failed to submit code. Try again.');
+    } finally {
+      isSubmitting = false;
+    }
+  }
+
   let lastSourceCode = '';
   const client = useConvexClient();
+  const SNAPSHOT_INTERVAL = env.PUBLIC_SNAPSHOT_INTERVAL ? parseInt(env.PUBLIC_SNAPSHOT_INTERVAL, 10) : 5000;
   function snapshotSave() {
     if (userRole === 'admin') return;
     if (!$session?.userId) return;
@@ -77,7 +158,7 @@
       });
       lastSourceCode = sourceCode;
     }
-    setTimeout(snapshotSave, 5000);
+    setTimeout(snapshotSave, SNAPSHOT_INTERVAL);
   }
   onMount(snapshotSave);
 </script>
@@ -99,6 +180,7 @@
         </div>
       {:else}
         <Codemirror
+          initialContent={sourceCode}
           language={codemirrorLanguage}
           onUpdate={(text: string) => (sourceCode = text)}
           editable={userRole !== 'admin'}
@@ -153,6 +235,18 @@
                         Executing...
                       {:else}
                         Execute
+                      {/if}
+                    </Button>
+                    <Button
+                      size="sm"
+                      onclick={submitCode}
+                      disabled={isSubmitting || !sourceCode || !selectedLanguageId || !$session?.userId}
+                    >
+                      {#if isSubmitting}
+                        <Spinner class="mr-2 h-4 w-4" />
+                        Submitting...
+                      {:else}
+                        Submit
                       {/if}
                     </Button>
                   </div>
