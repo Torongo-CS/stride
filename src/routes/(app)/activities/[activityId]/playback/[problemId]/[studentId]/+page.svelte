@@ -59,6 +59,11 @@
     activityId,
     problemId,
   }));
+  const submissionsQuery = useQuery(api.submissions.listByAuthor, () => ({
+    authorId: studentId,
+    activityId,
+    problemId,
+  }));
   const studentsQuery = useQuery(api.sections.listStudents, () =>
     activityQuery.data ? { sectionId: activityQuery.data.sectionId } : 'skip',
   );
@@ -70,6 +75,8 @@
   const student = $derived(studentQuery.data);
   const snapshots = $derived(snapshotsQuery.data ?? []);
   const totalSnapshots = $derived(snapshots.length);
+  const submissions = $derived(submissionsQuery.data ?? []);
+  const lastSubmittedCode = $derived(submissions[0]?.content ?? '');
   const students = $derived(
     (studentsQuery.data ?? [])
       .filter((s): s is NonNullable<typeof s> => s !== null)
@@ -107,11 +114,13 @@
   let speedStr = $state('1');
 
   const currentCode = $derived(snapshots[currentIndex]?.content ?? '');
-  const lastCode = $derived(snapshots[totalSnapshots - 1]?.content ?? '');
+  const lastCode = $derived(lastSubmittedCode || (snapshots[totalSnapshots - 1]?.content ?? ''));
   const isPausedNotAtEnd = $derived(!isPlaying && currentIndex < totalSnapshots - 1);
   const codeToRun = $derived(isPausedNotAtEnd ? currentCode : lastCode);
   const runButtonText = $derived(
-    isPausedNotAtEnd ? `Run Current Snapshot (${testCases.length})` : `Run Last Snapshot (${testCases.length})`,
+    isPausedNotAtEnd
+      ? `Run Current Snapshot (${testCases.length})`
+      : `Run ${lastSubmittedCode ? 'Submitted' : 'Last Snapshot'} (${testCases.length})`,
   );
 
   const currentTimestamp = $derived(snapshots[currentIndex]?.timestamp ?? null);
@@ -152,11 +161,12 @@
   let isExecuting = $state(false);
   const results = new SvelteMap<string, SubmissionResult>();
 
-  // Auto-run tests with last snapshot when ready
+  // Auto-run tests with submitted code when available, fall back to last snapshot
   $effect(() => {
-    if (totalSnapshots > 0 && testCases.length > 0 && selectedLanguageId && !hasRunInitialTests && !isExecuting) {
+    const code = lastSubmittedCode || snapshots[totalSnapshots - 1]?.content || '';
+    if (code && testCases.length > 0 && selectedLanguageId && !hasRunInitialTests && !isExecuting) {
       hasRunInitialTests = true;
-      runAllTestCases(snapshots[totalSnapshots - 1].content);
+      runAllTestCases(code);
     }
   });
 
