@@ -26,6 +26,10 @@ export const getDashboardData = query({
       const sectionsCount = (await ctx.db.query('sections').collect()).length;
       const problemsCount = (await ctx.db.query('problems').collect()).length;
       const postsCount = (await ctx.db.query('posts').collect()).length;
+      const messagesCount = (await ctx.db.query('messages').collect()).length;
+      const commentsCount = (await ctx.db.query('comments').collect()).length;
+      const activitiesCount = (await ctx.db.query('activities').collect()).length;
+      const resourcesCount = (await ctx.db.query('sectionResources').collect()).length;
 
       const adminCount = users.filter((u) => u.role === 'admin').length;
       const teacherCount = users.filter((u) => u.role === 'teacher').length;
@@ -92,6 +96,10 @@ export const getDashboardData = query({
           totalSections: sectionsCount,
           totalProblems: problemsCount,
           totalPosts: postsCount,
+          totalMessages: messagesCount,
+          totalComments: commentsCount,
+          totalActivities: activitiesCount,
+          totalResources: resourcesCount,
         },
         charts: {
           roleDistribution: [
@@ -324,6 +332,16 @@ export const getDashboardData = query({
         value,
       }));
 
+      const studentComments = await ctx.db
+        .query('comments')
+        .withIndex('by_author', (q) => q.eq('authorId', args.userId))
+        .collect();
+
+      const studentSnapshots = await ctx.db
+        .query('snapshots')
+        .withIndex('by_author', (q) => q.eq('authorId', args.userId))
+        .collect();
+
       return {
         role: 'student' as const,
         stats: {
@@ -331,6 +349,8 @@ export const getDashboardData = query({
           totalSubmissions: studentSubs.length,
           acceptedSubmissions: studentSubs.filter((s) => s.judgeVerdict === 'Accepted').length,
           upcomingActivitiesCount: activities.filter((act) => act.endTime > now).length,
+          totalComments: studentComments.length,
+          totalSnapshots: studentSnapshots.length,
         },
         charts: {
           submissionTrend,
