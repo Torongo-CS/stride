@@ -31,6 +31,7 @@
   const processedIds = new SvelteSet<string>();
 
   let lastNotificationTime = 0;
+  let lastFocusReturnedTime = 0;
   function notifyTeacherOfTabSwitch() {
     if (!screenShareState.sharing || !screenShareState.peer || !screenShareState.peerConnected) return;
     const now = Date.now();
@@ -44,13 +45,27 @@
     }
   }
 
-  // Handle visibility change and blur (student switching tabs)
+  function notifyTeacherOfFocusReturned() {
+    if (!screenShareState.sharing || !screenShareState.peer || !screenShareState.peerConnected) return;
+    const now = Date.now();
+    if (now - lastFocusReturnedTime < 3000) return;
+    lastFocusReturnedTime = now;
+    try {
+      screenShareState.peer.send(JSON.stringify({ type: 'focus-returned' }));
+    } catch (err) {
+      console.error('Failed to send focus-returned notification via P2P:', err);
+    }
+  }
+
+  // Handle visibility change and blur/focus (student switching tabs)
   $effect(() => {
     if (!screenShareState.sharing || !screenShareState.peerConnected) return;
 
     function handleVisibilityChange() {
       if (document.hidden) {
         notifyTeacherOfTabSwitch();
+      } else {
+        notifyTeacherOfFocusReturned();
       }
     }
 
@@ -58,17 +73,33 @@
       notifyTeacherOfTabSwitch();
     }
 
+    function handleFocus() {
+      notifyTeacherOfFocusReturned();
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
     };
   });
 
+  let connectionTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  function clearConnectionTimeout() {
+    if (connectionTimeoutId) {
+      clearTimeout(connectionTimeoutId);
+      connectionTimeoutId = null;
+    }
+  }
+
   // Re-creates / starts WebRTC peer connection
   function restartPeerConnection() {
+    clearConnectionTimeout();
     if (screenShareState.peer) {
       try {
         screenShareState.peer.destroy();
@@ -94,21 +125,33 @@
     });
 
     p.on('connect', () => {
+      clearConnectionTimeout();
       console.log('WebRTC connection established with teacher.');
       screenShareState.peerConnected = true;
     });
 
     p.on('close', () => {
+      clearConnectionTimeout();
       screenShareState.peerConnected = false;
     });
 
     p.on('error', (err) => {
+      clearConnectionTimeout();
       console.error('WebRTC peer error:', err);
       screenShareState.errorMessage = 'WebRTC connection dropped. Retrying...';
       screenShareState.peerConnected = false;
     });
 
     screenShareState.peer = p;
+
+    // Auto-retry if connection doesn't establish within 20s
+    connectionTimeoutId = setTimeout(() => {
+      if (!screenShareState.peerConnected) {
+        console.warn('WebRTC connection timed out. Retrying...');
+        screenShareState.errorMessage = 'Connection timed out. Retrying...';
+        restartPeerConnection();
+      }
+    }, 20000);
   }
 
   // Handle incoming signaling responses from teacher
