@@ -168,6 +168,12 @@ export const getProfileData = query({
       }),
     );
 
+    // Fetch total code submissions (for students)
+    const submissions = await ctx.db
+      .query('submissions')
+      .withIndex('by_author', (q) => q.eq('authorId', args.userId))
+      .collect();
+
     return {
       user: {
         _id: user._id,
@@ -178,6 +184,8 @@ export const getProfileData = query({
         aboutMd: user.aboutMd ?? '',
         _creationTime: user._creationTime,
       },
+      submissionsCount: submissions.length,
+      acceptedCount: submissions.filter((s) => s.judgeVerdict === 'Accepted').length,
       sections: await Promise.all(
         sections.map(async (s) => {
           const st = await ctx.db

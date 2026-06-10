@@ -8,9 +8,12 @@
   import GraduationCap from '@lucide/svelte/icons/graduation-cap';
   import Layers from '@lucide/svelte/icons/layers';
   import MessageSquare from '@lucide/svelte/icons/message-square';
+  import Save from '@lucide/svelte/icons/save';
+  import TrendingUp from '@lucide/svelte/icons/trending-up';
   import Users from '@lucide/svelte/icons/users';
+  import Zap from '@lucide/svelte/icons/zap';
   import { useQuery } from 'convex-svelte';
-  import { BarChart, PieChart } from 'layerchart';
+  import { ArcChart, AreaChart, BarChart, PieChart } from 'layerchart';
   import { onMount } from 'svelte';
 
   import { api } from '$convex/_generated/api.js';
@@ -60,6 +63,75 @@
 
   const dashboardData = $derived(dashboardQuery?.data);
   const isLoading = $derived(dashboardQuery ? dashboardQuery.isLoading : true);
+
+  // --- Theme-aware color palettes ---
+  const arcPalette = [
+    'var(--color-success)',
+    'var(--color-destructive)',
+    'var(--color-warning)',
+    'var(--color-info)',
+    'var(--color-primary)',
+    'var(--color-muted-foreground)',
+  ];
+
+  // --- ArcChart series builders ---
+  const adminArcSeries = $derived(
+    dashboardData?.charts?.roleDistribution?.map((d, i) => ({
+      key: d.name,
+      data: [d],
+      color: arcPalette[i % arcPalette.length],
+    })) ?? [],
+  );
+
+  const teacherArcSeries = $derived(
+    dashboardData?.charts?.verdictDistribution?.map((d, i) => ({
+      key: d.name,
+      data: [d],
+      color: arcPalette[i % arcPalette.length],
+    })) ?? [],
+  );
+
+  const studentArcSeries = $derived(
+    dashboardData?.charts?.verdictDistribution?.map((d, i) => ({
+      key: d.name,
+      data: [d],
+      color: arcPalette[i % arcPalette.length],
+    })) ?? [],
+  );
+
+  const studentSuccessRate = $derived(
+    dashboardData?.role === 'student' && dashboardData.stats.totalSubmissions > 0
+      ? Math.round((dashboardData.stats.acceptedSubmissions / dashboardData.stats.totalSubmissions) * 100)
+      : 0,
+  );
+
+  // --- Color-mapped submission trend for bar charts ---
+  const coloredTrend = $derived(
+    dashboardData?.charts?.submissionTrend?.map((d) => ({
+      ...d,
+      barColor: d.count > 0 ? 'var(--color-primary)' : 'var(--color-muted)',
+    })) ?? [],
+  );
+
+  // --- Student computed stats ---
+  const studentStreak = $derived(
+    dashboardData?.charts?.submissionTrend
+      ? (() => {
+          let streak = 0;
+          for (let i = dashboardData.charts.submissionTrend.length - 1; i >= 0; i--) {
+            if (dashboardData.charts.submissionTrend[i].count > 0) streak++;
+            else break;
+          }
+          return streak;
+        })()
+      : 0,
+  );
+
+  const studentWeekTotal = $derived(
+    dashboardData?.charts?.submissionTrend
+      ? dashboardData.charts.submissionTrend.reduce((sum, d) => sum + d.count, 0)
+      : 0,
+  );
 
   // --- Helpers for Formatting ---
   function formatTime(timestamp: number) {
@@ -120,6 +192,38 @@
         </Card.Content>
       </Card.Root>
     </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      {#each Array(6) as _, i (i)}
+        <Card.Root class="border-border bg-card">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Skeleton class="h-4 w-20" />
+            <Skeleton class="h-4 w-4 rounded-full" />
+          </Card.Header>
+          <Card.Content>
+            <Skeleton class="mb-1 h-8 w-12" />
+            <Skeleton class="h-3 w-28" />
+          </Card.Content>
+        </Card.Root>
+      {/each}
+    </div>
+    <div class="grid gap-6 md:grid-cols-2">
+      <Card.Root class="h-[300px] border-border bg-card">
+        <Card.Header><Skeleton class="h-5 w-44" /></Card.Header>
+        <Card.Content class="flex h-full items-center justify-center pb-12">
+          <div class="flex w-full gap-4 px-4">
+            <Skeleton class="h-40 w-1/2 rounded-full" />
+            <Skeleton class="h-28 w-28 rounded-full" />
+          </div>
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="h-[300px] border-border bg-card">
+        <Card.Header><Skeleton class="h-5 w-32" /></Card.Header>
+        <Card.Content class="flex flex-col gap-4 px-4">
+          <Skeleton class="h-20 w-full" />
+          <Skeleton class="h-16 w-full" />
+        </Card.Content>
+      </Card.Root>
+    </div>
   {:else if dashboardData}
     <!-- Roles UI -->
 
@@ -172,6 +276,75 @@
         </Card.Root>
       </div>
 
+      <!-- Extra Stats Row -->
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Total Users</Card.Title>
+            <div class="rounded-full bg-sky-500/10 p-1.5 text-sky-500"><Users class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalUsers}</div>
+            <p class="mt-1 text-[10px] text-muted-foreground">All registered accounts</p>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Problems</Card.Title>
+            <div class="rounded-full bg-emerald-500/10 p-1.5 text-emerald-500"><BookOpen class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalProblems}</div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Coding problems</p>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Messages</Card.Title>
+            <div class="rounded-full bg-violet-500/10 p-1.5 text-violet-500"><MessageSquare class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalMessages}</div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Chat messages sent</p>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Comments</Card.Title>
+            <div class="rounded-full bg-amber-500/10 p-1.5 text-amber-500"><MessageSquare class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalComments}</div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Forum comments</p>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Activities</Card.Title>
+            <div class="rounded-full bg-rose-500/10 p-1.5 text-rose-500"><Calendar class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalActivities}</div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Labs & exams</p>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Resources</Card.Title>
+            <div class="rounded-full bg-indigo-500/10 p-1.5 text-indigo-500"><FileText class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalResources}</div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Section resources</p>
+          </Card.Content>
+        </Card.Root>
+      </div>
+
       <!-- Charts Section -->
       <div class="grid gap-6 md:grid-cols-2">
         <Card.Root class="border-border bg-card">
@@ -212,11 +385,62 @@
           <Card.Content>
             {#if dashboardData.charts.submissionTrend && dashboardData.charts.submissionTrend.length > 0}
               <div class="h-[250px] w-full">
-                <BarChart data={dashboardData.charts.submissionTrend} x="date" y="count" bandPadding={0.3} />
+                <BarChart data={coloredTrend} x="date" y="count" c="barColor" bandPadding={0.3} />
               </div>
             {:else}
               <div class="flex h-[250px] items-center justify-center text-xs text-muted-foreground">
                 No submissions recorded
+              </div>
+            {/if}
+          </Card.Content>
+        </Card.Root>
+      </div>
+
+      <!-- Additional Charts -->
+      <div class="grid gap-6 md:grid-cols-2">
+        <Card.Root class="border-border bg-card">
+          <Card.Header>
+            <Card.Title class="text-sm font-bold text-foreground">Submission Volume Over Time</Card.Title>
+            <Card.Description class="text-xs text-muted-foreground"
+              >Trend of student code submissions shown as an area chart</Card.Description
+            >
+          </Card.Header>
+          <Card.Content>
+            {#if dashboardData.charts.submissionTrend && dashboardData.charts.submissionTrend.length > 0}
+              <div class="h-[250px] w-full">
+                <AreaChart data={dashboardData.charts.submissionTrend} x="date" y="count" height={220} />
+              </div>
+            {:else}
+              <div class="flex h-[250px] items-center justify-center text-xs text-muted-foreground">
+                No submissions recorded
+              </div>
+            {/if}
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card">
+          <Card.Header>
+            <Card.Title class="text-sm font-bold text-foreground">User Distribution</Card.Title>
+            <Card.Description class="text-xs text-muted-foreground"
+              >Radial breakdown of system users by role</Card.Description
+            >
+          </Card.Header>
+          <Card.Content>
+            {#if dashboardData.charts.roleDistribution && dashboardData.charts.roleDistribution.length > 0 && adminArcSeries.length > 0}
+              <div class="flex h-[250px] w-full items-center justify-center">
+                <ArcChart
+                  data={dashboardData.charts.roleDistribution}
+                  value="value"
+                  label="name"
+                  innerRadius={40}
+                  outerRadius={70}
+                  height={220}
+                  series={adminArcSeries}
+                />
+              </div>
+            {:else}
+              <div class="flex h-[250px] items-center justify-center text-xs text-muted-foreground">
+                No data available
               </div>
             {/if}
           </Card.Content>
@@ -391,11 +615,62 @@
           <Card.Content>
             {#if dashboardData.charts.submissionTrend && dashboardData.charts.submissionTrend.length > 0}
               <div class="h-[250px] w-full">
-                <BarChart data={dashboardData.charts.submissionTrend} x="date" y="count" bandPadding={0.3} />
+                <BarChart data={coloredTrend} x="date" y="count" c="barColor" bandPadding={0.3} />
               </div>
             {:else}
               <div class="flex h-[250px] items-center justify-center text-xs text-muted-foreground">
                 No submissions recorded
+              </div>
+            {/if}
+          </Card.Content>
+        </Card.Root>
+      </div>
+
+      <!-- Additional Charts -->
+      <div class="grid gap-6 md:grid-cols-2">
+        <Card.Root class="border-border bg-card">
+          <Card.Header>
+            <Card.Title class="text-sm font-bold text-foreground">Submission Activity Trend</Card.Title>
+            <Card.Description class="text-xs text-muted-foreground"
+              >Daily code submissions from your students shown as an area chart</Card.Description
+            >
+          </Card.Header>
+          <Card.Content>
+            {#if dashboardData.charts.submissionTrend && dashboardData.charts.submissionTrend.length > 0}
+              <div class="h-[250px] w-full">
+                <AreaChart data={dashboardData.charts.submissionTrend} x="date" y="count" height={220} />
+              </div>
+            {:else}
+              <div class="flex h-[250px] items-center justify-center text-xs text-muted-foreground">
+                No submissions recorded
+              </div>
+            {/if}
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card">
+          <Card.Header>
+            <Card.Title class="text-sm font-bold text-foreground">Verdict Breakdown</Card.Title>
+            <Card.Description class="text-xs text-muted-foreground"
+              >Radial view of submission verdict outcomes</Card.Description
+            >
+          </Card.Header>
+          <Card.Content>
+            {#if dashboardData.charts.verdictDistribution && dashboardData.charts.verdictDistribution.length > 0 && teacherArcSeries.length > 0}
+              <div class="flex h-[250px] w-full items-center justify-center">
+                <ArcChart
+                  data={dashboardData.charts.verdictDistribution}
+                  value="value"
+                  label="name"
+                  innerRadius={40}
+                  outerRadius={70}
+                  height={220}
+                  series={teacherArcSeries}
+                />
+              </div>
+            {:else}
+              <div class="flex h-[250px] items-center justify-center text-xs text-muted-foreground">
+                No verdicts recorded
               </div>
             {/if}
           </Card.Content>
@@ -490,7 +765,7 @@
         <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
           <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
             <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Enrolled Courses</Card.Title>
-            <div class="rounded-full bg-primary/10 p-1.5 text-primary"><Layers class="h-4 w-4" /></div>
+            <div class="rounded-full bg-indigo-500/10 p-1.5 text-indigo-500"><Layers class="h-4 w-4" /></div>
           </Card.Header>
           <Card.Content>
             <div class="text-2xl font-bold text-foreground">{dashboardData.stats.enrolledSections}</div>
@@ -501,7 +776,7 @@
         <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
           <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
             <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Submissions Made</Card.Title>
-            <div class="rounded-full bg-primary/10 p-1.5 text-primary"><FileText class="h-4 w-4" /></div>
+            <div class="rounded-full bg-blue-500/10 p-1.5 text-blue-500"><FileText class="h-4 w-4" /></div>
           </Card.Header>
           <Card.Content>
             <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalSubmissions}</div>
@@ -512,7 +787,7 @@
         <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
           <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
             <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Solved Problems</Card.Title>
-            <div class="rounded-full bg-primary/10 p-1.5 text-primary"><Award class="h-4 w-4" /></div>
+            <div class="rounded-full bg-emerald-500/10 p-1.5 text-emerald-500"><Award class="h-4 w-4" /></div>
           </Card.Header>
           <Card.Content>
             <div class="text-2xl font-bold text-foreground">{dashboardData.stats.acceptedSubmissions}</div>
@@ -523,7 +798,7 @@
         <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
           <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
             <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Upcoming Tasks</Card.Title>
-            <div class="rounded-full bg-primary/10 p-1.5 text-primary"><Activity class="h-4 w-4" /></div>
+            <div class="rounded-full bg-amber-500/10 p-1.5 text-amber-500"><Activity class="h-4 w-4" /></div>
           </Card.Header>
           <Card.Content>
             <div class="text-2xl font-bold text-foreground">{dashboardData.stats.upcomingActivitiesCount}</div>
@@ -532,47 +807,112 @@
         </Card.Root>
       </div>
 
-      <!-- Charts Section -->
+      <!-- Extra Stats Row -->
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Day Streak</Card.Title>
+            <div class="rounded-full bg-rose-500/10 p-1.5 text-rose-500"><Zap class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="flex items-baseline gap-1">
+              <span class="text-2xl font-bold text-foreground">{studentStreak}</span>
+              <span class="text-xs text-muted-foreground">consecutive days</span>
+            </div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Days with at least one submission</p>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">This Week</Card.Title>
+            <div class="rounded-full bg-violet-500/10 p-1.5 text-violet-500"><TrendingUp class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="flex items-baseline gap-1">
+              <span class="text-2xl font-bold text-foreground">{studentWeekTotal}</span>
+              <span class="text-xs text-muted-foreground">submissions</span>
+            </div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Total code submissions this week</p>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Comments</Card.Title>
+            <div class="rounded-full bg-cyan-500/10 p-1.5 text-cyan-500"><MessageSquare class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalComments}</div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Forum comments posted</p>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root class="border-border bg-card transition-all hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Snapshots</Card.Title>
+            <div class="rounded-full bg-orange-500/10 p-1.5 text-orange-500"><Save class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{dashboardData.stats.totalSnapshots}</div>
+            <p class="mt-1 text-[10px] text-muted-foreground">Code snapshots saved</p>
+          </Card.Content>
+        </Card.Root>
+      </div>
+
+      <!-- Charts & Activity -->
       <div class="grid gap-6 md:grid-cols-2">
+        <!-- Merged Verdict + Success Rate -->
         <Card.Root class="border-border bg-card">
           <Card.Header>
             <Card.Title class="text-sm font-bold text-foreground">My Submission Breakdown</Card.Title>
             <Card.Description class="text-xs text-muted-foreground"
-              >Distribution of verdicts for your code submissions</Card.Description
+              >Verdict distribution & overall success rate</Card.Description
             >
           </Card.Header>
           <Card.Content>
             {#if dashboardData.charts.verdictDistribution && dashboardData.charts.verdictDistribution.length > 0}
-              <div class="flex h-[250px] w-full items-center justify-center">
-                <PieChart
+              <div class="relative flex h-[260px] w-full items-center justify-center">
+                <ArcChart
                   data={dashboardData.charts.verdictDistribution}
-                  key="name"
                   value="value"
-                  innerRadius={0.6}
-                  cornerRadius={4}
-                  padAngle={0.02}
-                  legend
+                  label="name"
+                  innerRadius={65}
+                  outerRadius={95}
+                  height={240}
+                  series={studentArcSeries}
                 />
+                {#if dashboardData.stats.totalSubmissions > 0}
+                  <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-3xl font-bold text-foreground">{studentSuccessRate}%</span>
+                    <span class="mt-0.5 text-xs text-muted-foreground">
+                      {dashboardData.stats.acceptedSubmissions}/{dashboardData.stats.totalSubmissions}
+                    </span>
+                    <span class="text-[10px] text-muted-foreground">accepted</span>
+                  </div>
+                {/if}
               </div>
             {:else}
-              <div class="flex h-[250px] items-center justify-center text-xs text-muted-foreground">
+              <div class="flex h-[260px] items-center justify-center text-xs text-muted-foreground">
                 No submissions found
               </div>
             {/if}
           </Card.Content>
         </Card.Root>
 
+        <!-- Submissions Activity (Bar + Area stacked vertically) -->
         <Card.Root class="border-border bg-card">
           <Card.Header>
-            <Card.Title class="text-sm font-bold text-foreground">My Coding Pace (Last 7 Days)</Card.Title>
-            <Card.Description class="text-xs text-muted-foreground"
-              >Daily count of code submissions to track your consistency</Card.Description
-            >
+            <Card.Title class="text-sm font-bold text-foreground">Coding Activity</Card.Title>
+            <Card.Description class="text-xs text-muted-foreground">Daily submission volume & trend</Card.Description>
           </Card.Header>
-          <Card.Content>
+          <Card.Content class="space-y-4">
             {#if dashboardData.charts.submissionTrend && dashboardData.charts.submissionTrend.length > 0}
-              <div class="h-[250px] w-full">
-                <BarChart data={dashboardData.charts.submissionTrend} x="date" y="count" bandPadding={0.3} />
+              <div class="h-[140px] w-full">
+                <BarChart data={coloredTrend} x="date" y="count" c="barColor" bandPadding={0.3} />
+              </div>
+              <div class="h-[100px] w-full">
+                <AreaChart data={dashboardData.charts.submissionTrend} x="date" y="count" height={80} />
               </div>
             {:else}
               <div class="flex h-[250px] items-center justify-center text-xs text-muted-foreground">

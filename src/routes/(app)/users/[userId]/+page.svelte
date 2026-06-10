@@ -83,6 +83,16 @@
       day: 'numeric',
     });
   }
+
+  function nameGradient(name: string) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue1 = ((hash % 360) + 360) % 360;
+    const hue2 = (((hue1 + 40) % 360) + 360) % 360;
+    return `linear-gradient(135deg, hsl(${hue1} 70% 50%), hsl(${hue2} 70% 50%))`;
+  }
 </script>
 
 <PageLayout>
@@ -101,25 +111,18 @@
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <Card.Root class="border">
-          <Card.Content class="flex flex-col items-center gap-2 p-5">
-            <Skeleton class="h-8 w-16" />
-            <Skeleton class="h-3 w-24" />
-          </Card.Content>
-        </Card.Root>
-        <Card.Root class="border">
-          <Card.Content class="flex flex-col items-center gap-2 p-5">
-            <Skeleton class="h-8 w-16" />
-            <Skeleton class="h-3 w-28" />
-          </Card.Content>
-        </Card.Root>
-        <Card.Root class="col-span-2 border sm:col-span-1">
-          <Card.Content class="flex flex-col items-center gap-2 p-5">
-            <Skeleton class="h-8 w-16" />
-            <Skeleton class="h-3 w-32" />
-          </Card.Content>
-        </Card.Root>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {#each Array(4) as _, i (i)}
+          <Card.Root class="border border-border bg-card">
+            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton class="h-4 w-24" />
+              <Skeleton class="h-4 w-4 rounded-full" />
+            </Card.Header>
+            <Card.Content>
+              <Skeleton class="h-8 w-16" />
+            </Card.Content>
+          </Card.Root>
+        {/each}
       </div>
       <div class="flex flex-col gap-6">
         <div class="flex border-b">
@@ -158,15 +161,21 @@
           class="flex flex-col items-center gap-6 text-center md:flex-row md:items-start md:justify-between md:text-left"
         >
           <!-- Left side: Avatar & Info -->
-          <div class="flex flex-col items-center gap-5 md:flex-row md:items-start">
+          <div class="flex flex-col items-center gap-5 md:flex-row md:items-center">
             <!-- Large High-Res Avatar -->
             <div
-              class="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/40 shadow-sm md:h-28 md:w-28"
+              class="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 shadow-sm md:h-28 md:w-28 {profile
+                .user.role === 'admin'
+                ? 'border-destructive/60'
+                : profile.user.role === 'teacher'
+                  ? 'border-primary/60'
+                  : 'border-success/60'}"
+              style={!profile.user.avatarUrl ? `background: ${nameGradient(profile.user.name)}` : ''}
             >
               {#if profile.user.avatarUrl}
                 <img src={profile.user.avatarUrl} alt={profile.user.name} class="h-full w-full object-cover" />
               {:else}
-                <span class="text-3xl font-extrabold tracking-tight text-muted-foreground uppercase md:text-4xl">
+                <span class="text-3xl font-extrabold tracking-tight text-white uppercase drop-shadow-sm md:text-4xl">
                   {profile.user.name.substring(0, 2)}
                 </span>
               {/if}
@@ -201,7 +210,7 @@
                 <span class="hidden md:inline">•</span>
                 <span class="flex items-center gap-1.5">
                   <Calendar class="h-4 w-4" />
-                  Joined {formatJoinedDate(profile.user._creationTime)}
+                  {formatJoinedDate(profile.user._creationTime)}
                 </span>
               </div>
             </div>
@@ -236,42 +245,50 @@
       </div>
 
       <!-- 2. QUICK STATISTICS COUNTERS -->
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <!-- Forum Posts -->
         <Card.Root class="border transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
-          <Card.Content class="flex flex-col justify-center p-5 text-center">
-            <span class="text-3xl font-extrabold tracking-tight text-primary">
-              {profile.posts.length}
-            </span>
-            <span class="mt-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
-              Forum Posts
-            </span>
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Forum Posts</Card.Title>
+            <div class="rounded-full bg-indigo-500/10 p-1.5 text-indigo-500"><PenTool class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{profile.posts.length}</div>
           </Card.Content>
         </Card.Root>
 
         <!-- Comments -->
         <Card.Root class="border transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
-          <Card.Content class="flex flex-col justify-center p-5 text-center">
-            <span class="text-3xl font-extrabold tracking-tight text-primary">
-              {profile.comments.length}
-            </span>
-            <span class="mt-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
-              Comments Written
-            </span>
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Comments Written</Card.Title>
+            <div class="rounded-full bg-amber-500/10 p-1.5 text-amber-500"><MessageSquare class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{profile.comments.length}</div>
           </Card.Content>
         </Card.Root>
 
         <!-- Sections Count -->
-        <Card.Root
-          class="col-span-2 border transition-all duration-200 hover:border-primary/30 hover:shadow-sm sm:col-span-1"
-        >
-          <Card.Content class="flex flex-col justify-center p-5 text-center">
-            <span class="text-3xl font-extrabold tracking-tight text-primary">
-              {profile.sections.length}
-            </span>
-            <span class="mt-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+        <Card.Root class="border transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">
               {profile.user.role === 'teacher' ? 'Sections Taught' : 'Sections Enrolled'}
-            </span>
+            </Card.Title>
+            <div class="rounded-full bg-emerald-500/10 p-1.5 text-emerald-500"><BookOpen class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{profile.sections.length}</div>
+          </Card.Content>
+        </Card.Root>
+
+        <!-- Code Submissions -->
+        <Card.Root class="border transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
+          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-xs font-bold text-muted-foreground uppercase">Submissions</Card.Title>
+            <div class="rounded-full bg-rose-500/10 p-1.5 text-rose-500"><Award class="h-4 w-4" /></div>
+          </Card.Header>
+          <Card.Content>
+            <div class="text-2xl font-bold text-foreground">{profile.submissionsCount}</div>
           </Card.Content>
         </Card.Root>
       </div>
