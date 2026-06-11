@@ -5,10 +5,10 @@ test.describe('Admin Operations', () => {
 
   test('Admin Full Flow', async ({ page }) => {
     // 1. Land on the administrative route.
-    await page.goto('/admin');
+    await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
-    const welcomeHeader = page.locator('span', { hasText: 'admin page' });
+    const welcomeHeader = page.locator('h2', { hasText: 'Welcome back, Stride Admin' });
     await welcomeHeader.waitFor({ state: 'visible' });
     await expect(welcomeHeader).toBeVisible();
 

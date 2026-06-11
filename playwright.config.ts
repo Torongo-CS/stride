@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'line',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'https://stride.zurat.dev/',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     launchOptions: {
