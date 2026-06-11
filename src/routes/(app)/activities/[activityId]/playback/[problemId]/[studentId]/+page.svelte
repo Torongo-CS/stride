@@ -176,7 +176,7 @@
   });
 
   // ─── Test case management ─────────────────────────────────────────────────
-  let selectedLanguageId = $state<string | undefined>(undefined);
+  let selectedLanguageId = $derived(getBestSubmission(studentId, problemId)?.languageId?.toString() ?? undefined);
   let isExecuting = $state(false);
   const results = new SvelteMap<string, SubmissionResult>();
 
@@ -235,7 +235,7 @@
   const shikiLang = $derived(getShikiLang(selectedLanguageId));
 
   // Auto-detect language from student's snapshots (they save their chosen languageId)
-  const snapshotLanguageId = $derived(snapshots.find((s) => s.languageId != null)?.languageId?.toString() ?? undefined);
+  const snapshotLanguageId = $derived(getBestSubmission(studentId, problemId)?.languageId?.toString() ?? undefined);
 
   // Set language from snapshot if teacher hasn't manually changed it
   let languageAutoSet = $state(false);
@@ -253,6 +253,15 @@
   });
 
   // ─── Verdict helper ───────────────────────────────────────────────────────
+
+  // Helper to find best submission per student per problem
+  function getBestSubmission(studentId: Id<'users'>, problemId: Id<'problems'>) {
+    const studentSubs = submissions.filter((s) => s.authorId === studentId && s.problemId === problemId);
+    if (studentSubs.length === 0) return null;
+    const accepted = studentSubs.find((s) => s.judgeVerdict === 'Accepted');
+    if (accepted) return accepted;
+    return studentSubs.sort((a, b) => b.submittedAt - a.submittedAt)[0];
+  }
 
   function getVerdict(
     tc: { outputData: string },
@@ -575,7 +584,7 @@
               </Button>
             </div>
           {:else}
-            <div class="flex flex-col gap-0">
+            <div class="flex max-h-[calc(100dvh-120px)] flex-col gap-0">
               {#each testCases as tc, i (tc._id)}
                 {@const result = results.get(tc._id)}
                 {@const verdict = getVerdict(tc, result)}
