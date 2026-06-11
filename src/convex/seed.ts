@@ -891,33 +891,423 @@ const POST_DEFS = [
       'Here is a comprehensive guide to implementing BST in C. We cover insertion, deletion (all 3 cases), traversal (inorder, preorder, postorder), and searching with time complexity analysis.',
     tagIndices: [4, 3], // Data Structures, C
   },
+  {
+    authorIdx: 8, // Nafis
+    title: 'Complexity of Quick Sort vs Merge Sort',
+    contentMd:
+      "I'm studying sorting algorithms. Why is Quick Sort preferred over Merge Sort in practice, even though Merge Sort has a guaranteed O(N log N) worst-case time complexity while Quick Sort has O(N^2) in the worst case?",
+    tagIndices: [5, 1], // Algorithms, Help
+  },
+  {
+    authorIdx: 7, // Sadia
+    title: 'Why use pointers in C?',
+    contentMd:
+      "Coming from Python, pointers in C feel very confusing. Why do we need them? Isn't passing variables by value enough for most things?",
+    tagIndices: [3, 1], // C, Help
+  },
+  {
+    authorIdx: 1, // Sidratul (teacher)
+    title: 'Understanding OOP Encapsulation',
+    contentMd:
+      "Encapsulation is not just about making variables private and writing getters/setters. It is about protecting the internal state of an object from illegal changes. Let's discuss why this is crucial in large software systems.",
+    tagIndices: [2], // OOP
+  },
+  {
+    authorIdx: 3, // Jubayer (teacher)
+    title: 'Best practices for writing SQL Queries',
+    contentMd:
+      'When writing SQL queries, avoid `SELECT *`. Always specify the column names. This reduces network load and improves index utilization. What other database query optimizations do you use?',
+    tagIndices: [1], // Help
+  },
+  {
+    authorIdx: 4, // Fyesmin (teacher)
+    title: 'Overfitting in Machine Learning',
+    contentMd:
+      'Overfitting is a common problem where a model performs well on training data but poorly on unseen test data. What are your favorite techniques to address overfitting?',
+    tagIndices: [5, 1], // Algorithms, Help
+  },
 ];
 
 const COMMENT_DEFS = [
+  // --- Post 0: Recursion limits in Python ---
   {
     postIdx: 0,
-    authorIdx: 2, // Tanvin
+    authorIdx: 5, // ffaisal
     content:
-      'For N=100, recursion is fine. For larger values, you might need to increase the recursion limit using sys.setrecursionlimit() or use an iterative approach.',
+      'Python has a default recursion limit of 1000. Try using an iterative loop instead to avoid memory overhead.',
+  },
+  {
+    postIdx: 0,
+    authorIdx: 8, // Nafis
+    content: 'Right, or you can change the limit via `sys.setrecursionlimit(2000)` if recursion is absolutely needed.',
+    parentCommentIdx: 0,
+  },
+  {
+    postIdx: 0,
+    authorIdx: 10, // Ariful
+    content: 'But setrecursionlimit is risky because C-level stack overflow can crash the entire Python interpreter.',
+    parentCommentIdx: 1,
+  },
+  {
+    postIdx: 0,
+    authorIdx: 7, // Sadia
+    content: 'Is it possible to use tail recursion to optimize this in Python?',
+  },
+  {
+    postIdx: 0,
+    authorIdx: 6, // rhasan
+    content:
+      "Unfortunately, Python doesn't support Tail Call Optimization (TCO) natively because Guido preferred clear stack traces.",
+    parentCommentIdx: 3,
+  },
+  {
+    postIdx: 0,
+    authorIdx: 12, // Mehedi
+    content: 'Yes, you have to use decorators or just rewrite the recursion as a loop.',
+    parentCommentIdx: 4,
+  },
+  {
+    postIdx: 0,
+    authorIdx: 11, // Tasnim
+    content: "Exactly, stack overflow crashes are very hard to debug because you don't get a neat traceback.",
+    parentCommentIdx: 2,
+  },
+  {
+    postIdx: 0,
+    authorIdx: 9, // Jannatul
+    content: 'Also, recursion in Python is generally slower than iteration due to function call overhead.',
+    parentCommentIdx: 5,
+  },
+  {
+    postIdx: 0,
+    authorIdx: 13, // Nusrat
+    content:
+      'For factorial, since the intermediate values grow extremely fast in Python, you might also run into big integer processing overhead at large N.',
+  },
+
+  // --- Post 1: Understanding Polymorphism in Java ---
+  {
+    postIdx: 1,
+    authorIdx: 6, // rhasan
+    content: 'Think of it as: parent class reference pointing to a child object. The method call is bound at runtime.',
   },
   {
     postIdx: 1,
-    authorIdx: 1, // Sidratul
-    content:
-      'Great question! Runtime polymorphism in Java uses a vtable (virtual method table). Each class has a vtable that maps method calls to actual implementations. When you call an overridden method through a base class reference, the JVM looks up the vtable to find the correct implementation based on the actual object type at runtime.',
+    authorIdx: 11, // Tasnim
+    content: 'Exactly. Like `Shape s = new Circle(); s.draw();` will execute the draw method in the Circle class.',
+    parentCommentIdx: 6,
   },
   {
     postIdx: 1,
-    authorIdx: 5, // ffaisal (reply to Sidratul)
+    authorIdx: 13, // Nusrat
+    content: 'Does this work for variables/fields too, or only methods?',
+    parentCommentIdx: 7,
+  },
+  {
+    postIdx: 1,
+    authorIdx: 5, // ffaisal
+    content: 'Only methods! Variables in Java do not exhibit polymorphism; they are resolved at compile-time.',
+    parentCommentIdx: 8,
+  },
+  {
+    postIdx: 1,
+    authorIdx: 14, // Kabir
     content:
-      "Thank you, ma'am! That makes sense. So the vtable is created at compile time but the dispatch happens at runtime. I understand now.",
-    parentCommentIdx: 1, // replies to the above comment
+      'Polymorphism is powered by the JVM using virtual method tables (vtables) to resolve method addresses at runtime.',
+  },
+  {
+    postIdx: 1,
+    authorIdx: 15, // Farzana
+    content: "That's why static and private methods can't be overridden. They use static binding.",
+    parentCommentIdx: 10,
+  },
+  {
+    postIdx: 1,
+    authorIdx: 17, // Mim
+    content:
+      "Ah, I didn't know variables are resolved at compile-time. That explains why my shadow variable test didn't behave as expected!",
+    parentCommentIdx: 12,
+  },
+  {
+    postIdx: 1,
+    authorIdx: 18, // Tanvir
+    content:
+      'Yes, this is known as variable shadowing/hiding. It is generally recommended to avoid duplicate field names in child classes to prevent confusion.',
+    parentCommentIdx: 15,
+  },
+  {
+    postIdx: 1,
+    authorIdx: 19, // Sharmin
+    content: 'Does this mean `final` methods also use static binding?',
+    parentCommentIdx: 14,
+  },
+  {
+    postIdx: 1,
+    authorIdx: 20, // Rakibul I.
+    content:
+      'Correct! Since `final` methods cannot be overridden, the compiler can optimize them and bind them statically.',
+    parentCommentIdx: 17,
+  },
+
+  // --- Post 2: Binary Search Tree Implementation Guide ---
+  {
+    postIdx: 2,
+    authorIdx: 7, // Sadia
+    content: 'The deletion algorithm is quite tricky, especially when replacing the node with its inorder successor.',
+  },
+  {
+    postIdx: 2,
+    authorIdx: 9, // Jannatul
+    content: 'Agreed! You need to find the minimum value in the right subtree to get the inorder successor.',
+    parentCommentIdx: 19,
+  },
+  {
+    postIdx: 2,
+    authorIdx: 8, // Nafis
+    content: 'What is the worst-case search time complexity if the BST becomes unbalanced?',
   },
   {
     postIdx: 2,
     authorIdx: 6, // rhasan
+    content: 'It degrades to O(N), which basically makes it behave like a singly linked list.',
+    parentCommentIdx: 21,
+  },
+  {
+    postIdx: 2,
+    authorIdx: 22, // Mahmudul
+    content: 'To prevent that, we can use self-balancing trees like AVL or Red-Black trees to keep it at O(log N).',
+    parentCommentIdx: 22,
+  },
+  {
+    postIdx: 2,
+    authorIdx: 17, // Mim
+    content: 'Is inorder traversal of a BST always guaranteed to output the elements in sorted order?',
+  },
+  {
+    postIdx: 2,
+    authorIdx: 18, // Tanvir
+    content: 'Yes, because inorder visits left subtree, root, then right subtree, which matches the BST property.',
+    parentCommentIdx: 24,
+  },
+  {
+    postIdx: 2,
+    authorIdx: 21, // Sajid
     content:
-      'Thank you, sir! This guide is very helpful. The deletion section with successor replacement was what I was stuck on.',
+      'You can also use the inorder predecessor (max in left subtree) instead of the inorder successor. Both work perfectly.',
+    parentCommentIdx: 20,
+  },
+  {
+    postIdx: 2,
+    authorIdx: 23, // Nadia
+    content: 'Is there any performance difference between using successor versus predecessor?',
+    parentCommentIdx: 26,
+  },
+  {
+    postIdx: 2,
+    authorIdx: 24, // Imran
+    content:
+      'Not asymptotically. But if the tree is heavily skewed in one direction, one might be slightly cheaper to find. In general, they are symmetric.',
+    parentCommentIdx: 27,
+  },
+  {
+    postIdx: 2,
+    authorIdx: 25, // Shihab
+    content:
+      'Implementing Red-Black trees is notoriously difficult though. AVL trees are easier to code because their balancing cases are simpler.',
+    parentCommentIdx: 23,
+  },
+  {
+    postIdx: 2,
+    authorIdx: 26, // Afroza
+    content:
+      'Agreed! Red-Black trees are great for insertion/deletion heavy workloads because they require fewer rotations on average, but AVL is better for lookup-heavy workloads.',
+    parentCommentIdx: 29,
+  },
+
+  // --- Post 3: Complexity of Quick Sort vs Merge Sort ---
+  {
+    postIdx: 3,
+    authorIdx: 5, // ffaisal
+    content:
+      'Quick Sort is in-place (O(1) auxiliary space), whereas Merge Sort requires O(N) auxiliary space. Also, Quick Sort has excellent cache locality.',
+  },
+  {
+    postIdx: 3,
+    authorIdx: 6, // rhasan
+    content:
+      "To add to Faisal's point: cache locality is huge. Since Quick Sort accesses memory sequentially in blocks, CPU cache hits are much higher.",
+    parentCommentIdx: 31,
+  },
+  {
+    postIdx: 3,
+    authorIdx: 7, // Sadia
+    content: 'Are there scenarios where Merge Sort is actually preferred?',
+    parentCommentIdx: 32,
+  },
+  {
+    postIdx: 3,
+    authorIdx: 8, // Nafis
+    content:
+      'Yes! Merge Sort is stable, meaning equal elements keep their relative order. This is super important if you are sorting objects by multiple criteria.',
+    parentCommentIdx: 33,
+  },
+  {
+    postIdx: 3,
+    authorIdx: 10, // Ariful
+    content:
+      'Also, Merge Sort is great for external sorting (when datasets are too large to fit in RAM) because it fits the merge pattern so well.',
+    parentCommentIdx: 34,
+  },
+  {
+    postIdx: 3,
+    authorIdx: 12, // Mehedi
+    content:
+      'To avoid the O(N^2) worst case in Quick Sort, we can use randomized pivot selection or median-of-three, which makes the worst case practically impossible.',
+  },
+
+  // --- Post 4: Why use pointers in C? ---
+  {
+    postIdx: 4,
+    authorIdx: 9, // Jannatul
+    content:
+      "Without pointers, you can't modify the argument passed to a function. In C, everything is passed by value. Pointers let you pass the memory address instead, simulating pass-by-reference.",
+  },
+  {
+    postIdx: 4,
+    authorIdx: 11, // Tasnim
+    content:
+      "Exactly! For example, a `swap(int a, int b)` function won't swap variables outside the function unless you pass `int* a` and `int* b`.",
+    parentCommentIdx: 37,
+  },
+  {
+    postIdx: 4,
+    authorIdx: 13, // Nusrat
+    content:
+      "Also, passing large structures by value copies the entire structure, which is very slow. Passing a pointer is extremely fast because it's just copying a memory address (typically 4 or 8 bytes).",
+    parentCommentIdx: 38,
+  },
+  {
+    postIdx: 4,
+    authorIdx: 14, // Kabir
+    content:
+      "Don't forget dynamic memory allocation! Functions like `malloc` return a pointer. Without pointers, you couldn't create dynamic arrays or linked lists in C.",
+    parentCommentIdx: 39,
+  },
+  {
+    postIdx: 4,
+    authorIdx: 15, // Farzana A.
+    content:
+      'Think of Python references. Under the hood, Python variables are basically pointers! Python just hides the dereferencing syntax from you.',
+  },
+  {
+    postIdx: 4,
+    authorIdx: 16, // Shahriar
+    content:
+      'Whoa, that makes a lot of sense! So Python variables are pointers, but C makes us manage the addresses manually.',
+    parentCommentIdx: 41,
+  },
+
+  // --- Post 5: Understanding OOP Encapsulation ---
+  {
+    postIdx: 5,
+    authorIdx: 17, // Mim
+    content:
+      "This is super important. If we just expose everything, someone could set a `Student`'s GPA to 5.0 or -1.0. With setters, we can validate the value before saving it.",
+  },
+  {
+    postIdx: 5,
+    authorIdx: 18, // Tanvir
+    content:
+      "Right. Setter validation keeps the object in a valid state. But sometimes, it's even better to make objects immutable (no setters at all).",
+    parentCommentIdx: 43,
+  },
+  {
+    postIdx: 5,
+    authorIdx: 19, // Sharmin
+    content: 'Yes, immutable objects are thread-safe by default, which solves so many concurrency issues.',
+    parentCommentIdx: 44,
+  },
+  {
+    postIdx: 5,
+    authorIdx: 20, // Rakibul I.
+    content:
+      'Another aspect is that encapsulation allows us to change the internal implementation without affecting classes that use our object. They only depend on our public methods.',
+  },
+  {
+    postIdx: 5,
+    authorIdx: 21, // Sajid
+    content:
+      "Yes, this is 'information hiding'. If I decide to change the internal list to an array, the public API remains the same, so no other code breaks.",
+    parentCommentIdx: 46,
+  },
+
+  // --- Post 6: Best practices for writing SQL Queries ---
+  {
+    postIdx: 6,
+    authorIdx: 22, // Mahmudul
+    content:
+      'I always use indexed columns in WHERE clauses. Queries on indexed columns run in logarithmic time instead of scanning the whole table.',
+  },
+  {
+    postIdx: 6,
+    authorIdx: 23, // Nadia
+    content:
+      'Be careful with functions on indexed columns though! Writing `WHERE YEAR(date_col) = 2026` prevents the database from using the index on `date_col`.',
+    parentCommentIdx: 48,
+  },
+  {
+    postIdx: 6,
+    authorIdx: 24, // Imran
+    content:
+      "Wow, good catch Nadia. I should write `WHERE date_col >= '2026-01-01' AND date_col <= '2026-12-31'` instead so the index can be utilized!",
+    parentCommentIdx: 49,
+  },
+  {
+    postIdx: 6,
+    authorIdx: 25, // Shihab
+    content:
+      'Also, use `EXPLAIN` before your queries to check if the query planner is using the correct indexes or performing full table scans.',
+  },
+  {
+    postIdx: 6,
+    authorIdx: 26, // Afroza
+    content: 'Yes! The `EXPLAIN` keyword is a lifesaver when debugging slow query performance.',
+    parentCommentIdx: 51,
+  },
+
+  // --- Post 7: Overfitting in Machine Learning ---
+  {
+    postIdx: 7,
+    authorIdx: 5, // ffaisal
+    content:
+      'Regularization (L1 and L2) is standard. L1 can even lead to sparse features by driving some weights to zero.',
+  },
+  {
+    postIdx: 7,
+    authorIdx: 6, // rhasan
+    content:
+      'For deep learning, Dropout is extremely effective. By randomly deactivating units during training, it prevents units from co-adapting too much.',
+    parentCommentIdx: 53,
+  },
+  {
+    postIdx: 7,
+    authorIdx: 7, // Sadia
+    content:
+      'Early stopping is also great and very simple. Just stop training when the validation loss starts increasing.',
+    parentCommentIdx: 54,
+  },
+  {
+    postIdx: 7,
+    authorIdx: 8, // Nafis
+    content:
+      'Data augmentation is another great technique, especially for images. By cropping, rotating, or shifting images, we artificially increase dataset size.',
+  },
+  {
+    postIdx: 7,
+    authorIdx: 10, // Ariful
+    content:
+      'And cross-validation! It helps us get a more robust estimate of how the model generalizes across different slices of the data.',
+    parentCommentIdx: 56,
   },
 ];
 
@@ -1504,13 +1894,28 @@ export default internalMutation({
       { postIdx: 2, voterIdx: 1, value: 1 }, // Sidratul upvotes BST guide
       { postIdx: 2, voterIdx: 5, value: 1 }, // ffaisal upvotes
       { postIdx: 2, voterIdx: 6, value: 1 }, // rhasan upvotes
+      { postIdx: 3, voterIdx: 5, value: 1 }, // ffaisal upvotes sorting post
+      { postIdx: 3, voterIdx: 6, value: 1 }, // rhasan upvotes
+      { postIdx: 3, voterIdx: 7, value: 1 }, // Sadia upvotes
+      { postIdx: 4, voterIdx: 9, value: 1 }, // Jannatul upvotes pointers post
+      { postIdx: 4, voterIdx: 11, value: 1 }, // Tasnim upvotes
+      { postIdx: 4, voterIdx: 13, value: 1 }, // Nusrat upvotes
+      { postIdx: 5, voterIdx: 17, value: 1 }, // Mim upvotes OOP encapsulation post
+      { postIdx: 5, voterIdx: 18, value: 1 }, // Tanvir upvotes
+      { postIdx: 6, voterIdx: 22, value: 1 }, // Mahmudul upvotes SQL queries post
+      { postIdx: 6, voterIdx: 23, value: 1 }, // Nadia upvotes
+      { postIdx: 7, voterIdx: 5, value: 1 }, // ffaisal upvotes overfitting post
+      { postIdx: 7, voterIdx: 6, value: 1 }, // rhasan upvotes
     ];
     for (const v of extraPostVotes) {
       await ctx.db.insert('postVotes', { postId: postIds[v.postIdx], userId: userIds[v.voterIdx], value: v.value });
     }
 
-    // Recalculate post scores
-    const postScores = [3, 4, 4]; // self + extra votes
+    // Recalculate post scores dynamically
+    const postScores = Array(POST_DEFS.length).fill(1);
+    for (const v of extraPostVotes) {
+      postScores[v.postIdx] += v.value;
+    }
     for (let pi = 0; pi < postIds.length; pi++) {
       await ctx.db.patch(postIds[pi], { score: postScores[pi] });
     }
@@ -1534,24 +1939,64 @@ export default internalMutation({
       await ctx.db.insert('commentVotes', { commentId, userId: userIds[cd.authorIdx], value: 1 });
     }
 
+    // Initialize comment scores with 1 (from auto upvote)
+    const commentScores = Array(COMMENT_DEFS.length).fill(1);
+
     // Additional comment votes
     const extraCommentVotes: { commentIdx: number; voterIdx: number; value: 1 | -1 }[] = [
-      { commentIdx: 0, voterIdx: 5, value: 1 }, // ffaisal upvotes Tanvin's answer
-      { commentIdx: 0, voterIdx: 6, value: 1 }, // rhasan upvotes
-      { commentIdx: 1, voterIdx: 5, value: 1 }, // ffaisal upvotes Sidratul's explanation
-      { commentIdx: 1, voterIdx: 6, value: 1 }, // rhasan upvotes
-      { commentIdx: 3, voterIdx: 2, value: 1 }, // Tanvin upvotes rhasan's thanks
+      { commentIdx: 0, voterIdx: 6, value: 1 },
+      { commentIdx: 0, voterIdx: 8, value: 1 },
+      { commentIdx: 1, voterIdx: 5, value: 1 },
+      { commentIdx: 3, voterIdx: 6, value: 1 },
+      { commentIdx: 4, voterIdx: 7, value: 1 },
+      { commentIdx: 6, voterIdx: 5, value: 1 },
+      { commentIdx: 6, voterIdx: 11, value: 1 },
+      { commentIdx: 7, voterIdx: 6, value: 1 },
+      { commentIdx: 9, voterIdx: 13, value: 1 },
+      { commentIdx: 10, voterIdx: 15, value: 1 },
+      { commentIdx: 12, voterIdx: 9, value: 1 },
+      { commentIdx: 14, voterIdx: 6, value: 1 },
+      { commentIdx: 15, voterIdx: 8, value: 1 },
+      { commentIdx: 17, voterIdx: 18, value: 1 },
+      // Additional comment votes for the newly added comments
+      { commentIdx: 6, voterIdx: 10, value: 1 },
+      { commentIdx: 7, voterIdx: 12, value: 1 },
+      { commentIdx: 15, voterIdx: 18, value: 1 },
+      { commentIdx: 16, voterIdx: 17, value: 1 },
+      { commentIdx: 17, voterIdx: 20, value: 1 },
+      { commentIdx: 26, voterIdx: 23, value: 1 },
+      { commentIdx: 27, voterIdx: 24, value: 1 },
+      { commentIdx: 29, voterIdx: 26, value: 1 },
+      { commentIdx: 31, voterIdx: 6, value: 1 },
+      { commentIdx: 31, voterIdx: 7, value: 1 },
+      { commentIdx: 32, voterIdx: 5, value: 1 },
+      { commentIdx: 33, voterIdx: 8, value: 1 },
+      { commentIdx: 34, voterIdx: 10, value: 1 },
+      { commentIdx: 37, voterIdx: 11, value: 1 },
+      { commentIdx: 38, voterIdx: 13, value: 1 },
+      { commentIdx: 39, voterIdx: 14, value: 1 },
+      { commentIdx: 41, voterIdx: 16, value: 1 },
+      { commentIdx: 43, voterIdx: 18, value: 1 },
+      { commentIdx: 44, voterIdx: 19, value: 1 },
+      { commentIdx: 46, voterIdx: 21, value: 1 },
+      { commentIdx: 48, voterIdx: 23, value: 1 },
+      { commentIdx: 49, voterIdx: 24, value: 1 },
+      { commentIdx: 51, voterIdx: 26, value: 1 },
+      { commentIdx: 53, voterIdx: 6, value: 1 },
+      { commentIdx: 54, voterIdx: 7, value: 1 },
+      { commentIdx: 56, voterIdx: 10, value: 1 },
     ];
+
     for (const v of extraCommentVotes) {
       await ctx.db.insert('commentVotes', {
         commentId: commentIds[v.commentIdx],
         userId: userIds[v.voterIdx],
         value: v.value,
       });
+      commentScores[v.commentIdx] += v.value;
     }
 
     // Recalculate comment scores
-    const commentScores = [3, 3, 1, 2]; // self + extra votes
     for (let ci = 0; ci < commentIds.length; ci++) {
       await ctx.db.patch(commentIds[ci], { score: commentScores[ci] });
     }
