@@ -22,7 +22,6 @@
   import 'shiki-magic-move/dist/style.css';
 
   import { onMount } from 'svelte';
-  import { toast } from 'svelte-sonner';
   import { SvelteMap } from 'svelte/reactivity';
 
   import { goto } from '$app/navigation';
@@ -287,7 +286,6 @@
           results.set(tc._id, data.submissions[i]);
         }
       });
-      toast.error('Failed to execute test cases.');
     } finally {
       isExecuting = false;
     }
