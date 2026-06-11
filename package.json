@@ -74,6 +74,7 @@
     "clsx": "^2.1.1",
     "codemirror": "^6.0.2",
     "concurrently": "^9.2.1",
+    "diff": "^9.0.0",
     "embla-carousel-svelte": "^8.6.0",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",

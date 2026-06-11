@@ -21,6 +21,8 @@
 
   import 'shiki-magic-move/dist/style.css';
 
+  import { Slider as SliderPrimitive } from 'bits-ui';
+  import { diffLines } from 'diff';
   import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
 
@@ -37,7 +39,6 @@
   import * as Select from '$lib/components/ui/select/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { Skeleton } from '$lib/components/ui/skeleton/index.js';
-  import { Slider } from '$lib/components/ui/slider/index.js';
   import { Spinner } from '$lib/components/ui/spinner/index.js';
   import { Textarea } from '$lib/components/ui/textarea/index.js';
   import type { SubmissionResult } from '$lib/server/judge0';
@@ -82,6 +83,25 @@
       .sort((a, b) => a.name.localeCompare(b.name)),
   );
   const testCases = $derived(testCasesQuery.data ?? []);
+
+  // ─── Change magnitude heatmap ──────────────────────────────────────────────
+  function computeChangeMagnitudes(snaps: { content: string }[]): number[] {
+    if (snaps.length < 2) return [];
+    const magnitudes: number[] = [];
+    for (let i = 0; i < snaps.length - 1; i++) {
+      const changes = diffLines(snaps[i].content, snaps[i + 1].content);
+      let total = 0;
+      for (const c of changes) {
+        if (c.added || c.removed) total += c.count;
+      }
+      magnitudes.push(total);
+    }
+    return magnitudes;
+  }
+
+  const changeMagnitudes = $derived(computeChangeMagnitudes(snapshots));
+  const maxMagnitude = $derived(Math.max(...changeMagnitudes, 1));
+  const normalizedMagnitudes = $derived(changeMagnitudes.map((m) => m / maxMagnitude));
 
   // Student navigation
   const currentStudentIndex = $derived(students.findIndex((s) => s._id === studentId));
@@ -184,6 +204,20 @@
 
     return () => clearInterval(id);
   });
+
+  function heatmapColor(t: number): string {
+    return `hsl(${Math.round(25 - t * 25)}, 85%, ${Math.round(55 - t * 20)}%)`;
+  }
+
+  function heatmapGradient(mags: number[]): string {
+    const step = 100 / mags.length;
+    const stops = mags.map((mag, i) => {
+      const start = Math.round(i * step * 10) / 10;
+      const end = Math.round((i + 1) * step * 10) / 10;
+      return `${heatmapColor(mag)} ${start}% ${end}%`;
+    });
+    return `linear-gradient(to right, ${stops.join(', ')})`;
+  }
 
   function formatTimestamp(ts: number): string {
     const d = new Date(ts);
@@ -405,9 +439,10 @@
           </Button>
 
           <div class="mx-2 flex-1">
-            <Slider
+            <SliderPrimitive.Root
+              data-slot="slider"
               type="single"
-              value={currentIndex}
+              value={currentIndex as never}
               max={Math.max(0, totalSnapshots - 1)}
               step={1}
               disabled={totalSnapshots === 0}
@@ -415,7 +450,29 @@
                 currentIndex = v;
                 isPlaying = false;
               }}
-            />
+              class="relative flex w-full touch-none items-center select-none data-disabled:opacity-50"
+            >
+              {#snippet children({ thumbItems })}
+                <span
+                  data-slot="slider-track"
+                  data-orientation="horizontal"
+                  class="relative h-1 w-full grow overflow-hidden rounded-md bg-muted"
+                  style={totalSnapshots >= 2 ? `background: ${heatmapGradient(normalizedMagnitudes)}` : undefined}
+                >
+                  <SliderPrimitive.Range
+                    data-slot="slider-range"
+                    class="absolute h-full rounded-md bg-primary/15 select-none"
+                  />
+                </span>
+                {#each thumbItems as thumb (thumb.index)}
+                  <SliderPrimitive.Thumb
+                    data-slot="slider-thumb"
+                    index={thumb.index}
+                    class="relative block size-3 shrink-0 rounded-md border border-ring bg-background ring-ring/30 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-2 focus-visible:ring-2 focus-visible:outline-hidden active:ring-2 disabled:pointer-events-none disabled:opacity-50"
+                  />
+                {/each}
+              {/snippet}
+            </SliderPrimitive.Root>
           </div>
 
           <span class="min-w-[60px] text-center text-xs text-muted-foreground">
