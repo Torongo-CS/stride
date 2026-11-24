@@ -1,0 +1,1 @@
+.prose pre{color:var(--foreground)!important}.prose pre code{color:inherit!important}.prose :not(pre)>code{color:var(--foreground)!important}

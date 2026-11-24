@@ -1,0 +1,1 @@
+import{bK as n}from"./BjtCwIl6.js";const s="stride.session.v1",t=n(null);function l(){try{const e=localStorage.getItem(s);if(!e)return null;const o=JSON.parse(e);return t.set(o),o}catch{return localStorage.removeItem(s),t.set(null),null}}function a(e){t.set(e),localStorage.setItem(s,JSON.stringify(e))}function c(){t.set(null),localStorage.removeItem(s)}export{a,c,l,t as s};
